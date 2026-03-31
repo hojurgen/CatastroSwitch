@@ -29,6 +29,7 @@ Why that file:
 - it is square
 - it is the highest-resolution rounded icon source in the repo
 - it avoids the embedded wordmark that hurts legibility at 16 px and 32 px
+- it can be cropped around the cat face for the smallest Windows shell and favicon sizes without needing a separate source file
 
 Use `assets\logo-rounded-icon.svg` as the quick preview or fallback source when a smaller local preview is enough.
 
@@ -62,10 +63,10 @@ That manifest is the control-repo source of truth for:
 
 | Runtime target | Format | Source | Intended role |
 |---|---|---|---|
-| `resources\win32\code.ico` | ICO | `assets\logo-rounded-icon-hd.svg` | Windows desktop and shell icon payload |
+| `resources\win32\code.ico` | ICO | `assets\logo-rounded-icon-hd.svg` | Windows desktop and shell icon payload, with a face-focused crop for 16 px and 32 px |
 | `resources\darwin\code.icns` | ICNS | `assets\logo-rounded-icon-hd.svg` | macOS app icon bundle |
 | `resources\linux\code.png` | PNG | `assets\logo-rounded-icon-hd.svg` | Linux desktop icon |
-| `resources\server\favicon.ico` | ICO | `assets\logo-rounded-icon-hd.svg` | server and web favicon |
+| `resources\server\favicon.ico` | ICO | `assets\logo-rounded-icon-hd.svg` | server and web favicon, with the same face-focused crop for favicon sizes |
 | `resources\server\code-192.png` | PNG | `assets\logo-rounded-icon-hd.svg` | server and web icon surface |
 | `resources\server\code-512.png` | PNG | `assets\logo-rounded-icon-hd.svg` | server and web icon surface |
 

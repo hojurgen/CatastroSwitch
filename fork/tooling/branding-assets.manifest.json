@@ -41,6 +41,18 @@
       "forkRelativeOutput": "resources/win32/code.ico",
       "format": "ico",
       "sizes": [16, 32, 128, 256],
+      "sizeVariants": [
+        {
+          "sizes": [16, 32],
+          "crop": {
+            "widthPercent": 58,
+            "heightPercent": 58,
+            "offsetX": 0,
+            "offsetY": -40
+          },
+          "notes": "Use a face-focused crop so the Windows shell icon stays legible at micro sizes."
+        }
+      ],
       "notes": "Mirror the current Windows product icon payload."
     },
     {
@@ -65,6 +77,18 @@
       "forkRelativeOutput": "resources/server/favicon.ico",
       "format": "ico",
       "sizes": [16, 32, 48],
+      "sizeVariants": [
+        {
+          "sizes": [16, 32, 48],
+          "crop": {
+            "widthPercent": 58,
+            "heightPercent": 58,
+            "offsetX": 0,
+            "offsetY": -40
+          },
+          "notes": "Use the same face-focused crop for favicon readability."
+        }
+      ],
       "notes": "Server and web favicon payload."
     },
     {

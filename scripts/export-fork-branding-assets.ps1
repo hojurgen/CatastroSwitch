@@ -67,23 +67,32 @@ function Get-ToolPath {
         [string]$Name
     )
 
-    $command = Get-Command -Name $Name -ErrorAction SilentlyContinue
+    $command = Get-Command -Name $Name -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($command) {
-        return $command.Path
+        if ($command.PSObject.Properties['Source'] -and $command.Source) {
+            return [string]$command.Source
+        }
+
+        if ($command.PSObject.Properties['Path'] -and $command.Path) {
+            return [string]$command.Path
+        }
     }
 
     if ($Name -eq 'magick') {
-        $candidateDirectories = @(
-            (Join-Path $env:ProgramFiles 'ImageMagick-*'),
-            (Join-Path ${env:ProgramFiles(x86)} 'ImageMagick-*'),
-            (Join-Path $env:LOCALAPPDATA 'Programs\ImageMagick-*')
-        ) | Where-Object { $_ }
+        $searchRoots = @(
+            $env:ProgramFiles,
+            ${env:ProgramFiles(x86)},
+            (Join-Path $env:LOCALAPPDATA 'Programs')
+        ) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
 
-        $candidate = Get-ChildItem -Path $candidateDirectories -Filter 'magick.exe' -File -Recurse -ErrorAction SilentlyContinue |
-            Sort-Object FullName -Descending |
-            Select-Object -First 1
-        if ($candidate) {
-            return $candidate.FullName
+        foreach ($root in $searchRoots) {
+            $installDirectories = Get-ChildItem -Path $root -Directory -Filter 'ImageMagick-*' -ErrorAction SilentlyContinue
+            foreach ($installDirectory in @($installDirectories)) {
+                $magickPath = Join-Path $installDirectory.FullName 'magick.exe'
+                if (Test-Path -LiteralPath $magickPath) {
+                    return $magickPath
+                }
+            }
         }
     }
 
@@ -102,6 +111,32 @@ function Invoke-Magick {
     }
 }
 
+function Get-TargetVariantForSize {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Target,
+        [Parameter(Mandatory = $true)]
+        [int]$Size
+    )
+
+    if (-not $Target.PSObject.Properties['sizeVariants']) {
+        return $null
+    }
+
+    foreach ($variant in @($Target.sizeVariants)) {
+        if (-not $variant.PSObject.Properties['sizes']) {
+            continue
+        }
+
+        $variantSizes = @($variant.sizes | ForEach-Object { [int]$_ })
+        if ($Size -in $variantSizes) {
+            return $variant
+        }
+    }
+
+    return $null
+}
+
 function New-SquarePng {
     param(
         [Parameter(Mandatory = $true)]
@@ -109,7 +144,9 @@ function New-SquarePng {
         [Parameter(Mandatory = $true)]
         [string]$OutputPath,
         [Parameter(Mandatory = $true)]
-        [int]$Size
+        [int]$Size,
+        [AllowNull()]
+        [object]$Variant = $null
     )
 
     New-ParentDirectory -Path $OutputPath
@@ -120,7 +157,26 @@ function New-SquarePng {
     }
 
     $arguments += @(
-        $SourcePath,
+        $SourcePath
+    )
+
+    if ($Variant -and $Variant.PSObject.Properties['crop']) {
+        $crop = $Variant.crop
+        $widthPercent = [int]$crop.widthPercent
+        $heightPercent = [int]$crop.heightPercent
+        $offsetX = if ($crop.PSObject.Properties['offsetX']) { [int]$crop.offsetX } else { 0 }
+        $offsetY = if ($crop.PSObject.Properties['offsetY']) { [int]$crop.offsetY } else { 0 }
+        $offsetXText = if ($offsetX -ge 0) { "+$offsetX" } else { "$offsetX" }
+        $offsetYText = if ($offsetY -ge 0) { "+$offsetY" } else { "$offsetY" }
+
+        $arguments += @(
+            '-gravity', 'center',
+            '-crop', "$($widthPercent)%x$($heightPercent)%$offsetXText$offsetYText",
+            '+repage'
+        )
+    }
+
+    $arguments += @(
         '-alpha', 'on',
         '-resize', "${Size}x${Size}",
         '-gravity', 'center',
@@ -145,7 +201,8 @@ function New-IcoTarget {
     $variantPaths = @()
     foreach ($size in @($Target.sizes)) {
         $variantPath = Join-Path $stagingDirectory ("$size.png")
-        New-SquarePng -SourcePath $sourcePath -OutputPath $variantPath -Size ([int]$size)
+        $variant = Get-TargetVariantForSize -Target $Target -Size ([int]$size)
+        New-SquarePng -SourcePath $sourcePath -OutputPath $variantPath -Size ([int]$size) -Variant $variant
         $variantPaths += $variantPath
     }
 
