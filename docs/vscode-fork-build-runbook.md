@@ -213,6 +213,8 @@ Recommended usage:
 2. Create the initial phase state file under the real fork clone.
 3. Create sibling task branches only when a Planner-approved task is safe to run in parallel.
 
+To keep the runtime fork clean while those local workflow artifacts exist, add `/.catastroswitch/` to the fork repo `.git/info/exclude`.
+
 Recommended phase state path in the fork clone:
 
 ```text

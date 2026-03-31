@@ -64,6 +64,7 @@ Recommended local hardening for the runtime fork:
 
 - keep `upstream` fetch-only by setting its push URL to `no_push`
 - set the fork clone to push to `origin` by default
+- add `/.catastroswitch/` to the fork repo `.git/info/exclude` so local phase-state artifacts do not dirty `git status`
 
 Recommended local hardening for this control repo:
 
