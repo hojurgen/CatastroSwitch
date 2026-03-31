@@ -1,0 +1,138 @@
+{
+  "$schema": "../schemas/phase-execution-state.schema.json",
+  "version": 1,
+  "phaseId": "F1",
+  "phaseBranch": "multiagent/f1-workspace-rail",
+  "phaseMode": "fresh_implementation",
+  "phaseStatus": "reviewing",
+  "planner": {
+    "summary": "Planner split the phase into shell integration, shell behavior, placeholder UI, and closeout work.",
+    "currentGaps": [
+      "Placeholder UI is still mock data only.",
+      "Shell regression coverage is not complete yet."
+    ],
+    "sequentialTasks": [
+      "F1-T1",
+      "F1-T4"
+    ],
+    "parallelGroups": [
+      {
+        "id": "A",
+        "tasks": [
+          "F1-T2"
+        ],
+        "reason": "Shell behavior can proceed once the rail exists."
+      },
+      {
+        "id": "B",
+        "tasks": [
+          "F1-T3"
+        ],
+        "reason": "Placeholder UI can proceed in parallel after the rail slot exists."
+      }
+    ],
+    "readyTasks": [
+      "F1-T2",
+      "F1-T3"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "F1-T1",
+      "title": "add-rail-part-and-layout-slot",
+      "status": "done",
+      "dependsOn": [],
+      "parallelGroup": null,
+      "branch": "multiagent/f1-workspace-rail/t1-rail-layout",
+      "filesChanged": [
+        "src/vs/workbench/browser/layout.ts",
+        "src/vs/workbench/browser/parts/workspaceRail/workspaceRailPart.ts"
+      ],
+      "validation": [
+        "npm run compile",
+        "scripts\\code.bat"
+      ],
+      "docsUpdated": [
+        "docs/implementation-plan.md"
+      ],
+      "review": {
+        "outcome": "Pass",
+        "reasoning": "The rail slot exists and the shell still launches.",
+        "requiredFixes": [],
+        "docsOrValidationGaps": [],
+        "nextHandoffTarget": "Coding Agent"
+      }
+    },
+    {
+      "id": "F1-T2",
+      "title": "rail-focus-visibility-persistence",
+      "status": "in_progress",
+      "dependsOn": [
+        "F1-T1"
+      ],
+      "parallelGroup": "A",
+      "branch": "multiagent/f1-workspace-rail/t2-shell-behavior",
+      "filesChanged": [],
+      "validation": [],
+      "docsUpdated": [],
+      "review": {
+        "outcome": "Pending",
+        "reasoning": "",
+        "requiredFixes": [],
+        "docsOrValidationGaps": [],
+        "nextHandoffTarget": "Coding Agent"
+      }
+    },
+    {
+      "id": "F1-T3",
+      "title": "rail-placeholder-workspace-ui",
+      "status": "planned",
+      "dependsOn": [
+        "F1-T1"
+      ],
+      "parallelGroup": "B",
+      "branch": "multiagent/f1-workspace-rail/t3-placeholder-ui",
+      "filesChanged": [],
+      "validation": [],
+      "docsUpdated": [],
+      "review": {
+        "outcome": "Pending",
+        "reasoning": "",
+        "requiredFixes": [],
+        "docsOrValidationGaps": [],
+        "nextHandoffTarget": "Coding Agent"
+      }
+    },
+    {
+      "id": "F1-T4",
+      "title": "shell-hardening-and-doc-sync",
+      "status": "planned",
+      "dependsOn": [
+        "F1-T2",
+        "F1-T3"
+      ],
+      "parallelGroup": null,
+      "branch": "multiagent/f1-workspace-rail/t4-hardening-doc-sync",
+      "filesChanged": [],
+      "validation": [],
+      "docsUpdated": [],
+      "review": {
+        "outcome": "Pending",
+        "reasoning": "",
+        "requiredFixes": [],
+        "docsOrValidationGaps": [],
+        "nextHandoffTarget": "Coding Agent"
+      }
+    }
+  ],
+  "gatekeeper": {
+    "outcome": "Pending",
+    "goalsChecked": [],
+    "errors": [],
+    "broaderRisks": [
+      "Gatekeeper should not run until F1-T4 is complete."
+    ],
+    "reasoning": "The phase still has open coding and review work.",
+    "requiredNextAction": "Finish F1-T2, F1-T3, and F1-T4, then run Gatekeeper."
+  }
+}

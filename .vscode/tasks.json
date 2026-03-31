@@ -1,0 +1,210 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Control repo: validate",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\validate-control-repo.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Control repo: create local workspace file",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\new-local-workspace.ps1",
+        "-ForkRoot",
+        "${input:forkRoot}",
+        "-OutputPath",
+        "${workspaceFolder}\\CatastroSwitch.local.code-workspace"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Control repo: create phase branch",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\new-phase-branch.ps1",
+        "-Phase",
+        "${input:phaseId}",
+        "-ForkRoot",
+        "${input:forkRoot}",
+        "-Checkout"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Control repo: create phase task branch",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\new-phase-task-branch.ps1",
+        "-TaskId",
+        "${input:phaseTaskId}",
+        "-ForkRoot",
+        "${input:forkRoot}",
+        "-Checkout"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Control repo: write phase state file",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\new-phase-state.ps1",
+        "-Phase",
+        "${input:phaseId}",
+        "-ForkRoot",
+        "${input:forkRoot}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Fork: npm install",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ErrorActionPreference='Stop'; $forkRoot='${input:forkRoot}'; if(-not (Test-Path $forkRoot)){ throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; npm install"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Fork: npm run compile",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ErrorActionPreference='Stop'; $forkRoot='${input:forkRoot}'; if(-not (Test-Path $forkRoot)){ throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; npm run compile"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Fork: npm run watch",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ErrorActionPreference='Stop'; $forkRoot='${input:forkRoot}'; if(-not (Test-Path $forkRoot)){ throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; npm run watch"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Fork: self-host (scripts\\code.bat)",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "$ErrorActionPreference='Stop'; $forkRoot='${input:forkRoot}'; if(-not (Test-Path $forkRoot)){ throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; & .\\scripts\\code.bat"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Fork: bootstrap",
+      "dependsOn": [
+        "Fork: npm install",
+        "Fork: npm run compile"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "forkRoot",
+      "type": "promptString",
+      "description": "Absolute path to the local VS Code fork checkout.",
+      "default": "C:\\src\\vscode-multiagent"
+    },
+    {
+      "id": "phaseId",
+      "type": "pickString",
+      "description": "Phase ID from docs/implementation-plan.md.",
+      "options": [
+        "F0",
+        "F1",
+        "F2",
+        "F3",
+        "F4"
+      ],
+      "default": "F1"
+    },
+    {
+      "id": "phaseTaskId",
+      "type": "promptString",
+      "description": "Task ID from docs/implementation-plan.md, for example F2-T3.",
+      "default": "F1-T1"
+    }
+  ]
+}
+

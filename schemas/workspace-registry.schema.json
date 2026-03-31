@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CatastroSwitch workspace registry",
+  "type": "object",
+  "required": [
+    "version",
+    "workspaces",
+    "productCapabilities"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "workspaces": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/workspace"
+      }
+    },
+    "productCapabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/productCapability"
+      }
+    }
+  },
+  "definitions": {
+    "workspace": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "path"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string",
+          "description": "Folder path or .code-workspace path consumed by workspace context logic."
+        },
+        "profileAffinity": {
+          "type": "string",
+          "description": "Desired profile intent when the product enters this workspace."
+        },
+        "owner": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "desiredBehaviors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agentAdapters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/agentAdapter"
+          }
+        }
+      }
+    },
+    "agentAdapter": {
+      "type": "object",
+      "required": [
+        "id",
+        "label",
+        "visibility",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "supported",
+            "adapter-required",
+            "blocked"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "productCapability": {
+      "type": "object",
+      "required": [
+        "feature",
+        "phase",
+        "status"
+      ],
+      "properties": {
+        "feature": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "F1",
+            "F2",
+            "F3",
+            "F4"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "in-progress",
+            "implemented",
+            "blocked"
+          ]
+        },
+        "patchAreas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sourceDocs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
+

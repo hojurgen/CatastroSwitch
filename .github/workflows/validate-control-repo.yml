@@ -1,0 +1,51 @@
+name: Validate control repo
+
+on:
+  pull_request:
+    paths:
+      - ".github/**"
+      - ".vscode/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "AGENTS.md"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "README.md"
+      - "docs/**"
+      - "examples/**"
+      - "fork/**"
+      - "schemas/**"
+      - "scripts/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/**"
+      - ".vscode/**"
+      - ".gitattributes"
+      - ".gitignore"
+      - "AGENTS.md"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "README.md"
+      - "docs/**"
+      - "examples/**"
+      - "fork/**"
+      - "schemas/**"
+      - "scripts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate control repo artifacts
+        shell: pwsh
+        run: .\scripts\validate-control-repo.ps1

@@ -1,0 +1,24 @@
+# Normalize text files consistently across contributors.
+* text=auto
+
+# Keep docs, data, and workflow files LF-normalized.
+*.md text eol=lf
+*.json text eol=lf
+*.mjs text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+*.ps1 text eol=lf
+*.svg text eol=lf
+
+# Keep Windows launcher scripts CRLF-normalized.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Common binary assets should never be line-normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

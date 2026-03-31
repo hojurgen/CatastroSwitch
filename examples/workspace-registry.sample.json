@@ -1,0 +1,147 @@
+{
+  "$schema": "../schemas/workspace-registry.schema.json",
+  "version": 1,
+  "workspaces": [
+    {
+      "id": "frontend",
+      "label": "Frontend Workspace",
+      "path": "C:\\Repos\\AcmeApp\\frontend.code-workspace",
+      "profileAffinity": "Frontend",
+      "owner": "UI Platform",
+      "notes": "Workspace rail entry should align profile behavior, extension-set policy, and session summaries for frontend work.",
+      "desiredBehaviors": [
+        "rail-launch-context",
+        "profile-orchestration",
+        "extension-set-policy",
+        "session-summaries"
+      ],
+      "agentAdapters": [
+        {
+          "id": "mao-owned-session-service",
+          "label": "CatastroSwitch owned session service",
+          "visibility": "supported",
+          "status": "Planned",
+          "notes": "Safe to render because the fork owns the runtime state model."
+        },
+        {
+          "id": "copilot-universal",
+          "label": "Universal Copilot session visibility",
+          "visibility": "blocked",
+          "status": "Not exposed",
+          "notes": "The product must not claim universal visibility for arbitrary third-party runtimes."
+        }
+      ]
+    },
+    {
+      "id": "backend",
+      "label": "Backend Workspace",
+      "path": "C:\\Repos\\AcmeApp\\backend.code-workspace",
+      "profileAffinity": "Backend",
+      "owner": "Services",
+      "notes": "Profile intent is product metadata that should drive explicit fork behavior rather than hidden automation.",
+      "desiredBehaviors": [
+        "rail-launch-context",
+        "profile-orchestration",
+        "adapter-health"
+      ],
+      "agentAdapters": [
+        {
+          "id": "internal-worker-pool",
+          "label": "Internal worker pool",
+          "visibility": "supported",
+          "status": "Idle",
+          "notes": "Example product-owned runtime state."
+        },
+        {
+          "id": "peer-extension-api",
+          "label": "Peer extension adapter",
+          "visibility": "adapter-required",
+          "status": "Waiting for API",
+          "notes": "A peer system would need to publish a documented command or API."
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "label": "Platform Workspace",
+      "path": "C:\\Repos\\AcmeApp\\platform",
+      "profileAffinity": "Platform",
+      "owner": "Developer Experience",
+      "notes": "Folder paths can be used as well as .code-workspace files.",
+      "desiredBehaviors": [
+        "workspace-context-service",
+        "extension-set-policy",
+        "adapter-health"
+      ],
+      "agentAdapters": [
+        {
+          "id": "deployment-observer",
+          "label": "Deployment observer",
+          "visibility": "adapter-required",
+          "status": "Designing contract",
+          "notes": "Could be powered by an explicit external service or MCP-backed integration later."
+        }
+      ]
+    }
+  ],
+  "productCapabilities": [
+    {
+      "feature": "Workspace rail shell part",
+      "phase": "F1",
+      "status": "planned",
+      "patchAreas": [
+        "src/vs/workbench/browser/layout.ts",
+        "src/vs/workbench/browser/parts/sidebar/sidebarPart.ts",
+        "src/vs/workbench/browser/parts/activitybar/activitybarPart.ts"
+      ],
+      "sourceDocs": [
+        "docs/implementation-plan.md",
+        "docs/vscode-fork-source-map.md"
+      ],
+      "notes": "The rail should be a product-owned shell part, not a simulated extension surface."
+    },
+    {
+      "feature": "Workspace context service",
+      "phase": "F2",
+      "status": "planned",
+      "patchAreas": [
+        "src/vs/workbench/services/...",
+        "src/vs/workbench/workbench.common.main.ts"
+      ],
+      "sourceDocs": [
+        "docs/implementation-plan.md",
+        "docs/fork-backlog.md"
+      ],
+      "notes": "This service should become the authoritative workspace-orchestration model."
+    },
+    {
+      "feature": "Workspace-aware profile orchestration",
+      "phase": "F2",
+      "status": "planned",
+      "patchAreas": [
+        "src/vs/platform/userDataProfile/common/userDataProfile.ts",
+        "src/vs/workbench/services/userDataProfile/browser/..."
+      ],
+      "sourceDocs": [
+        "docs/implementation-plan.md",
+        "docs/vscode-fork-source-map.md"
+      ],
+      "notes": "Profile behavior must remain explicit, reversible, and grounded in real profile resources."
+    },
+    {
+      "feature": "Product-owned agent and session summaries",
+      "phase": "F3",
+      "status": "planned",
+      "patchAreas": [
+        "src/vs/workbench/contrib/chat/common/...",
+        "src/vs/workbench/contrib/chat/browser/..."
+      ],
+      "sourceDocs": [
+        "docs/implementation-plan.md",
+        "docs/agent-adapter-contract.md"
+      ],
+      "notes": "Only product-owned state or explicit adapters should surface in the workspace rail."
+    }
+  ]
+}
+

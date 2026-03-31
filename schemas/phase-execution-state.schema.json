@@ -1,0 +1,285 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CatastroSwitch phase execution state",
+  "type": "object",
+  "required": [
+    "version",
+    "phaseId",
+    "phaseBranch",
+    "phaseMode",
+    "phaseStatus",
+    "planner",
+    "tasks",
+    "gatekeeper"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "phaseId": {
+      "type": "string",
+      "enum": [
+        "F0",
+        "F1",
+        "F2",
+        "F3",
+        "F4"
+      ]
+    },
+    "phaseBranch": {
+      "type": "string"
+    },
+    "phaseMode": {
+      "type": "string",
+      "enum": [
+        "fresh_implementation",
+        "partial_implementation",
+        "reimplementation"
+      ]
+    },
+    "phaseStatus": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "coding",
+        "reviewing",
+        "gatekeeper",
+        "pass",
+        "error"
+      ]
+    },
+    "planner": {
+      "$ref": "#/definitions/planner"
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/task"
+      }
+    },
+    "gatekeeper": {
+      "$ref": "#/definitions/gatekeeper"
+    }
+  },
+  "definitions": {
+    "parallelGroup": {
+      "type": "object",
+      "required": [
+        "id",
+        "tasks",
+        "reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "planner": {
+      "type": "object",
+      "required": [
+        "summary",
+        "currentGaps",
+        "sequentialTasks",
+        "parallelGroups",
+        "readyTasks"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "currentGaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sequentialTasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parallelGroups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/parallelGroup"
+          }
+        },
+        "readyTasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": [
+        "outcome",
+        "reasoning",
+        "requiredFixes",
+        "docsOrValidationGaps",
+        "nextHandoffTarget"
+      ],
+      "properties": {
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Pass",
+            "Error"
+          ]
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "requiredFixes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "docsOrValidationGaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextHandoffTarget": {
+          "type": "string",
+          "enum": [
+            "Coding Agent",
+            "Planner",
+            "Gatekeeper",
+            "None"
+          ]
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "dependsOn",
+        "branch",
+        "filesChanged",
+        "validation",
+        "docsUpdated",
+        "review"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "in_progress",
+            "review_error",
+            "review_pass",
+            "done"
+          ]
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parallelGroup": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "branch": {
+          "type": "string"
+        },
+        "filesChanged": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "validation": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "docsUpdated": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "review": {
+          "$ref": "#/definitions/review"
+        }
+      }
+    },
+    "gatekeeper": {
+      "type": "object",
+      "required": [
+        "outcome",
+        "goalsChecked",
+        "errors",
+        "broaderRisks",
+        "reasoning",
+        "requiredNextAction"
+      ],
+      "properties": {
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Pass",
+            "Error"
+          ]
+        },
+        "goalsChecked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "broaderRisks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "requiredNextAction": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
