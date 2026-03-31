@@ -307,6 +307,7 @@ $jsonFiles = @(
     'examples\workspace-registry.sample.json',
     'schemas\phase-execution-state.schema.json',
     'examples\phase-execution-state.sample.json',
+    'fork\tooling\branding-assets.manifest.json',
     'fork\tooling\tsconfig.catastroswitch.strict.json',
     '.vscode\extensions.json',
     '.vscode\launch.json',
@@ -416,6 +417,14 @@ if ('.\scripts\new-phase-state.ps1' -notin @($phaseStateTask.args)) {
     throw ".vscode\tasks.json does not route the phase state task through .\scripts\new-phase-state.ps1."
 }
 
+$brandingExportTask = @($tasksConfig.tasks | Where-Object { $_.label -eq 'Fork: export branding assets' }) | Select-Object -First 1
+if (-not $brandingExportTask) {
+    throw ".vscode\tasks.json is missing the 'Fork: export branding assets' task."
+}
+if ('.\scripts\export-fork-branding-assets.ps1' -notin @($brandingExportTask.args)) {
+    throw ".vscode\tasks.json does not route the branding export task through .\scripts\export-fork-branding-assets.ps1."
+}
+
 $taskInputIds = @($tasksConfig.inputs | ForEach-Object { $_.id })
 if ('phaseId' -notin $taskInputIds) {
     throw ".vscode\tasks.json is missing the 'phaseId' input."
@@ -423,7 +432,7 @@ if ('phaseId' -notin $taskInputIds) {
 if ('phaseTaskId' -notin $taskInputIds) {
     throw ".vscode\tasks.json is missing the 'phaseTaskId' input."
 }
-Write-Host ' - OK: phase workflow tasks and inputs are present'
+Write-Host ' - OK: phase workflow tasks, branding export task, and inputs are present'
 
 $gitattributesPath = Assert-FileExists -RelativePath '.gitattributes'
 $gitattributes = Get-Content -Raw -LiteralPath $gitattributesPath
@@ -474,13 +483,18 @@ $null = Assert-FileExists -RelativePath 'scripts\new-phase-branch.ps1'
 $null = Assert-FileExists -RelativePath 'scripts\new-phase-task-branch.ps1'
 $phaseStateScriptPath = Assert-FileExists -RelativePath 'scripts\new-phase-state.ps1'
 $phaseStateScriptContents = Get-Content -Raw -LiteralPath $phaseStateScriptPath
+$brandingExportScriptPath = Assert-FileExists -RelativePath 'scripts\export-fork-branding-assets.ps1'
+$brandingExportScriptContents = Get-Content -Raw -LiteralPath $brandingExportScriptPath
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('.catastroswitch\phase-state')) {
     throw 'scripts\phase-workflow-helpers.ps1 is missing the default phase state path.'
 }
 if ($phaseStateScriptContents -notmatch [regex]::Escape('Get-DefaultPhaseStatePath')) {
     throw 'scripts\new-phase-state.ps1 is missing the shared phase state path helper call.'
 }
-Write-Host ' - OK: phase workflow helper scripts are present'
+if ($brandingExportScriptContents -notmatch [regex]::Escape('branding-assets.manifest.json')) {
+    throw 'scripts\export-fork-branding-assets.ps1 is missing the shared branding manifest reference.'
+}
+Write-Host ' - OK: phase workflow helper scripts and branding export script are present'
 
 $forkReadmePath = Assert-FileExists -RelativePath 'fork\README.md'
 $forkReadmeContents = Get-Content -Raw -LiteralPath $forkReadmePath
@@ -496,8 +510,28 @@ if ($toolingReadmeContents -notmatch [regex]::Escape('tsconfig.catastroswitch.st
 if ($toolingReadmeContents -notmatch [regex]::Escape('eslint.catastroswitch.config.mjs')) {
     throw 'fork\tooling\README.md is missing the ESLint policy reference.'
 }
+$brandingManifest = Read-JsonFile -RelativePath 'fork\tooling\branding-assets.manifest.json'
+Assert-RequiredProperties -InputObject $brandingManifest -RequiredProperties @('version', 'sourcePolicy', 'targets') -Description 'branding manifest root'
+Assert-IntegerMinimum -Value (Get-PropertyValue -InputObject $brandingManifest -PropertyName 'version') -Minimum 1 -Description 'branding manifest version'
+$brandingSourcePolicy = Get-PropertyValue -InputObject $brandingManifest -PropertyName 'sourcePolicy'
+Assert-RequiredProperties -InputObject $brandingSourcePolicy -RequiredProperties @('iconMaster') -Description 'branding manifest sourcePolicy'
+if ((Get-PropertyValue -InputObject $brandingSourcePolicy -PropertyName 'iconMaster') -ne 'assets/logo-rounded-icon-hd.svg') {
+    throw 'fork\tooling\branding-assets.manifest.json must keep assets/logo-rounded-icon-hd.svg as the primary icon master.'
+}
+$brandingTargets = @($brandingManifest.targets)
+$brandingOutputPaths = @($brandingTargets | ForEach-Object { Get-PropertyValue -InputObject $_ -PropertyName 'forkRelativeOutput' })
+foreach ($expectedBrandingOutput in @(
+    'resources/win32/code.ico',
+    'resources/darwin/code.icns',
+    'resources/linux/code.png',
+    'resources/server/favicon.ico',
+    'resources/server/code-192.png',
+    'resources/server/code-512.png'
+)) {
+    Assert-ContainsValue -Values $brandingOutputPaths -ExpectedValue $expectedBrandingOutput -Description 'branding manifest targets'
+}
 $null = Assert-FileExists -RelativePath 'fork\tooling\eslint.catastroswitch.config.mjs'
-Write-Host ' - OK: fork tooling policy files are present'
+Write-Host ' - OK: fork tooling policy files and branding manifest are present'
 
 $plannerAgentPath = Assert-FileExists -RelativePath '.github\agents\planner.agent.md'
 $codingAgentPath = Assert-FileExists -RelativePath '.github\agents\implementer.agent.md'
@@ -593,6 +627,21 @@ if ($forkRunbookContents -notmatch [regex]::Escape('one active phase branch per 
 }
 if ($forkRunbookContents -notmatch [regex]::Escape('short-lived sibling task branches or worktrees named from the current phase branch')) {
     throw 'docs\vscode-fork-build-runbook.md is missing the sibling task branch guidance.'
+}
+if ($forkRunbookContents -notmatch [regex]::Escape('export-fork-branding-assets.ps1')) {
+    throw 'docs\vscode-fork-build-runbook.md is missing the branding export workflow command.'
+}
+
+$readmePath = Assert-FileExists -RelativePath 'README.md'
+$readmeContents = Get-Content -Raw -LiteralPath $readmePath
+if ($readmeContents -notmatch [regex]::Escape('docs\vscode-fork-branding-assets.md')) {
+    throw 'README.md is missing the branding asset workflow doc reference.'
+}
+
+$contributingPath = Assert-FileExists -RelativePath 'CONTRIBUTING.md'
+$contributingContents = Get-Content -Raw -LiteralPath $contributingPath
+if ($contributingContents -notmatch [regex]::Escape('export-fork-branding-assets.ps1')) {
+    throw 'CONTRIBUTING.md is missing the branding export workflow command.'
 }
 Write-Host ' - OK: fork execution docs reflect the phase branch workflow'
 

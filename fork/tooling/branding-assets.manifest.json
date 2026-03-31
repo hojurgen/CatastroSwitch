@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "sourcePolicy": {
+    "iconMaster": "assets/logo-rounded-icon-hd.svg",
+    "iconPreview": "assets/logo-rounded-icon.svg",
+    "nonIconSources": [
+      {
+        "path": "assets/logo.png",
+        "reason": "Wordmark-bearing marketing art on a non-square canvas."
+      },
+      {
+        "path": "assets/logo.svg",
+        "reason": "Master wordmark logo for documentation and larger branding surfaces."
+      },
+      {
+        "path": "assets/logo-hd.svg",
+        "reason": "High-resolution wordmark logo for larger branding surfaces."
+      },
+      {
+        "path": "assets/logo-rounded.svg",
+        "reason": "Rounded wordmark variant for larger surfaces, not the default app icon."
+      },
+      {
+        "path": "assets/logo-rounded-hd.svg",
+        "reason": "High-resolution rounded wordmark variant for larger surfaces."
+      },
+      {
+        "path": "assets/logo-circle.svg",
+        "reason": "Circular variant reserved for avatar-style or future favicon experiments."
+      },
+      {
+        "path": "assets/logo-circle-hd.svg",
+        "reason": "High-resolution circular variant reserved for avatar-style or future favicon experiments."
+      }
+    ]
+  },
+  "targets": [
+    {
+      "id": "win32-product-icon",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/win32/code.ico",
+      "format": "ico",
+      "sizes": [16, 32, 128, 256],
+      "notes": "Mirror the current Windows product icon payload."
+    },
+    {
+      "id": "darwin-product-icon",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/darwin/code.icns",
+      "format": "icns",
+      "sizes": [16, 32, 64, 128, 256, 512, 1024],
+      "notes": "Package from a staged iconset with macOS iconutil."
+    },
+    {
+      "id": "linux-product-icon",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/linux/code.png",
+      "format": "png",
+      "size": 1024,
+      "notes": "Square Linux desktop icon."
+    },
+    {
+      "id": "server-favicon",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/server/favicon.ico",
+      "format": "ico",
+      "sizes": [16, 32, 48],
+      "notes": "Server and web favicon payload."
+    },
+    {
+      "id": "server-icon-192",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/server/code-192.png",
+      "format": "png",
+      "size": 192,
+      "notes": "Server and web icon surface."
+    },
+    {
+      "id": "server-icon-512",
+      "source": "assets/logo-rounded-icon-hd.svg",
+      "forkRelativeOutput": "resources/server/code-512.png",
+      "format": "png",
+      "size": 512,
+      "notes": "Server and web icon surface."
+    }
+  ]
+}

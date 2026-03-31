@@ -26,6 +26,7 @@ All runtime implementation belongs in a separate VS Code fork checkout, for exam
 - `docs\implementation-plan.md`
 - `docs\vscode-fork-additive-strategy.md`
 - `docs\vscode-fork-source-map.md`
+- `docs\vscode-fork-branding-assets.md`
 - `docs\vscode-fork-build-runbook.md`
 - `docs\fork-backlog.md`
 - `docs\grounding.md`
@@ -79,8 +80,9 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 2. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
 3. Create or update the active phase branch in the fork.
 4. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
-5. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
-6. Run `Control repo: validate` when this repo changes.
+5. If product branding sources changed under `assets\`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets.
+6. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
+7. Run `Control repo: validate` when this repo changes.
 
 ## Repository contents
 
@@ -109,6 +111,7 @@ C:\CatastroSwitch
 - `docs\implementation-plan.md` - phase-specific execution graph plus Planner, Coding Agent, Reviewer, and Gatekeeper loop
 - `docs\vscode-fork-additive-strategy.md` - minimal-diff strategy for easier upstream upgrades
 - `docs\vscode-fork-source-map.md` - concrete Code - OSS patch zones
+- `docs\vscode-fork-branding-assets.md` - branding source-to-output mapping plus runtime asset export rules
 - `docs\vscode-fork-build-runbook.md` - clone, bootstrap, and self-host guidance
 - `docs\fork-backlog.md` - practical fork epics
 - `docs\agent-adapter-contract.md` - rules for adapter-backed external agent visibility

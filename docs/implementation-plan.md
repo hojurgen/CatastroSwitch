@@ -21,6 +21,10 @@ If the phase touches registry shape or adapter boundaries, also read:
 - `schemas/workspace-registry.schema.json`
 - `examples/workspace-registry.sample.json`
 
+If the phase touches shipped product branding assets, also read:
+
+- `docs\vscode-fork-branding-assets.md`
+
 ## Phase execution contract
 
 ### One phase per branch
@@ -291,6 +295,7 @@ Land a product-owned workspace rail as a real workbench surface without destabil
 
 ### Exit criteria
 
+- the baseline desktop and server branding assets are replaced from a repeatable export manifest
 - the rail is a real shell part
 - focus, visibility, and persistence are correct
 - a placeholder UI exists for later orchestration work
@@ -300,7 +305,8 @@ Land a product-owned workspace rail as a real workbench surface without destabil
 
 | Task ID | Goal | Depends on | Run mode | Primary surface | Validation |
 |---|---|---|---|---|---|
-| F1-T1 | add the rail part, identifier, and layout slot | none | sequential root | `src/vs/workbench/browser/layout.ts` plus new part files | self-host launches and the rail is visible |
+| F1-T0 | replace baseline product branding assets and establish the repeatable export workflow | none | sequential root | runtime fork `resources/{win32,darwin,linux,server}` plus `fork\tooling\branding-assets.manifest.json` | exported assets land in the fork, `scripts\code.bat` still launches, and the product surfaces show CatastroSwitch branding |
+| F1-T1 | add the rail part, identifier, and layout slot | F1-T0 | sequential shell lane | `src/vs/workbench/browser/layout.ts` plus new part files | self-host launches and the rail is visible |
 | F1-T2 | add focus, visibility, commands, and persistence | F1-T1 | parallel group A | rail part plus workbench command/state surfaces | rail state survives relaunch and focus flow works |
 | F1-T3 | render placeholder workspace UI with stable layout behavior | F1-T1 | parallel group B | rail rendering files | placeholder UI renders, resizes, and does not break the shell |
 | F1-T4 | add shell hardening, tests, and doc sync | F1-T2, F1-T3 | sequential closeout | shell tests plus control-repo docs | shell tests pass and docs match the rail shape |
@@ -308,11 +314,13 @@ Land a product-owned workspace rail as a real workbench surface without destabil
 ### Phase patterns
 
 - keep the rail product-owned from the first diff
+- land static branding replacement before shell layout surgery so product identity and layout regressions do not blur together
 - isolate shell registration from placeholder rendering when possible
 
 ### Phase anti-patterns
 
 - mixing shell layout surgery with real workspace orchestration too early
+- treating wordmark-heavy marketing art as the shipped app-icon master
 - hiding persistence logic inside placeholder UI code
 
 ## Phase F2 - Workspace orchestration and profile behavior

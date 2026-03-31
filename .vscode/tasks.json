@@ -109,6 +109,25 @@
       "problemMatcher": []
     },
     {
+      "label": "Fork: export branding assets",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\export-fork-branding-assets.ps1",
+        "-ForkRoot",
+        "${input:forkRoot}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Fork: npm install",
       "type": "process",
       "command": "powershell",

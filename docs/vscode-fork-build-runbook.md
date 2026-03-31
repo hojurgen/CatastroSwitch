@@ -199,6 +199,41 @@ Typical day-to-day flow:
 
 Treat the control repo as the source of durable planning and workflow truth, and the fork as the source of executable product behavior.
 
+## Branding asset workflow
+
+CatastroSwitch branding sources live in the control repo under `assets\`.
+
+The machine-readable source-to-output map lives in:
+
+```text
+C:\CatastroSwitch\fork\tooling\branding-assets.manifest.json
+```
+
+The current runtime fork surfaces that need replacement are:
+
+- `resources\win32\code.ico`
+- `resources\darwin\code.icns`
+- `resources\linux\code.png`
+- `resources\server\favicon.ico`
+- `resources\server\code-192.png`
+- `resources\server\code-512.png`
+
+Run the export workflow from `C:\CatastroSwitch`, not from the fork root:
+
+```powershell
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent
+```
+
+Requirements:
+
+- ImageMagick `magick` for PNG and ICO generation
+- macOS `iconutil` when you want the native macOS ICNS packaging path
+- Node.js with `npx icon-gen` support for a cross-platform ICNS fallback on Windows or Linux
+
+If `iconutil` is unavailable, the script falls back to `npx icon-gen` for `resources\darwin\code.icns`. If neither tool is available, the script stages a `code.iconset` directory for the macOS icon bundle and leaves the final packaging step explicit.
+
+When only the generated runtime binaries change, commit those files in the runtime fork. When the source mapping or workflow changes, update the control repo docs and manifest in the same change.
+
 ## Phase workflow helpers
 
 The control repo now ships helper scripts for the phase workflow:

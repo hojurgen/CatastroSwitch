@@ -54,11 +54,12 @@ Typical maintainer loop:
 1. Plan in this repo.
 2. Implement and build in the fork repo.
 3. Use `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat` from the fork checkout.
-4. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
-5. In the fork checkout, keep `/.catastroswitch/` ignored via `.git/info/exclude` so local phase-state files do not dirty the runtime branch.
-6. In this control repo, keep the local `pre-push` hook enabled before pushing changes.
-7. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
-8. Cross-link paired PRs when one feature spans both repos.
+4. If branding sources changed in this control repo, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent` before committing the generated fork resources. ImageMagick is required for raster export, and the script uses either macOS `iconutil` or `npx icon-gen` to package `resources\darwin\code.icns`.
+5. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
+6. In the fork checkout, keep `/.catastroswitch/` ignored via `.git/info/exclude` so local phase-state files do not dirty the runtime branch.
+7. In this control repo, keep the local `pre-push` hook enabled before pushing changes.
+8. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
+9. Cross-link paired PRs when one feature spans both repos.
 
 TypeScript and ESLint policy overlays for the real fork live under `fork\tooling\`.
 
