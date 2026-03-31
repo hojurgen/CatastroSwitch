@@ -39,6 +39,7 @@ Pick the right repository before you start:
 - If a feature changes both, use two branches and two pull requests. Keep the runtime code review in the fork and the docs or contract review in the control repo.
 
 In the runtime fork clone, keep `upstream` fetch-only and keep default pushes pointed at `origin`.
+In this control repo, enable the committed hooks path with `git config core.hooksPath .githooks` so direct pushes to `origin/main` are blocked unless you intentionally override them.
 
 Before sending changes out, run:
 
@@ -53,8 +54,9 @@ Typical maintainer loop:
 2. Implement and build in the fork repo.
 3. Use `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat` from the fork checkout.
 4. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
-5. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
-6. Cross-link paired PRs when one feature spans both repos.
+5. In this control repo, keep the local `pre-push` hook enabled before pushing changes.
+6. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
+7. Cross-link paired PRs when one feature spans both repos.
 
 TypeScript and ESLint policy overlays for the real fork live under `fork\tooling\`.
 

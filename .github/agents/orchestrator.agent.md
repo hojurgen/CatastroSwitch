@@ -46,7 +46,7 @@ You are the orchestration agent for `CatastroSwitch`.
 - Never run the Gatekeeper until every task has Reviewer `Pass`.
 - If Reviewer or Gatekeeper returns `Error`, route the work back to the correct agent and keep the artifact current.
 - Keep runtime changes on the fork checkout and use the control repo only for durable docs, contracts, scripts, and guidance.
-- Keep all work on the phase branch or approved child task branches for that phase.
+- Keep all work on the phase branch or approved sibling task branches for that phase.
 
 ## Never do this
 

@@ -43,7 +43,7 @@
       "status": "done",
       "dependsOn": [],
       "parallelGroup": null,
-      "branch": "multiagent/f1-workspace-rail/t1-rail-layout",
+      "branch": "multiagent/f1-workspace-rail-t1-rail-layout",
       "filesChanged": [
         "src/vs/workbench/browser/layout.ts",
         "src/vs/workbench/browser/parts/workspaceRail/workspaceRailPart.ts"
@@ -71,7 +71,7 @@
         "F1-T1"
       ],
       "parallelGroup": "A",
-      "branch": "multiagent/f1-workspace-rail/t2-shell-behavior",
+      "branch": "multiagent/f1-workspace-rail-t2-shell-behavior",
       "filesChanged": [],
       "validation": [],
       "docsUpdated": [],
@@ -91,7 +91,7 @@
         "F1-T1"
       ],
       "parallelGroup": "B",
-      "branch": "multiagent/f1-workspace-rail/t3-placeholder-ui",
+      "branch": "multiagent/f1-workspace-rail-t3-placeholder-ui",
       "filesChanged": [],
       "validation": [],
       "docsUpdated": [],
@@ -112,7 +112,7 @@
         "F1-T3"
       ],
       "parallelGroup": null,
-      "branch": "multiagent/f1-workspace-rail/t4-hardening-doc-sync",
+      "branch": "multiagent/f1-workspace-rail-t4-hardening-doc-sync",
       "filesChanged": [],
       "validation": [],
       "docsUpdated": [],

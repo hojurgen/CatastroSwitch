@@ -65,6 +65,11 @@ Recommended local hardening for the runtime fork:
 - keep `upstream` fetch-only by setting its push URL to `no_push`
 - set the fork clone to push to `origin` by default
 
+Recommended local hardening for this control repo:
+
+- enable the committed hooks path with `git config core.hooksPath .githooks`
+- keep the local `pre-push` hook active so direct pushes to `origin/main` require an explicit override
+
 Do not duplicate runtime patches into the control repo. If one feature changes both runtime code and control artifacts, keep one change in the fork and a separate change in the control repo.
 
 ### Practical flow

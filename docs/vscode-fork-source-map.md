@@ -21,11 +21,11 @@ Use this alongside `docs/vscode-fork-additive-strategy.md` so source mapping and
 
 | Product goal | Why it needs a fork | Primary patch zones |
 |---|---|---|
-| Add a workspace rail left of the primary sidebar | Public extension APIs do not let an extension add a new workbench chrome strip beyond documented containers. | `src/vs/workbench/browser/layout.ts`, `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`, `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`, `src/vs/workbench/browser/parts/compositeBar.ts`, `src/vs/workbench/browser/parts/paneCompositeBar.ts` |
+| Add a workspace rail left of the primary sidebar | Public extension APIs do not let an extension add a new workbench chrome strip beyond documented containers. | `src/vs/workbench/browser/workbench.ts`, `src/vs/workbench/browser/layout.ts`, `src/vs/workbench/services/layout/browser/layoutService.ts`, `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`, `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`, `src/vs/workbench/browser/parts/compositeBar.ts`, `src/vs/workbench/browser/parts/paneCompositeBar.ts`, `src/vs/workbench/browser/workbench.contribution.ts` |
 | Make workspace entry switch product-owned state | Product-owned switching needs tighter control than `vscode.openFolder` plus manual user flows. | `src/vs/workbench/workbench.common.main.ts`, `src/vs/workbench/workbench.desktop.main.ts`, new workbench service under `src/vs/workbench/services/...` |
 | Apply workspace-specific profile behavior | Public APIs do not allow extensions to switch profiles programmatically. | `src/vs/platform/userDataProfile/common/userDataProfile.ts`, `src/vs/workbench/services/userDataProfile/browser/userDataProfileManagement.ts`, `src/vs/workbench/services/userDataProfile/browser/userDataProfileInit.ts` |
-| Carry workspace-specific settings/extensions/tasks/snippets state | These resources are already modeled by the profile subsystem and should be extended there, not reimplemented ad hoc. | `src/vs/workbench/services/userDataProfile/browser/settingsResource.ts`, `keybindingsResource.ts`, `tasksResource.ts`, `snippetsResource.ts`, `extensionsResource.ts`, `globalStateResource.ts`, `mcpProfileResource.ts` |
-| Show product-owned running agents per workspace | Reliable agent/session visibility belongs in product-owned chat/session services, not in unsupported extension introspection. | `src/vs/workbench/contrib/chat/common`, `src/vs/workbench/contrib/chat/browser`, `src/vs/workbench/contrib/chat/browser/chatSessions`, `src/vs/workbench/contrib/chat/browser/widget`, `src/vs/workbench/contrib/chat/common/participants`, `src/vs/workbench/contrib/chat/common/model`, `src/vs/workbench/contrib/chat/common/tools` |
+| Carry workspace-specific settings/extensions/tasks/snippets state | These resources are already modeled by the profile subsystem and should be extended there, not reimplemented ad hoc. | `src/vs/workbench/services/userDataProfile/browser/settingsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/keybindingsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/tasksResource.ts`, `src/vs/workbench/services/userDataProfile/browser/snippetsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/extensionsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/globalStateResource.ts`, `src/vs/workbench/services/userDataProfile/browser/mcpProfileResource.ts` |
+| Show product-owned running agents per workspace | Reliable agent/session visibility belongs in product-owned chat/session services, not in unsupported extension introspection. | `src/vs/workbench/contrib/chat/browser/chat.contribution.ts`, `src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts`, `src/vs/workbench/contrib/chat/browser/widgetHosts/viewPane/chatViewPane.ts`, `src/vs/workbench/contrib/chat/browser/widget`, `src/vs/workbench/contrib/chat/browser/widgetHosts`, `src/vs/workbench/contrib/chat/common/chatService/chatService.ts`, `src/vs/workbench/contrib/chat/common/model/chatModel.ts`, `src/vs/workbench/contrib/chat/common/participants`, `src/vs/workbench/contrib/chat/common/tools` |
 
 ## Upgrade-friendly implementation style
 
@@ -42,15 +42,13 @@ That is the difference between a fork that rebases cleanly and a fork that becom
 
 These are the first files to understand before adding a new product-owned rail:
 
-- `src/vs/workbench/workbench.common.main.ts`
-  - central workbench composition for common/browser-side contributions and services
-  - shows where chat, profiles, extension management, and workbench services are registered
-- `src/vs/workbench/workbench.desktop.main.ts`
-  - desktop-specific composition and services
-  - useful when the workspace rail needs native desktop-only behavior
+- `src/vs/workbench/browser/workbench.ts`
+  - owns workbench part creation and is the first concrete seam for introducing a new rail part instance
 - `src/vs/workbench/browser/layout.ts`
   - primary layout orchestration and part placement logic
   - likely home for a new part identifier, layout slot, persistence rules, and resize/focus behavior
+- `src/vs/workbench/services/layout/browser/layoutService.ts`
+  - defines layout service seams, part identifiers, and layout-facing contracts that a new rail needs to participate in cleanly
 - `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`
   - current primary sidebar behavior
   - important because your requested rail lives immediately adjacent to this surface
@@ -60,6 +58,14 @@ These are the first files to understand before adding a new product-owned rail:
 - `src/vs/workbench/browser/parts/compositeBar.ts`
 - `src/vs/workbench/browser/parts/paneCompositeBar.ts`
   - likely reference points for icon-strip behavior, pinning, sizing, ordering, and drag/drop
+- `src/vs/workbench/browser/workbench.contribution.ts`
+  - useful when the workspace rail needs configuration, commands, or workbench-level contribution wiring
+- `src/vs/workbench/workbench.common.main.ts`
+  - central workbench composition for common/browser-side contributions and services
+  - primary shared registration seam for new services and product wiring
+- `src/vs/workbench/workbench.desktop.main.ts`
+  - desktop-specific composition and services
+  - useful when the workspace rail needs native desktop-only behavior beyond the common registration seam
 
 ## Profiles and workspace-owned state
 
@@ -78,13 +84,13 @@ Start here:
 
 Resource-specific profile surfaces already exist:
 
-- `settingsResource.ts`
-- `keybindingsResource.ts`
-- `tasksResource.ts`
-- `snippetsResource.ts`
-- `extensionsResource.ts`
-- `globalStateResource.ts`
-- `mcpProfileResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/settingsResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/keybindingsResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/tasksResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/snippetsResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/extensionsResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/globalStateResource.ts`
+- `src/vs/workbench/services/userDataProfile/browser/mcpProfileResource.ts`
 
 That resource split is a good sign: the fork should extend profile orchestration, not bolt on a second competing workspace-state system.
 
@@ -94,15 +100,15 @@ The upstream chat contrib now documents its own internal organization.
 
 According to `chatCodeOrganization.md`, useful starting points are:
 
-- `browser/actions`
-- `browser/widget`
-- `browser/widgetHosts`
-- `browser/chatSessions`
-- `browser/contextContrib`
-- `common/chatService`
-- `common/model`
-- `common/participants`
-- `common/tools`
+- `src/vs/workbench/contrib/chat/browser/chat.contribution.ts`
+- `src/vs/workbench/contrib/chat/browser/chatSessions/chatSessions.contribution.ts`
+- `src/vs/workbench/contrib/chat/browser/widgetHosts/viewPane/chatViewPane.ts`
+- `src/vs/workbench/contrib/chat/browser/widget`
+- `src/vs/workbench/contrib/chat/browser/widgetHosts`
+- `src/vs/workbench/contrib/chat/common/chatService/chatService.ts`
+- `src/vs/workbench/contrib/chat/common/model/chatModel.ts`
+- `src/vs/workbench/contrib/chat/common/participants`
+- `src/vs/workbench/contrib/chat/common/tools`
 
 For `CatastroSwitch`, this suggests a clean separation:
 

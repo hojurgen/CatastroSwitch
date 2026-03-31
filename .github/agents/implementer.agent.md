@@ -24,7 +24,7 @@ You are the coding agent for `CatastroSwitch`.
 - Keep the repo strictly fork-only.
 - Keep runtime code changes in the separate fork checkout. Touch this control repo only when the task requires durable docs, schemas, contracts, scripts, or agent guidance.
 - Prefer additive seams over broad rewrites.
-- Stay on the current phase branch or an approved child branch rooted from it.
+- Stay on the current phase branch or an approved sibling task branch for it.
 
 ## Required task handoff
 

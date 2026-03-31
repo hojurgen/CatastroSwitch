@@ -433,6 +433,7 @@ foreach ($expectedLine in @(
     '*.mjs text eol=lf',
     '*.yml text eol=lf',
     '*.yaml text eol=lf',
+    '.githooks/* text eol=lf',
     '*.ps1 text eol=lf',
     '*.bat text eol=crlf',
     '*.cmd text eol=crlf'
@@ -442,6 +443,16 @@ foreach ($expectedLine in @(
     }
 }
 Write-Host ' - OK: line ending rules are present'
+
+$prePushHookPath = Assert-FileExists -RelativePath '.githooks\pre-push'
+$prePushHookContents = Get-Content -Raw -LiteralPath $prePushHookPath
+if ($prePushHookContents -notmatch [regex]::Escape('refs/heads/main')) {
+    throw '.githooks\pre-push is missing the origin/main protection.'
+}
+if ($prePushHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_MAIN_PUSH')) {
+    throw '.githooks\pre-push is missing the explicit override guard.'
+}
+Write-Host ' - OK: control-repo pre-push hook is present'
 
 $gitignorePath = Assert-FileExists -RelativePath '.gitignore'
 $gitignoreContents = Get-Content -Raw -LiteralPath $gitignorePath
@@ -580,8 +591,8 @@ if ($forkRunbookContents -match [regex]::Escape('multiagent/main')) {
 if ($forkRunbookContents -notmatch [regex]::Escape('one active phase branch per selected phase')) {
     throw 'docs\vscode-fork-build-runbook.md is missing the phase branch strategy guidance.'
 }
-if ($forkRunbookContents -notmatch [regex]::Escape('short-lived task branches or worktrees rooted from the current phase branch')) {
-    throw 'docs\vscode-fork-build-runbook.md is missing the child task branch guidance.'
+if ($forkRunbookContents -notmatch [regex]::Escape('short-lived sibling task branches or worktrees named from the current phase branch')) {
+    throw 'docs\vscode-fork-build-runbook.md is missing the sibling task branch guidance.'
 }
 Write-Host ' - OK: fork execution docs reflect the phase branch workflow'
 

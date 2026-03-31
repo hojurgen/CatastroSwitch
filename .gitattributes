@@ -9,6 +9,7 @@
 *.yaml text eol=lf
 *.gitignore text eol=lf
 *.gitattributes text eol=lf
+.githooks/* text eol=lf
 *.ps1 text eol=lf
 *.svg text eol=lf
 

@@ -39,7 +39,7 @@ Rules:
 
 - Do not mix more than one phase on the same integration branch.
 - If multiple coding tasks run in parallel, they must still target the same phase branch.
-- Parallel work may use short-lived child branches or worktrees rooted from the phase branch, for example `multiagent/f2-workspace-orchestration/t3-profile-policy`.
+- Parallel work may use short-lived sibling task branches or worktrees named from the phase branch, for example `multiagent/f2-workspace-orchestration-t3-profile-policy`.
 - The phase branch is the source of truth for Gatekeeper review.
 
 ### Phase state artifact
@@ -122,7 +122,7 @@ The Planner must:
 The Coding Agent must:
 
 - implement exactly one Planner-approved task at a time
-- stay on the current phase branch or an approved child branch rooted from it
+- stay on the current phase branch or an approved sibling task branch for it
 - keep the task scoped to its task card
 - run the task validation before handoff
 - update docs/tests that are part of that task card
@@ -180,7 +180,7 @@ Reviewer output must include:
 {
   "outcome": "Pass",
   "taskId": "F1-T2",
-  "branch": "multiagent/f1-workspace-rail/t2-shell-behavior",
+  "branch": "multiagent/f1-workspace-rail-t2-shell-behavior",
   "reasoning": "Why the task passed or failed.",
   "requiredFixes": [],
   "docsOrValidationGaps": [],
@@ -266,7 +266,7 @@ Create a reliable fork baseline and remove execution ambiguity before product co
 |---|---|---|---|---|---|
 | F0-T1 | clone, install, compile, watch, and self-host the fork baseline | none | sequential root | real fork clone plus upstream remotes | `npm install`, `npm run compile`, `npm run watch`, `scripts\\code.bat` |
 | F0-T2 | confirm the exact upstream patch zones for shell, profiles, and chat | F0-T1 | parallel group A | fork source tree plus `docs\\vscode-fork-source-map.md` | all planned patch zones match the checked-out upstream version |
-| F0-T3 | document phase branch naming, child branch rule, and validation expectations | F0-T1 | parallel group B | control-repo docs and local working agreement | branch and workflow rules are explicit |
+| F0-T3 | document phase branch naming, sibling task branch rule, and validation expectations | F0-T1 | parallel group B | control-repo docs and local working agreement | branch and workflow rules are explicit |
 | F0-T4 | sync runbook, source map, and plan drift found during bootstrap | F0-T2, F0-T3 | sequential closeout | control-repo docs | control-repo validation passes and docs match reality |
 
 ### Phase patterns

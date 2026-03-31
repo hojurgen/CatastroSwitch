@@ -168,7 +168,7 @@ Use a branch structure that isolates upstream sync from phase execution:
   - `multiagent/f2-workspace-orchestration`
   - `multiagent/f3-extension-session`
   - `multiagent/f4-hardening-sync`
-- short-lived task branches or worktrees rooted from the current phase branch only when the Planner marks a task as parallel-safe
+- short-lived sibling task branches or worktrees named from the current phase branch only when the Planner marks a task as parallel-safe, for example `multiagent/f2-workspace-orchestration-t3-profile-policy`
 
 Typical refresh flow for a phase branch:
 
@@ -211,7 +211,7 @@ Recommended usage:
 
 1. Create or switch to the phase branch.
 2. Create the initial phase state file under the real fork clone.
-3. Create child task branches only when a Planner-approved task is safe to run in parallel.
+3. Create sibling task branches only when a Planner-approved task is safe to run in parallel.
 
 Recommended phase state path in the fork clone:
 

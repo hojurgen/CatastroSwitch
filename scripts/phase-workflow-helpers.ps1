@@ -104,7 +104,7 @@ function Get-TaskBranchName {
     )
 
     $taskDefinition = Get-TaskDefinition -TaskId $TaskId
-    return "$($taskDefinition.Branch)/$($taskDefinition.Task.BranchSuffix)"
+    return "$($taskDefinition.Branch)-$($taskDefinition.Task.BranchSuffix)"
 }
 
 function Assert-ForkGitRepository {

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+remote_name="$1"
+allow_main_push="${CATASTROSWITCH_ALLOW_MAIN_PUSH:-}"
+
+while read local_ref local_sha remote_ref remote_sha
+do
+  if [ "$remote_name" = "origin" ] && [ "$remote_ref" = "refs/heads/main" ] && [ "$allow_main_push" != "1" ]; then
+    echo "Direct pushes to origin/main are blocked in this repo."
+    echo "Create a branch and PR, or override intentionally with CATASTROSWITCH_ALLOW_MAIN_PUSH=1 git push origin main"
+    exit 1
+  fi
+done
+
+exit 0

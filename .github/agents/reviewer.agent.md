@@ -32,7 +32,7 @@ Always respond with `Outcome: Pass` or `Outcome: Error` and a fenced `json` bloc
 {
   "outcome": "Pass",
   "taskId": "F1-T2",
-  "branch": "multiagent/f1-workspace-rail/t2-shell-behavior",
+  "branch": "multiagent/f1-workspace-rail-t2-shell-behavior",
   "reasoning": "Why the task passed or failed.",
   "requiredFixes": [],
   "docsOrValidationGaps": [],
