@@ -12,7 +12,8 @@ function Get-PhaseWorkflowCatalog {
         F1 = [ordered]@{
             Branch = 'multiagent/f1-workspace-rail'
             Tasks = @(
-                [ordered]@{ Id = 'F1-T1'; Title = 'add-rail-part-and-layout-slot'; BranchSuffix = 't1-rail-layout'; DependsOn = @(); ParallelGroup = $null },
+                [ordered]@{ Id = 'F1-T0'; Title = 'branding-export-workflow'; BranchSuffix = 't0-branding-export'; DependsOn = @(); ParallelGroup = $null },
+                [ordered]@{ Id = 'F1-T1'; Title = 'add-rail-part-and-layout-slot'; BranchSuffix = 't1-rail-layout'; DependsOn = @('F1-T0'); ParallelGroup = $null },
                 [ordered]@{ Id = 'F1-T2'; Title = 'rail-focus-visibility-persistence'; BranchSuffix = 't2-shell-behavior'; DependsOn = @('F1-T1'); ParallelGroup = 'A' },
                 [ordered]@{ Id = 'F1-T3'; Title = 'rail-placeholder-workspace-ui'; BranchSuffix = 't3-placeholder-ui'; DependsOn = @('F1-T1'); ParallelGroup = 'B' },
                 [ordered]@{ Id = 'F1-T4'; Title = 'shell-hardening-and-doc-sync'; BranchSuffix = 't4-hardening-doc-sync'; DependsOn = @('F1-T2', 'F1-T3'); ParallelGroup = $null }

@@ -6,12 +6,13 @@
   "phaseMode": "fresh_implementation",
   "phaseStatus": "reviewing",
   "planner": {
-    "summary": "Planner split the phase into shell integration, shell behavior, placeholder UI, and closeout work.",
+    "summary": "Planner split the phase into branding, shell integration, shell behavior, placeholder UI, and closeout work.",
     "currentGaps": [
       "Placeholder UI is still mock data only.",
       "Shell regression coverage is not complete yet."
     ],
     "sequentialTasks": [
+      "F1-T0",
       "F1-T1",
       "F1-T4"
     ],
@@ -38,10 +39,40 @@
   },
   "tasks": [
     {
+      "id": "F1-T0",
+      "title": "branding-export-workflow",
+      "status": "done",
+      "dependsOn": [],
+      "parallelGroup": null,
+      "branch": "multiagent/f1-workspace-rail-t0-branding-export",
+      "filesChanged": [
+        "resources/win32/code.ico",
+        "resources/server/favicon.ico",
+        "src/vs/workbench/browser/media/code-icon.svg",
+        "fork/tooling/branding-assets.manifest.json"
+      ],
+      "validation": [
+        "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\export-fork-branding-assets.ps1 -ForkRoot C:\\src\\vscode-multiagent -CompileFork",
+        "scripts\\code.bat"
+      ],
+      "docsUpdated": [
+        "docs/vscode-fork-branding-assets.md"
+      ],
+      "review": {
+        "outcome": "Pass",
+        "reasoning": "The branding export flow updated the runtime assets from the control-repo manifest and the product still launched with CatastroSwitch branding.",
+        "requiredFixes": [],
+        "docsOrValidationGaps": [],
+        "nextHandoffTarget": "Coding Agent"
+      }
+    },
+    {
       "id": "F1-T1",
       "title": "add-rail-part-and-layout-slot",
       "status": "done",
-      "dependsOn": [],
+      "dependsOn": [
+        "F1-T0"
+      ],
       "parallelGroup": null,
       "branch": "multiagent/f1-workspace-rail-t1-rail-layout",
       "filesChanged": [

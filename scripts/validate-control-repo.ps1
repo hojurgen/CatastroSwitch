@@ -330,6 +330,17 @@ Write-Host ' - OK: sample registry satisfies the schema contract checks'
 $phaseSchema = Read-JsonFile -RelativePath 'schemas\phase-execution-state.schema.json'
 $phaseSample = Read-JsonFile -RelativePath 'examples\phase-execution-state.sample.json'
 Validate-PhaseExecutionStateSample -Schema $phaseSchema -Sample $phaseSample
+$phaseSampleTaskIds = @($phaseSample.tasks | ForEach-Object { $_.id })
+if ('F1-T0' -notin $phaseSampleTaskIds) {
+    throw 'examples\phase-execution-state.sample.json is missing the F1-T0 branding task.'
+}
+$sampleF1T1 = @($phaseSample.tasks | Where-Object { $_.id -eq 'F1-T1' }) | Select-Object -First 1
+if (-not $sampleF1T1) {
+    throw 'examples\phase-execution-state.sample.json is missing the F1-T1 task.'
+}
+if ('F1-T0' -notin @($sampleF1T1.dependsOn)) {
+    throw 'examples\phase-execution-state.sample.json must show F1-T1 depending on F1-T0.'
+}
 Write-Host ' - OK: sample phase execution state satisfies the schema contract checks'
 
 $extensions = Read-JsonFile -RelativePath '.vscode\extensions.json'
@@ -435,6 +446,10 @@ if ('phaseId' -notin $taskInputIds) {
 if ('phaseTaskId' -notin $taskInputIds) {
     throw ".vscode\tasks.json is missing the 'phaseTaskId' input."
 }
+$phaseTaskInput = @($tasksConfig.inputs | Where-Object { $_.id -eq 'phaseTaskId' }) | Select-Object -First 1
+if ((Get-PropertyValue -InputObject $phaseTaskInput -PropertyName 'default') -ne 'F1-T0') {
+    throw ".vscode\tasks.json must default the 'phaseTaskId' input to 'F1-T0' so the branding root task stays discoverable."
+}
 Write-Host ' - OK: phase workflow tasks, branding export task, and inputs are present'
 
 $gitattributesPath = Assert-FileExists -RelativePath '.gitattributes'
@@ -490,6 +505,12 @@ $brandingExportScriptPath = Assert-FileExists -RelativePath 'scripts\export-fork
 $brandingExportScriptContents = Get-Content -Raw -LiteralPath $brandingExportScriptPath
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('.catastroswitch\phase-state')) {
     throw 'scripts\phase-workflow-helpers.ps1 is missing the default phase state path.'
+}
+if ($phaseWorkflowHelperContents -notmatch [regex]::Escape("Id = 'F1-T0'")) {
+    throw 'scripts\phase-workflow-helpers.ps1 is missing the F1-T0 branding task.'
+}
+if ($phaseWorkflowHelperContents -notmatch [regex]::Escape("DependsOn = @('F1-T0')")) {
+    throw 'scripts\phase-workflow-helpers.ps1 must show F1-T1 depending on F1-T0.'
 }
 if ($phaseStateScriptContents -notmatch [regex]::Escape('Get-DefaultPhaseStatePath')) {
     throw 'scripts\new-phase-state.ps1 is missing the shared phase state path helper call.'

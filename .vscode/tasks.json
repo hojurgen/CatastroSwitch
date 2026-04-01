@@ -223,7 +223,7 @@
       "id": "phaseTaskId",
       "type": "promptString",
       "description": "Task ID from docs/implementation-plan.md, for example F2-T3.",
-      "default": "F1-T1"
+      "default": "F1-T0"
     }
   ]
 }
