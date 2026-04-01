@@ -21,7 +21,7 @@ Use this alongside `docs/vscode-fork-additive-strategy.md` so source mapping and
 
 | Product goal | Why it needs a fork | Primary patch zones |
 |---|---|---|
-| Add a workspace rail left of the primary sidebar | Public extension APIs do not let an extension add a new workbench chrome strip beyond documented containers. | `src/vs/workbench/browser/workbench.ts`, `src/vs/workbench/browser/layout.ts`, `src/vs/workbench/services/layout/browser/layoutService.ts`, `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`, `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`, `src/vs/workbench/browser/parts/compositeBar.ts`, `src/vs/workbench/browser/parts/paneCompositeBar.ts`, `src/vs/workbench/browser/workbench.contribution.ts` |
+| Add a workspace rail left of the primary sidebar | Public extension APIs do not let an extension add a new workbench chrome strip beyond documented containers. | `src/vs/workbench/browser/workbench.ts`, `src/vs/workbench/browser/layout.ts`, `src/vs/workbench/services/layout/browser/layoutService.ts`, `src/vs/workbench/browser/contextkeys.ts`, `src/vs/workbench/common/contextkeys.ts`, `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`, `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`, `src/vs/workbench/browser/parts/workspacerail/media/workspaceRailPart.css` |
 | Make workspace entry switch product-owned state | Product-owned switching needs tighter control than `vscode.openFolder` plus manual user flows. | `src/vs/workbench/workbench.common.main.ts`, `src/vs/workbench/workbench.desktop.main.ts`, new workbench service under `src/vs/workbench/services/...` |
 | Apply workspace-specific profile behavior | Public APIs do not allow extensions to switch profiles programmatically. | `src/vs/platform/userDataProfile/common/userDataProfile.ts`, `src/vs/workbench/services/userDataProfile/browser/userDataProfileManagement.ts`, `src/vs/workbench/services/userDataProfile/browser/userDataProfileInit.ts` |
 | Carry workspace-specific settings/extensions/tasks/snippets state | These resources are already modeled by the profile subsystem and should be extended there, not reimplemented ad hoc. | `src/vs/workbench/services/userDataProfile/browser/settingsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/keybindingsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/tasksResource.ts`, `src/vs/workbench/services/userDataProfile/browser/snippetsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/extensionsResource.ts`, `src/vs/workbench/services/userDataProfile/browser/globalStateResource.ts`, `src/vs/workbench/services/userDataProfile/browser/mcpProfileResource.ts` |
@@ -40,32 +40,35 @@ That is the difference between a fork that rebases cleanly and a fork that becom
 
 ## Workbench shell and layout
 
-These are the first files to understand before adding a new product-owned rail:
+The F1 runtime seam is now concrete rather than hypothetical. These are the primary files for the implemented shell-only rail:
 
 - `src/vs/workbench/browser/workbench.ts`
-  - owns workbench part creation and is the first concrete seam for introducing a new rail part instance
+  - owns workbench part creation and now hosts the rail container between the Activity Bar and primary Sidebar
 - `src/vs/workbench/browser/layout.ts`
   - primary layout orchestration and part placement logic
-  - likely home for a new part identifier, layout slot, persistence rules, and resize/focus behavior
+  - owns the rail slot, persistence rules, resize math, visibility toggles, and focus behavior
 - `src/vs/workbench/services/layout/browser/layoutService.ts`
-  - defines layout service seams, part identifiers, and layout-facing contracts that a new rail needs to participate in cleanly
-- `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`
-  - current primary sidebar behavior
-  - important because your requested rail lives immediately adjacent to this surface
-- `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`
-  - existing narrow icon rail behavior
-  - useful reference if the new workspace rail should feel like a sibling chrome element
-- `src/vs/workbench/browser/parts/compositeBar.ts`
-- `src/vs/workbench/browser/parts/paneCompositeBar.ts`
-  - likely reference points for icon-strip behavior, pinning, sizing, ordering, and drag/drop
-- `src/vs/workbench/browser/workbench.contribution.ts`
-  - useful when the workspace rail needs configuration, commands, or workbench-level contribution wiring
+  - defines `Parts.WORKSPACERAIL_PART` so the rail participates in layout contracts cleanly
+- `src/vs/workbench/browser/contextkeys.ts`
+- `src/vs/workbench/common/contextkeys.ts`
+  - bind and expose the rail visibility and focus contexts used by layout commands and menus
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
+  - owns the fixed-width rail shell and the current placeholder workspace chrome used in F1
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`
+  - registers the rail toggle, hide, and focus actions against the layout service seam
+- `src/vs/workbench/browser/parts/workspacerail/media/workspaceRailPart.css`
+  - keeps the rail shell visually bounded so it behaves like intentional workbench chrome instead of ad hoc content
 - `src/vs/workbench/workbench.common.main.ts`
   - central workbench composition for common/browser-side contributions and services
-  - primary shared registration seam for new services and product wiring
+  - remains the shared registration seam for later orchestration services, not for the F1 shell-only rail
 - `src/vs/workbench/workbench.desktop.main.ts`
   - desktop-specific composition and services
-  - useful when the workspace rail needs native desktop-only behavior beyond the common registration seam
+  - remains relevant only when later phases need desktop-specific workspace behavior beyond the current common shell seam
+
+Regression coverage for the F1 rail shell should live with browser workbench tests, currently under:
+
+- `src/vs/workbench/test/browser/parts/workspacerail/workspaceRailPart.test.ts`
+- `src/vs/workbench/test/browser/parts/workspacerail/workspaceRailActions.test.ts`
 
 ## Profiles and workspace-owned state
 
@@ -134,11 +137,9 @@ Move these concerns into the VS Code fork:
 
 ## First patch sequence
 
-1. Add a source-level design note for the new workspace rail and decide whether it is:
-   - a sibling of the Activity Bar, or
-   - a sibling of the Sidebar.
-2. Introduce a workbench service for active workspace orchestration.
-3. Add profile-selection rules that consume workspace metadata.
-4. Expose product-owned agent/session summaries into the new rail.
-5. Reuse the existing extension harness only for adapter-driven and schema-driven concerns.
+1. Introduce `Parts.WORKSPACERAIL_PART` and insert a dedicated rail container between the Activity Bar and the primary Sidebar.
+2. Wire rail visibility, focus, and persisted shell state through `layout.ts`, `layoutService.ts`, and the workspace-rail context keys.
+3. Keep the initial rail UI limited to a fixed-width placeholder shell in `workspaceRailPart.ts` plus narrow layout actions in `workspaceRailActions.ts`.
+4. Add orchestration, profiles, extension-set behavior, and agent summaries only in later phases after the shell seam is stable.
+5. Keep schema, adapter, and contributor-workflow artifacts in the control repo rather than drifting runtime behavior back into this repository.
 

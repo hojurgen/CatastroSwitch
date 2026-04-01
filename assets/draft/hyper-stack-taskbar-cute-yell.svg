@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Front Cat (Orange/Hot Pink) -->
+        <linearGradient id="front-grad" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="490" y2="510">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#FF9933" />
+        </linearGradient>
+
+        <!-- Middle Window (Bright Magenta/Purple) -->
+        <linearGradient id="mid-grad" gradientUnits="userSpaceOnUse" x1="70" y1="90" x2="410" y2="430">
+            <stop offset="0%" stop-color="#B100FF" />
+            <stop offset="100%" stop-color="#FF00E4" />
+        </linearGradient>
+
+        <!-- Back Window (Electric Cyan/Mint) -->
+        <linearGradient id="back-grad" gradientUnits="userSpaceOnUse" x1="10" y1="30" x2="330" y2="350">
+            <stop offset="0%" stop-color="#00C9FF" />
+            <stop offset="100%" stop-color="#92FE9D" />
+        </linearGradient>
+
+        <!-- Hard drop shadow -->
+        <filter id="hard-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-8" dy="8" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+
+    <!-- Speed Stack -->
+    <rect x="10" y="30" width="320" height="320" rx="64" fill="url(#back-grad)" filter="url(#hard-shadow)"/>
+    <rect x="70" y="90" width="340" height="340" rx="72" fill="url(#mid-grad)" filter="url(#hard-shadow)"/>
+
+    <!-- Current Context / The Cat Window -->
+    <g filter="url(#hard-shadow)">
+        <!-- Outer Ears -->
+        <polygon points="170,160 150,40 240,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        <polygon points="450,160 470,40 380,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        
+        <!-- Inner Ears (adds depth/cuteness) -->
+        <polygon points="182,150 162,70 220,150" fill="#B100FF" stroke="#B100FF" stroke-width="8" stroke-linejoin="round" />
+        <polygon points="438,150 458,70 400,150" fill="#B100FF" stroke="#B100FF" stroke-width="8" stroke-linejoin="round" />
+
+        <rect x="130" y="150" width="360" height="360" rx="80" fill="url(#front-grad)" />
+        
+        <!-- Left Eye (Big expressive green cat eye) -->
+        <g transform="translate(230, 260) rotate(-15)">
+            <ellipse cx="0" cy="0" rx="40" ry="55" fill="#00FF9D" stroke="#060410" stroke-width="12" />
+            <!-- Vertical Pupil -->
+            <ellipse cx="0" cy="0" rx="12" ry="40" fill="#060410" />
+            <!-- Catchlight (The Sparkle!) -->
+            <circle cx="-12" cy="-22" r="10" fill="#FFFFFF" />
+        </g>
+
+        <!-- Right Eye -->
+        <g transform="translate(390, 260) rotate(15)">
+            <ellipse cx="0" cy="0" rx="40" ry="55" fill="#00FF9D" stroke="#060410" stroke-width="12" />
+            <ellipse cx="0" cy="0" rx="12" ry="40" fill="#060410" />
+            <!-- Catchlight stays on same side to mimic directional light -->
+            <circle cx="-12" cy="-22" r="10" fill="#FFFFFF" />
+        </g>
+        
+        <!-- Yelling/Happy Open Mouth -->
+        <path d="M 280 345 Q 310 410 340 345 Z" fill="#060410" stroke="#060410" stroke-width="10" stroke-linejoin="round" />
+        <!-- Tongue -->
+        <path d="M 292 365 Q 310 395 328 365 Z" fill="#FF3366" />
+        
+        <!-- Fangs -->
+        <polygon points="280,345 292,345 285,365" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" />
+        <polygon points="340,345 328,345 335,365" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4" stroke-linejoin="round" />
+
+        <!-- Cute chubby muzzle curves -->
+        <path d="M 260 340 Q 285 365 310 335 Q 335 365 360 340" fill="none" stroke="#060410" stroke-width="14" stroke-linecap="round" />
+        
+        <!-- Nose -->
+        <polygon points="295,325 325,325 310,340" fill="#060410" stroke="#060410" stroke-width="12" stroke-linejoin="round" />
+
+        <!-- Playful curved Whiskers -->
+        <!-- Left Side -->
+        <path d="M 250 335 Q 160 310 110 330" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+        <path d="M 255 355 Q 150 355 100 375" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+        <path d="M 265 375 Q 170 395 130 420" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+        
+        <!-- Right Side -->
+        <path d="M 370 335 Q 460 310 510 330" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+        <path d="M 365 355 Q 470 355 520 375" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+        <path d="M 355 375 Q 450 395 490 420" fill="none" stroke="#060410" stroke-width="12" stroke-linecap="round" />
+    </g>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Front Cat (Orange/Hot Pink) -->
+        <linearGradient id="front-grad" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="490" y2="510">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#FF9933" />
+        </linearGradient>
+
+        <!-- Middle Window (Bright Magenta/Purple) -->
+        <linearGradient id="mid-grad" gradientUnits="userSpaceOnUse" x1="70" y1="90" x2="410" y2="430">
+            <stop offset="0%" stop-color="#B100FF" />
+            <stop offset="100%" stop-color="#FF00E4" />
+        </linearGradient>
+
+        <!-- Back Window (Electric Cyan/Mint) -->
+        <linearGradient id="back-grad" gradientUnits="userSpaceOnUse" x1="10" y1="30" x2="330" y2="350">
+            <stop offset="0%" stop-color="#00C9FF" />
+            <stop offset="100%" stop-color="#92FE9D" />
+        </linearGradient>
+
+        <!-- Hard drop shadow -->
+        <filter id="hard-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-8" dy="8" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+
+    <!-- Speed Stack -->
+    <rect x="10" y="30" width="320" height="320" rx="64" fill="url(#back-grad)" filter="url(#hard-shadow)"/>
+    <rect x="70" y="90" width="340" height="340" rx="72" fill="url(#mid-grad)" filter="url(#hard-shadow)"/>
+
+    <!-- Current Context / The "Zoomies" Cat Window -->
+    <g filter="url(#hard-shadow)">
+        <!-- Left Ear (Perked up & Alert) -->
+        <polygon points="170,160 140,40 240,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        <polygon points="180,140 160,70 215,140" fill="#B100FF" />
+        
+        <!-- Right Ear (Flopped out sideways - huge ADHD/Derp energy) -->
+        <polygon points="450,160 520,90 380,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        <polygon points="440,140 480,105 405,140" fill="#B100FF" />
+
+        <!-- Main Face Container -->
+        <rect x="130" y="150" width="360" height="360" rx="80" fill="url(#front-grad)" />
+        
+        <!-- The "Zoomies" Eyes: Fully Circular, Massively Dilated Pupils -->
+        <!-- Left Eye -->
+        <g transform="translate(240, 260)">
+            <circle cx="0" cy="0" r="45" fill="#00FF9D" stroke="#060410" stroke-width="14" />
+            <circle cx="0" cy="0" r="30" fill="#060410" /> <!-- Massive dilated pupil -->
+            <circle cx="-10" cy="-15" r="12" fill="#FFFFFF" />
+        </g>
+
+        <!-- Right Eye (Slightly larger pupil and offset catchlight for manic energy) -->
+        <g transform="translate(380, 260) rotate(15)">
+            <circle cx="0" cy="0" r="45" fill="#00FF9D" stroke="#060410" stroke-width="14" />
+            <circle cx="0" cy="0" r="34" fill="#060410" /> <!-- Even MORE dilated pupil -->
+            <circle cx="-16" cy="-12" r="10" fill="#FFFFFF" />
+        </g>
+
+        <!-- Tiny rounded nose -->
+        <polygon points="295,330 325,330 310,345" fill="#060410" stroke="#060410" stroke-width="10" stroke-linejoin="round" />
+
+        <!-- Manic Grin with Tongue out ("Blep") -->
+        <path d="M 260 360 Q 310 430 360 360 Z" fill="#060410" stroke="#060410" stroke-width="10" stroke-linejoin="round" />
+        <!-- Tongue lolling out the side -->
+        <path d="M 315 390 Q 340 440 360 380 Z" fill="#FF3366" stroke="#060410" stroke-width="8" stroke-linejoin="round" />
+        <!-- Single goofy fang -->
+        <polygon points="275,360 290,360 280,380" fill="#FFFFFF" stroke="#060410" stroke-width="6" stroke-linejoin="round" />
+
+        <!-- Electric/Zig-Zag Whiskers (Instead of smooth curves) -->
+        <!-- Left Side -->
+        <polyline points="230,350 160,330 130,350" fill="none" stroke="#060410" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline points="235,380 150,375 120,405" fill="none" stroke="#060410" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+        
+        <!-- Right Side -->
+        <polyline points="390,350 460,330 490,350" fill="none" stroke="#060410" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline points="385,380 470,375 500,405" fill="none" stroke="#060410" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+</svg>

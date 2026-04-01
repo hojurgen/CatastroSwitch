@@ -27,7 +27,7 @@ Congratulations. This document is suddenly useful instead of decorative.
 Rules:
 
 - Keep the repo fork-only. This is the control tower, not the runtime.
-- Keep the real VS Code fork checkout outside `C:\CatastroSwitch`. Do not turn this repo into a landfill for a full product clone.
+- Keep the real VS Code fork checkout outside `CatastroSwitch`. Do not turn this repo into a landfill for a full product clone.
 - Prefer grounded, additive changes over clever churn. If the diff looks like a personality disorder, rewrite it.
 - Keep docs, schema, and fork tooling overlays aligned when their contracts change.
 - Keep the per-phase state artifact current if you use the Planner, Reviewer, or Gatekeeper loop. Magical thinking is not state management.
