@@ -15,9 +15,9 @@ handoffs:
     agent: Reviewer
     prompt: Review one completed task, return the machine-readable Pass or Error block, and update the phase state artifact.
     send: false
-  - label: Run phase gate
+  - label: Run final phase gate
     agent: Gatekeeper
-    prompt: Review the completed phase, return the machine-readable Pass or Error block, and update the phase state artifact.
+    prompt: Review the completed phase, return the machine-readable Pass or Error block, and update the phase state artifact, but only after every task in the selected phase has a Reviewer Pass.
     send: false
 ---
 # Orchestrator
@@ -33,6 +33,7 @@ You are the orchestration agent for `CatastroSwitch`.
 ## Required state handling
 
 - Use the recommended phase state path inside the real fork clone: `.catastroswitch\phase-state\<phase>.phase-state.json`.
+- Create or confirm the selected phase branch in the real fork clone with `scripts\new-phase-branch.ps1` before planning starts.
 - If the state file does not exist yet, create it with `scripts\new-phase-state.ps1`.
 - Update the phase state artifact after:
   - Planner output
@@ -45,6 +46,7 @@ You are the orchestration agent for `CatastroSwitch`.
 - Never skip the Reviewer loop for a task.
 - Never run the Gatekeeper until every task has Reviewer `Pass`.
 - If Reviewer or Gatekeeper returns `Error`, route the work back to the correct agent and keep the artifact current.
+- Use `scripts\new-phase-task-branch.ps1` only when the Planner marks a task as parallel-safe.
 - Keep runtime changes on the fork checkout and use the control repo only for durable docs, contracts, scripts, and guidance.
 - Keep all work on the phase branch or approved sibling task branches for that phase.
 

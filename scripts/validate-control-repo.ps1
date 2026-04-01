@@ -584,7 +584,7 @@ $null = Assert-FileExists -RelativePath 'fork\tooling\eslint.catastroswitch.conf
 Write-Host ' - OK: fork tooling policy files and branding manifest are present'
 
 $plannerAgentPath = Assert-FileExists -RelativePath '.github\agents\planner.agent.md'
-$codingAgentPath = Assert-FileExists -RelativePath '.github\agents\implementer.agent.md'
+$codingAgentPath = Assert-FileExists -RelativePath '.github\agents\coding-agent.agent.md'
 $reviewerAgentPath = Assert-FileExists -RelativePath '.github\agents\reviewer.agent.md'
 $gatekeeperAgentPath = Assert-FileExists -RelativePath '.github\agents\gatekeeper.agent.md'
 $orchestratorAgentPath = Assert-FileExists -RelativePath '.github\agents\orchestrator.agent.md'
@@ -603,11 +603,23 @@ if ($plannerAgentContents -notmatch [regex]::Escape('agent: Coding Agent')) {
 if ($plannerAgentContents -notmatch [regex]::Escape('agent: Gatekeeper')) {
     throw '.github\agents\planner.agent.md is missing the Gatekeeper handoff.'
 }
+if ($plannerAgentContents -notmatch [regex]::Escape('docs/vscode-fork-source-map.md') -or $plannerAgentContents -notmatch [regex]::Escape('docs/vscode-fork-build-runbook.md')) {
+    throw '.github\agents\planner.agent.md is missing the current source-map or build-runbook planning inputs.'
+}
+if ($plannerAgentContents -notmatch [regex]::Escape('schemas/workspace-registry.schema.json') -or $plannerAgentContents -notmatch [regex]::Escape('examples/workspace-registry.sample.json')) {
+    throw '.github\agents\planner.agent.md is missing the conditional registry/schema planning inputs.'
+}
+if ($plannerAgentContents -notmatch [regex]::Escape('docs/vscode-fork-branding-assets.md')) {
+    throw '.github\agents\planner.agent.md is missing the conditional branding planning input.'
+}
+if ($plannerAgentContents -notmatch [regex]::Escape('Reviewer `Pass`')) {
+    throw '.github\agents\planner.agent.md is missing the Gatekeeper timing guardrail.'
+}
 if ($codingAgentContents -notmatch [regex]::Escape('name: Coding Agent')) {
-    throw '.github\agents\implementer.agent.md is missing the Coding Agent name.'
+    throw '.github\agents\coding-agent.agent.md is missing the Coding Agent name.'
 }
 if ($codingAgentContents -notmatch [regex]::Escape('agent: Reviewer')) {
-    throw '.github\agents\implementer.agent.md is missing the Reviewer handoff.'
+    throw '.github\agents\coding-agent.agent.md is missing the Reviewer handoff.'
 }
 if ($reviewerAgentContents -notmatch [regex]::Escape('Outcome: Pass') -or $reviewerAgentContents -notmatch [regex]::Escape('Outcome: Error')) {
     throw '.github\agents\reviewer.agent.md is missing the required Pass/Error output contract.'
@@ -620,6 +632,12 @@ if ($orchestratorAgentContents -notmatch [regex]::Escape('agent: Planner') -or $
 }
 if ($orchestratorAgentContents -notmatch [regex]::Escape('phase state artifact')) {
     throw '.github\agents\orchestrator.agent.md is missing the phase state artifact guidance.'
+}
+if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\new-phase-branch.ps1')) {
+    throw '.github\agents\orchestrator.agent.md is missing the phase branch creation guidance.'
+}
+if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\new-phase-task-branch.ps1')) {
+    throw '.github\agents\orchestrator.agent.md is missing the sibling task branch guidance.'
 }
 if ($phaseSkillContents -notmatch [regex]::Escape('Gatekeeper') -or $phaseSkillContents -notmatch [regex]::Escape('Reviewer')) {
     throw '.github\skills\fork-phase-execution\SKILL.md is missing the phase execution loop.'

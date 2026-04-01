@@ -72,7 +72,7 @@ Phase workflow helpers live under:
 Workflow agents live under:
 
 - `.github\agents\planner.agent.md`
-- `.github\agents\implementer.agent.md` (`Coding Agent`)
+- `.github\agents\coding-agent.agent.md`
 - `.github\agents\reviewer.agent.md`
 - `.github\agents\gatekeeper.agent.md`
 - `.github\agents\orchestrator.agent.md`
