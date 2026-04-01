@@ -144,7 +144,7 @@ Use the helper scripts under `scripts\` to create the phase branch, task branch,
 
 ## Why the name
 
-I picked `CatastroSwitch` because my daily work is basically speedrunning workspace hopping while talking to customers and babysitting agents in other workspaces at the same time, all so I can stumble into the next customer meeting looking prepared. Usually there is not even a one-minute gap between those contexts, because apparently context switching is now a competitive sport. One minute it is code review, then performance troubleshooting, then debugging, then some PoC in another language with another tool, because calm and continuity were clearly rejected during planning.
+I picked `CatastroSwitch` because my daily work is basically speedrunning workspace hopping while talking to customers and babysitting agents in other workspaces at the same time, all so I can stumble into the next customer meeting looking prepared. Usually there is not even a one-minute gap between those contexts, because apparently context switching is now a competitive sport. One minute it is code review, then performance troubleshooting, then debugging, then some PoC in another language with another tool, then an architecture discussion, then removing go-live blockers on a process/business level because calm and continuity were clearly rejected during planning.
 
 Also, I love cats. I have three of them. They occasionally help by walking across my keyboard or meowing into the camera during customer calls, because clearly professionalism improves when surprise feline QA gets involved.
 
@@ -152,4 +152,4 @@ My wife also loves me enough to throw sandwiches into the office when I am worki
 
 So yes: switching everywhere, small to medium catastrophes everywhere, cats, and airborne sandwiches. The name was not exactly hard to find.
 
-YES! I mentioned agents. AND CATS. FOCUS ON THE CATS. AND THE AIRBORNE SANDWICHES. The code is AI-generated because apparently my job now is not "writing software" but curating top-tier AI slop while three cats and a ballistic lunch-delivery system masquerade as quality control.
+YES! I mentioned agents. AND CATS. FOCUS ON THE CATS. AND THE AIRBORNE SANDWICHES. The code is AI-generated because apparently my job now is "writing software" but curating top-tier AI slop while three cats and a ballistic lunch-delivery system masquerade as quality control.
