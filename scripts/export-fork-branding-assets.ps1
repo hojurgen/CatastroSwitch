@@ -5,7 +5,8 @@ param(
     [string]$ManifestPath = '',
     [string]$StagingRoot = (Join-Path ([System.IO.Path]::GetTempPath()) 'CatastroSwitch-branding'),
     [switch]$PlanOnly,
-    [switch]$RequireComplete
+    [switch]$RequireComplete,
+    [switch]$CompileFork
 )
 
 Set-StrictMode -Version Latest
@@ -47,6 +48,70 @@ function Resolve-ForkPath {
     )
 
     return Join-Path $ForkRoot $RelativePath
+}
+
+function Get-CanonicalTargetSourceRelativePath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Target
+    )
+
+    $targetId = [string]$Target.id
+    if ($targetId -eq 'workbench-code-icon') {
+        return $script:BrandingWorkbenchIconSource
+    }
+
+    return $script:BrandingRasterIconMaster
+}
+
+function Resolve-CanonicalTargetSourcePath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Target,
+        [Parameter(Mandatory = $true)]
+        [string]$Description
+    )
+
+    $targetId = [string]$Target.id
+    $expectedSource = Get-CanonicalTargetSourceRelativePath -Target $Target
+    if ([string]::IsNullOrWhiteSpace($expectedSource)) {
+        throw "Branding source policy is incomplete for target '$targetId'."
+    }
+
+    $declaredSource = if ($Target.PSObject.Properties['source']) { [string]$Target.source } else { '' }
+    if ($declaredSource -ne $expectedSource) {
+        throw "Branding target '$targetId' must use $expectedSource."
+    }
+
+    return Resolve-ExistingPath -Path $expectedSource -BasePath $repoRoot -Description $Description
+}
+
+function Assert-TargetVariantsUseCanonicalSource {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Target
+    )
+
+    if (-not $Target.PSObject.Properties['sizeVariants']) {
+        return
+    }
+
+    $targetId = [string]$Target.id
+    $expectedSource = Get-CanonicalTargetSourceRelativePath -Target $Target
+    foreach ($variant in @($Target.sizeVariants)) {
+        if (-not $variant.PSObject.Properties['source']) {
+            continue
+        }
+
+        $variantSource = [string]$variant.source
+        if ([string]::IsNullOrWhiteSpace($variantSource)) {
+            continue
+        }
+
+        if ($variantSource -ne $expectedSource) {
+            throw "Branding target '$targetId' size variants must use $expectedSource."
+        }
+    }
 }
 
 function New-ParentDirectory {
@@ -97,6 +162,30 @@ function Get-ToolPath {
     }
 
     return $null
+}
+
+function Invoke-ForkCompile {
+    $forkPackageJsonPath = Join-Path $ForkRoot 'package.json'
+    if (-not (Test-Path -LiteralPath $forkPackageJsonPath)) {
+        throw "Fork root does not look like a Node.js checkout: $ForkRoot"
+    }
+
+    $npmPath = Get-ToolPath -Name 'npm'
+    if (-not $npmPath) {
+        throw "npm is required when -CompileFork is used. Install Node.js, then rerun the script."
+    }
+
+    Write-Host "Compiling runtime fork in $ForkRoot ..."
+    Push-Location $ForkRoot
+    try {
+        & $npmPath 'run' 'compile'
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Fork compile failed while refreshing branding outputs.'
+        }
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 function Invoke-Magick {
@@ -193,7 +282,7 @@ function New-IcoTarget {
         [object]$Target
     )
 
-    $sourcePath = Resolve-ExistingPath -Path $Target.source -BasePath $repoRoot -Description 'Branding source asset'
+    $sourcePath = Resolve-CanonicalTargetSourcePath -Target $Target -Description 'Branding source asset'
     $outputPath = Resolve-ForkPath -RelativePath $Target.forkRelativeOutput
     $stagingDirectory = Join-Path $StagingRoot $Target.id
     $null = New-Item -ItemType Directory -Path $stagingDirectory -Force
@@ -202,7 +291,9 @@ function New-IcoTarget {
     foreach ($size in @($Target.sizes)) {
         $variantPath = Join-Path $stagingDirectory ("$size.png")
         $variant = Get-TargetVariantForSize -Target $Target -Size ([int]$size)
-        New-SquarePng -SourcePath $sourcePath -OutputPath $variantPath -Size ([int]$size) -Variant $variant
+        $variantSourcePath = $sourcePath
+
+        New-SquarePng -SourcePath $variantSourcePath -OutputPath $variantPath -Size ([int]$size) -Variant $variant
         $variantPaths += $variantPath
     }
 
@@ -222,9 +313,27 @@ function New-PngTarget {
         [object]$Target
     )
 
-    $sourcePath = Resolve-ExistingPath -Path $Target.source -BasePath $repoRoot -Description 'Branding source asset'
+    $sourcePath = Resolve-CanonicalTargetSourcePath -Target $Target -Description 'Branding source asset'
     $outputPath = Resolve-ForkPath -RelativePath $Target.forkRelativeOutput
     New-SquarePng -SourcePath $sourcePath -OutputPath $outputPath -Size ([int]$Target.size)
+
+    return [pscustomobject]@{
+        Output = $Target.forkRelativeOutput
+        Format = $Target.format
+        Status = 'updated'
+    }
+}
+
+function Copy-AssetTarget {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object]$Target
+    )
+
+    $sourcePath = Resolve-CanonicalTargetSourcePath -Target $Target -Description 'Branding source asset'
+    $outputPath = Resolve-ForkPath -RelativePath $Target.forkRelativeOutput
+    New-ParentDirectory -Path $outputPath
+    Copy-Item -LiteralPath $sourcePath -Destination $outputPath -Force
 
     return [pscustomobject]@{
         Output = $Target.forkRelativeOutput
@@ -239,7 +348,7 @@ function New-IcnsTarget {
         [object]$Target
     )
 
-    $sourcePath = Resolve-ExistingPath -Path $Target.source -BasePath $repoRoot -Description 'Branding source asset'
+    $sourcePath = Resolve-CanonicalTargetSourcePath -Target $Target -Description 'Branding source asset'
     $outputPath = Resolve-ForkPath -RelativePath $Target.forkRelativeOutput
     $iconsetDirectory = Join-Path (Join-Path $StagingRoot 'darwin') 'code.iconset'
     $null = New-Item -ItemType Directory -Path $iconsetDirectory -Force
@@ -325,11 +434,50 @@ if ($targets.Count -eq 0) {
     throw 'Branding manifest does not define any export targets.'
 }
 
+$script:BrandingRasterIconMaster = $null
+if ($manifest.PSObject.Properties['sourcePolicy'] -and $manifest.sourcePolicy.PSObject.Properties['rasterIconMaster']) {
+    $script:BrandingRasterIconMaster = [string]$manifest.sourcePolicy.rasterIconMaster
+}
+
+$script:BrandingWorkbenchIconSource = $null
+if ($manifest.PSObject.Properties['sourcePolicy'] -and $manifest.sourcePolicy.PSObject.Properties['workbenchIconSource']) {
+    $script:BrandingWorkbenchIconSource = [string]$manifest.sourcePolicy.workbenchIconSource
+}
+
+$script:BrandingIconPreview = $null
+if ($manifest.PSObject.Properties['sourcePolicy'] -and $manifest.sourcePolicy.PSObject.Properties['iconPreview']) {
+    $script:BrandingIconPreview = [string]$manifest.sourcePolicy.iconPreview
+}
+
+if ($script:BrandingRasterIconMaster -ne 'assets/logo.svg') {
+    throw 'Branding manifest must keep assets/logo.svg as the shipped raster icon master.'
+}
+if ($script:BrandingWorkbenchIconSource -ne 'assets/logo.svg') {
+    throw 'Branding manifest must keep assets/logo.svg as the workbench SVG source.'
+}
+if ($script:BrandingIconPreview -ne 'assets/logo.svg') {
+    throw 'Branding manifest must keep assets/logo.svg as the icon preview source.'
+}
+
+$null = Resolve-ExistingPath -Path $script:BrandingRasterIconMaster -BasePath $repoRoot -Description 'Branding raster icon master'
+$null = Resolve-ExistingPath -Path $script:BrandingWorkbenchIconSource -BasePath $repoRoot -Description 'Branding workbench icon source'
+$null = Resolve-ExistingPath -Path $script:BrandingIconPreview -BasePath $repoRoot -Description 'Branding icon preview source'
+
+foreach ($target in $targets) {
+    $null = Resolve-CanonicalTargetSourcePath -Target $target -Description 'Branding source asset'
+    Assert-TargetVariantsUseCanonicalSource -Target $target
+}
+
 $script:MagickPath = Get-ToolPath -Name 'magick'
 $script:IconutilPath = Get-ToolPath -Name 'iconutil'
 $script:NpxPath = Get-ToolPath -Name 'npx'
 
-Write-Host "Branding icon master: $($manifest.sourcePolicy.iconMaster)"
+if ($script:BrandingRasterIconMaster) {
+    Write-Host "Branding raster icon master: $($script:BrandingRasterIconMaster)"
+}
+if ($script:BrandingWorkbenchIconSource) {
+    Write-Host "Branding workbench icon source: $($script:BrandingWorkbenchIconSource)"
+}
 Write-Host "Fork root: $ForkRoot"
 Write-Host "Manifest: $resolvedManifestPath"
 
@@ -339,8 +487,11 @@ if ($PlanOnly) {
         $sizeSummary = if ($target.PSObject.Properties['sizes']) {
             (@($target.sizes) -join ', ')
         }
-        else {
+        elseif ($target.PSObject.Properties['size']) {
             [string]$target.size
+        }
+        else {
+            'direct-copy'
         }
 
         Write-Host " - $($target.forkRelativeOutput) [$($target.format)] from $($target.source) sizes: $sizeSummary"
@@ -354,6 +505,9 @@ if ($PlanOnly) {
     }
     elseif (-not $script:IconutilPath) {
         Write-Warning "macOS 'iconutil' is not available on this machine. The ICNS bundle will require a macOS packaging step."
+    }
+    if ($CompileFork) {
+        Write-Host "After export, the script will also run 'npm run compile' in $ForkRoot so the in-app workbench icon refreshes from the same control-repo source."
     }
 
     return
@@ -375,6 +529,7 @@ foreach ($target in $targets) {
         'png' { New-PngTarget -Target $target }
         'ico' { New-IcoTarget -Target $target }
         'icns' { New-IcnsTarget -Target $target }
+        'svg' { Copy-AssetTarget -Target $target }
         default { throw "Unsupported branding target format '$($target.format)' in $($target.id)." }
     }
 
@@ -389,6 +544,19 @@ foreach ($result in $results) {
     }
 
     Write-Warning "$($result.Output) [$($result.Format)] requires a manual follow-up: $($result.Details)"
+}
+
+$updatedWorkbenchIcon = @(
+    $results | Where-Object {
+        $_.Status -eq 'updated' -and $_.Output -eq 'src/vs/workbench/browser/media/code-icon.svg'
+    }
+).Count -gt 0
+
+if ($CompileFork) {
+    Invoke-ForkCompile
+}
+elseif ($updatedWorkbenchIcon) {
+    Write-Host 'Next step in the runtime fork: run npm run compile before self-hosting so out/vs/workbench/browser/media/code-icon.svg picks up the exported workbench SVG.'
 }
 
 $pendingResults = @($results | Where-Object { $_.Status -ne 'updated' })

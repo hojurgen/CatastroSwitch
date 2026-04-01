@@ -1,99 +1,115 @@
 {
   "version": 1,
   "sourcePolicy": {
-    "iconMaster": "assets/logo-rounded-icon-hd.svg",
-    "iconPreview": "assets/logo-rounded-icon.svg",
+    "rasterIconMaster": "assets/logo.svg",
+    "workbenchIconSource": "assets/logo.svg",
+    "iconPreview": "assets/logo.svg",
     "nonIconSources": [
       {
-        "path": "assets/logo.png",
+        "path": "assets/draft/logo.png",
         "reason": "Wordmark-bearing marketing art on a non-square canvas."
       },
       {
-        "path": "assets/logo.svg",
-        "reason": "Master wordmark logo for documentation and larger branding surfaces."
+        "path": "assets/draft/logo.svg",
+        "reason": "Legacy wordmark logo retained as draft artwork for documentation and larger surfaces."
       },
       {
-        "path": "assets/logo-hd.svg",
-        "reason": "High-resolution wordmark logo for larger branding surfaces."
+        "path": "assets/draft/logo-hd.svg",
+        "reason": "High-resolution legacy wordmark logo retained as draft artwork."
       },
       {
-        "path": "assets/logo-rounded.svg",
-        "reason": "Rounded wordmark variant for larger surfaces, not the default app icon."
+        "path": "assets/draft/logo-rounded-hd.svg",
+        "reason": "High-resolution rounded draft variant retained for larger-surface experiments."
       },
       {
-        "path": "assets/logo-rounded-hd.svg",
-        "reason": "High-resolution rounded wordmark variant for larger surfaces."
+        "path": "assets/draft/logo-rounded-icon-hd.svg",
+        "reason": "Previous rounded icon candidate retained as draft artwork for comparison."
       },
       {
-        "path": "assets/logo-circle.svg",
+        "path": "assets/draft/logo-circle.svg",
         "reason": "Circular variant reserved for avatar-style or future favicon experiments."
       },
       {
-        "path": "assets/logo-circle-hd.svg",
+        "path": "assets/draft/logo-circle-hd.svg",
         "reason": "High-resolution circular variant reserved for avatar-style or future favicon experiments."
+      },
+      {
+        "path": "assets/draft/logo-taskbar-padded-transparent.svg",
+        "reason": "Taskbar-focused transparent experiment retained for reference, not the shipped master."
+      },
+      {
+        "path": "assets/draft/logo-taskbar-crisp-transparent.svg",
+        "reason": "Crisp transparent taskbar experiment retained for reference, not the shipped master."
+      },
+      {
+        "path": "assets/draft/logo_old.svg",
+        "reason": "Archived logo iteration kept for comparison only."
+      },
+      {
+        "path": "assets/draft/logo_old2.svg",
+        "reason": "Archived logo iteration kept for comparison only."
       }
     ]
   },
   "targets": [
     {
       "id": "win32-product-icon",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/win32/code.ico",
       "format": "ico",
-      "sizes": [16, 32, 128, 256],
-      "sizeVariants": [
-        {
-          "sizes": [16, 32],
-          "crop": {
-            "widthPercent": 58,
-            "heightPercent": 58,
-            "offsetX": 0,
-            "offsetY": -40
-          },
-          "notes": "Use a face-focused crop so the Windows shell icon stays legible at micro sizes."
-        }
-      ],
-      "notes": "Mirror the current Windows product icon payload."
+      "sizes": [16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 128, 256],
+      "notes": "Provide exact Win32 shell sizes while keeping every generated frame derived from the shared SVG icon master."
+    },
+    {
+      "id": "win32-visualelements-70",
+      "source": "assets/logo.svg",
+      "forkRelativeOutput": "resources/win32/code_70x70.png",
+      "format": "png",
+      "size": 70,
+      "notes": "Windows visual elements small tile logo generated from the shared SVG icon master."
+    },
+    {
+      "id": "win32-visualelements-150",
+      "source": "assets/logo.svg",
+      "forkRelativeOutput": "resources/win32/code_150x150.png",
+      "format": "png",
+      "size": 150,
+      "notes": "Windows visual elements medium tile logo generated from the shared SVG icon master so Windows does not surface the legacy blue branding."
     },
     {
       "id": "darwin-product-icon",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/darwin/code.icns",
       "format": "icns",
       "sizes": [16, 32, 64, 128, 256, 512, 1024],
-      "notes": "Package from a staged iconset with macOS iconutil."
+      "notes": "Package from the shared SVG icon master via a staged iconset with macOS iconutil."
     },
     {
       "id": "linux-product-icon",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/linux/code.png",
       "format": "png",
       "size": 1024,
       "notes": "Square Linux desktop icon."
     },
     {
+      "id": "workbench-code-icon",
+      "source": "assets/logo.svg",
+      "forkRelativeOutput": "src/vs/workbench/browser/media/code-icon.svg",
+      "format": "svg",
+      "notes": "Direct SVG copy from the shared SVG icon master for the in-app workbench product icon used by title bar, getting started, update tooltip, banner, and walkthrough surfaces."
+    },
+    {
       "id": "server-favicon",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/server/favicon.ico",
       "format": "ico",
       "sizes": [16, 32, 48],
-      "sizeVariants": [
-        {
-          "sizes": [16, 32, 48],
-          "crop": {
-            "widthPercent": 58,
-            "heightPercent": 58,
-            "offsetX": 0,
-            "offsetY": -40
-          },
-          "notes": "Use the same face-focused crop for favicon readability."
-        }
-      ],
-      "notes": "Server and web favicon payload."
+      "notes": "Server and web favicon payload generated from the shared SVG icon master."
     },
     {
       "id": "server-icon-192",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/server/code-192.png",
       "format": "png",
       "size": 192,
@@ -101,7 +117,7 @@
     },
     {
       "id": "server-icon-512",
-      "source": "assets/logo-rounded-icon-hd.svg",
+      "source": "assets/logo.svg",
       "forkRelativeOutput": "resources/server/code-512.png",
       "format": "png",
       "size": 512,

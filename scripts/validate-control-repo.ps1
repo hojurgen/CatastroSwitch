@@ -424,6 +424,9 @@ if (-not $brandingExportTask) {
 if ('.\scripts\export-fork-branding-assets.ps1' -notin @($brandingExportTask.args)) {
     throw ".vscode\tasks.json does not route the branding export task through .\scripts\export-fork-branding-assets.ps1."
 }
+if ('-CompileFork' -notin @($brandingExportTask.args)) {
+    throw ".vscode\tasks.json does not route the branding export task through the reproducible export-and-compile flow."
+}
 
 $taskInputIds = @($tasksConfig.inputs | ForEach-Object { $_.id })
 if ('phaseId' -notin $taskInputIds) {
@@ -494,6 +497,9 @@ if ($phaseStateScriptContents -notmatch [regex]::Escape('Get-DefaultPhaseStatePa
 if ($brandingExportScriptContents -notmatch [regex]::Escape('branding-assets.manifest.json')) {
     throw 'scripts\export-fork-branding-assets.ps1 is missing the shared branding manifest reference.'
 }
+if ($brandingExportScriptContents -notmatch [regex]::Escape('CompileFork')) {
+    throw 'scripts\export-fork-branding-assets.ps1 is missing the fork compile step for the reproducible branding flow.'
+}
 Write-Host ' - OK: phase workflow helper scripts and branding export script are present'
 
 $forkReadmePath = Assert-FileExists -RelativePath 'fork\README.md'
@@ -514,21 +520,65 @@ $brandingManifest = Read-JsonFile -RelativePath 'fork\tooling\branding-assets.ma
 Assert-RequiredProperties -InputObject $brandingManifest -RequiredProperties @('version', 'sourcePolicy', 'targets') -Description 'branding manifest root'
 Assert-IntegerMinimum -Value (Get-PropertyValue -InputObject $brandingManifest -PropertyName 'version') -Minimum 1 -Description 'branding manifest version'
 $brandingSourcePolicy = Get-PropertyValue -InputObject $brandingManifest -PropertyName 'sourcePolicy'
-Assert-RequiredProperties -InputObject $brandingSourcePolicy -RequiredProperties @('iconMaster') -Description 'branding manifest sourcePolicy'
-if ((Get-PropertyValue -InputObject $brandingSourcePolicy -PropertyName 'iconMaster') -ne 'assets/logo-rounded-icon-hd.svg') {
-    throw 'fork\tooling\branding-assets.manifest.json must keep assets/logo-rounded-icon-hd.svg as the primary icon master.'
+Assert-RequiredProperties -InputObject $brandingSourcePolicy -RequiredProperties @('rasterIconMaster', 'workbenchIconSource', 'iconPreview') -Description 'branding manifest sourcePolicy'
+$brandingRasterIconMaster = Get-PropertyValue -InputObject $brandingSourcePolicy -PropertyName 'rasterIconMaster'
+$brandingWorkbenchIconSource = Get-PropertyValue -InputObject $brandingSourcePolicy -PropertyName 'workbenchIconSource'
+$brandingIconPreview = Get-PropertyValue -InputObject $brandingSourcePolicy -PropertyName 'iconPreview'
+Assert-StringValue -Value $brandingRasterIconMaster -Description 'branding manifest sourcePolicy.rasterIconMaster'
+Assert-StringValue -Value $brandingWorkbenchIconSource -Description 'branding manifest sourcePolicy.workbenchIconSource'
+Assert-StringValue -Value $brandingIconPreview -Description 'branding manifest sourcePolicy.iconPreview'
+if ($brandingRasterIconMaster -ne 'assets/logo.svg') {
+    throw 'fork\tooling\branding-assets.manifest.json must keep assets/logo.svg as the shipped icon master.'
 }
+if ($brandingWorkbenchIconSource -ne 'assets/logo.svg') {
+    throw 'fork\tooling\branding-assets.manifest.json must keep assets/logo.svg as the workbench SVG source.'
+}
+if ($brandingIconPreview -ne $brandingRasterIconMaster) {
+    throw 'fork\tooling\branding-assets.manifest.json must keep iconPreview aligned with the shipped icon master.'
+}
+$null = Assert-FileExists -RelativePath $brandingRasterIconMaster
+$null = Assert-FileExists -RelativePath $brandingWorkbenchIconSource
+$null = Assert-FileExists -RelativePath $brandingIconPreview
 $brandingTargets = @($brandingManifest.targets)
+$brandingTargetSourcesById = @{}
+foreach ($brandingTarget in $brandingTargets) {
+    Assert-RequiredProperties -InputObject $brandingTarget -RequiredProperties @('id', 'source', 'forkRelativeOutput', 'format') -Description 'branding manifest target'
+
+    $brandingTargetId = Get-PropertyValue -InputObject $brandingTarget -PropertyName 'id'
+    $brandingTargetSource = Get-PropertyValue -InputObject $brandingTarget -PropertyName 'source'
+    Assert-StringValue -Value $brandingTargetId -Description 'branding manifest target id'
+    Assert-StringValue -Value $brandingTargetSource -Description "branding manifest target '$brandingTargetId'.source"
+    $null = Assert-FileExists -RelativePath $brandingTargetSource
+    $brandingTargetSourcesById[$brandingTargetId] = $brandingTargetSource
+
+    if ($brandingTargetId -eq 'workbench-code-icon') {
+        if ($brandingTargetSource -ne $brandingWorkbenchIconSource) {
+            throw "branding manifest target '$brandingTargetId' must use $brandingWorkbenchIconSource as its SVG source."
+        }
+
+        continue
+    }
+
+    if ($brandingTargetSource -ne $brandingRasterIconMaster) {
+        throw "branding manifest target '$brandingTargetId' must use $brandingRasterIconMaster for packaged and raster outputs."
+    }
+}
 $brandingOutputPaths = @($brandingTargets | ForEach-Object { Get-PropertyValue -InputObject $_ -PropertyName 'forkRelativeOutput' })
 foreach ($expectedBrandingOutput in @(
     'resources/win32/code.ico',
+    'resources/win32/code_70x70.png',
+    'resources/win32/code_150x150.png',
     'resources/darwin/code.icns',
     'resources/linux/code.png',
+    'src/vs/workbench/browser/media/code-icon.svg',
     'resources/server/favicon.ico',
     'resources/server/code-192.png',
     'resources/server/code-512.png'
 )) {
     Assert-ContainsValue -Values $brandingOutputPaths -ExpectedValue $expectedBrandingOutput -Description 'branding manifest targets'
+}
+if ($brandingTargetSourcesById['workbench-code-icon'] -ne $brandingWorkbenchIconSource) {
+    throw 'branding manifest workbench target is not aligned with sourcePolicy.workbenchIconSource.'
 }
 $null = Assert-FileExists -RelativePath 'fork\tooling\eslint.catastroswitch.config.mjs'
 Write-Host ' - OK: fork tooling policy files and branding manifest are present'

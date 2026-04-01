@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <linearGradient id="solid-grad" gradientUnits="userSpaceOnUse" x1="200" y1="200" x2="480" y2="480">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#FF9933" />
+        </linearGradient>
+
+        <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.8" result="shadow"/>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="shadow"/>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+        
+        <filter id="box-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-8" dy="12" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+        </filter>
+    </defs>
+
+    <!-- Speed Stack / Workspace History -->
+    <rect x="50" y="50" width="220" height="220" rx="40" fill="none" stroke="#7928CA" stroke-width="12" filter="url(#neon-glow)" opacity="0.75" />
+    <rect x="110" y="110" width="240" height="240" rx="48" fill="none" stroke="#FF0080" stroke-width="16" filter="url(#neon-glow)" opacity="0.9" />
+    <rect x="180" y="180" width="240" height="240" rx="56" fill="none" stroke="#FF512F" stroke-width="20" filter="url(#neon-glow)" opacity="1.0" />
+
+    <!-- Current Context / Front Window -->
+    <g filter="url(#box-shadow)">
+        <!-- Rounded Ears (achieved via thick stroke with rounded joints) -->
+        <polygon points="275,255 245,120 325,255" fill="url(#solid-grad)" stroke="url(#solid-grad)" stroke-width="24" stroke-linejoin="round" />
+        <polygon points="465,255 495,120 415,255" fill="url(#solid-grad)" stroke="url(#solid-grad)" stroke-width="24" stroke-linejoin="round" />
+        
+        <rect x="250" y="250" width="240" height="240" rx="64" fill="url(#solid-grad)" />
+        
+        <!-- Friendly but focused inward-pointing triangular eyes (rounded corners) -->
+        <polygon points="285,340 285,370 330,355" fill="#060410" stroke="#060410" stroke-width="14" stroke-linejoin="round" />
+        <polygon points="455,340 455,370 410,355" fill="#060410" stroke="#060410" stroke-width="14" stroke-linejoin="round" />
+    </g>
+</svg>

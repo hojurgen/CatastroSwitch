@@ -25,7 +25,7 @@ See `..\..\docs\grounding.md` for the exact source links.
 
 1. Extend the relevant fork `tsconfig*.json` files from `tsconfig.catastroswitch.strict.json`, or copy the `compilerOptions` into the fork's existing layered `tsconfig` setup if direct `extends` is awkward.
 2. Import `eslint.catastroswitch.config.mjs` into the fork's ESLint entrypoint and start by applying it only to CatastroSwitch-owned files and intentionally patched upstream files.
-3. When branding assets change, run `scripts\export-fork-branding-assets.ps1` from the control repo against the fork root so the generated runtime icons stay consistent with the manifest.
+3. When branding assets change, run `scripts\export-fork-branding-assets.ps1 -CompileFork` from the control repo against the fork root so every generated runtime icon and the compiled in-app workbench icon stay consistent with `assets\logo.svg` and the manifest.
 4. Reuse upstream VS Code dependencies where possible. The upstream repo already ships `eslint` and `typescript-eslint`, so this is meant to be an overlay, not a replacement lint stack.
 5. After wiring the overlay into the real fork, run `npm run eslint`, `npm run compile`, and the smallest relevant self-host loop before merging.
 

@@ -54,7 +54,7 @@ Typical maintainer loop:
 1. Plan in this repo.
 2. Implement and build in the fork repo.
 3. Use `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat` from the fork checkout.
-4. If branding sources changed in this control repo, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent` before committing the generated fork resources. ImageMagick is required for raster export, and the script uses either macOS `iconutil` or `npx icon-gen` to package `resources\darwin\code.icns`.
+4. If branding sources changed in this control repo, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent -CompileFork` before committing the generated fork resources. The script enforces `assets\logo.svg` as the single icon source, updates the packaged runtime assets, and recompiles the fork so in-app workbench icon surfaces refresh from the same source. ImageMagick is required for raster export, and the script uses either macOS `iconutil` or `npx icon-gen` to package `resources\darwin\code.icns`.
 5. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
 6. In the fork checkout, keep `/.catastroswitch/` ignored via `.git/info/exclude` so local phase-state files do not dirty the runtime branch.
 7. In this control repo, keep the local `pre-push` hook enabled before pushing changes.

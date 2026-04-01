@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Gradients bound to user space so they map perfectly across multiple shapes -->
+        <linearGradient id="back-grad" gradientUnits="userSpaceOnUse" x1="80" y1="100" x2="320" y2="340">
+            <stop offset="0%" stop-color="#FF0076" />
+            <stop offset="100%" stop-color="#590FB7" />
+        </linearGradient>
+        
+        <linearGradient id="front-grad" gradientUnits="userSpaceOnUse" x1="200" y1="80" x2="480" y2="480">
+            <stop offset="0%" stop-color="#00F5A0" />
+            <stop offset="100%" stop-color="#00D9F5" />
+        </linearGradient>
+
+        <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+            <feDropShadow dx="-8" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.4"/>
+        </filter>
+    </defs>
+
+    <!-- Dark Mobile App Canvas -->
+    <rect width="512" height="512" rx="112" fill="#0F172A" />
+
+    <!-- "Previous Window/Workspace" -->
+    <rect x="80" y="120" width="240" height="240" rx="48" fill="url(#back-grad)" />
+
+    <!-- "Current Window/Workspace" (The Cat) -->
+    <g filter="url(#shadow)">
+        <!-- Giant geometric ears -->
+        <polygon points="230,224 200,80 280,214" fill="url(#front-grad)" />
+        <polygon points="442,224 472,80 392,214" fill="url(#front-grad)" />
+        
+        <!-- The Window itself -->
+        <rect x="208" y="208" width="256" height="256" rx="56" fill="url(#front-grad)" />
+        
+        <!-- Massive Face Elements (Scales down to 16x16 perfectly) -->
+        <circle cx="280" cy="310" r="28" fill="#0F172A" />
+        <circle cx="392" cy="310" r="28" fill="#0F172A" />
+        <!-- Minimalist cat mouth -->
+        <path d="M 316 350 L 336 370 L 356 350" stroke="#0F172A" stroke-width="20" stroke-linecap="round" fill="none" stroke-linejoin="round"/>
+    </g>
+</svg>

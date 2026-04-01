@@ -212,6 +212,8 @@ C:\CatastroSwitch\fork\tooling\branding-assets.manifest.json
 The current runtime fork surfaces that need replacement are:
 
 - `resources\win32\code.ico`
+- `resources\win32\code_70x70.png`
+- `resources\win32\code_150x150.png`
 - `resources\darwin\code.icns`
 - `resources\linux\code.png`
 - `resources\server\favicon.ico`
@@ -221,8 +223,10 @@ The current runtime fork surfaces that need replacement are:
 Run the export workflow from `C:\CatastroSwitch`, not from the fork root:
 
 ```powershell
-powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent -CompileFork
 ```
+
+Use that as the default reproducible branding path. It exports every packaged icon target from `assets\logo.svg` in the control repo and then runs `npm run compile` in the runtime fork so the in-app workbench icon refreshes from the same source before self-hosting.
 
 Requirements:
 
@@ -231,6 +235,8 @@ Requirements:
 - Node.js with `npx icon-gen` support for a cross-platform ICNS fallback on Windows or Linux
 
 If `iconutil` is unavailable, the script falls back to `npx icon-gen` for `resources\darwin\code.icns`. If neither tool is available, the script stages a `code.iconset` directory for the macOS icon bundle and leaves the final packaging step explicit.
+
+For Windows, the export includes the broader shell size set in `resources\win32\code.ico` and also replaces `resources\win32\code_70x70.png` and `resources\win32\code_150x150.png`. Those outputs now derive from the original icon master so the packaged Win32 surfaces stay aligned with the source artwork. The tiny `code.ico` frames used by the window title bar read from the padded view-box of the original master before rasterization so the top-left icon stays legible without introducing a separate Windows-only design.
 
 When only the generated runtime binaries change, commit those files in the runtime fork. When the source mapping or workflow changes, update the control repo docs and manifest in the same change.
 

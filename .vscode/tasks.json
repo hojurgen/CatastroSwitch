@@ -120,7 +120,8 @@
         "-File",
         ".\\scripts\\export-fork-branding-assets.ps1",
         "-ForkRoot",
-        "${input:forkRoot}"
+        "${input:forkRoot}",
+        "-CompileFork"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

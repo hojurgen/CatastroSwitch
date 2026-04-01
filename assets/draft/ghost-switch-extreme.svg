@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- High-energy neon sunset gradient for the active cat -->
+        <linearGradient id="neon-fire" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#FF9933" />
+        </linearGradient>
+    </defs>
+
+    <!-- Base Mobile App Squircle (Dark Theme for Neon Pop) -->
+    <rect width="512" height="512" rx="112" fill="#130B1F" />
+    
+    <!-- Massive Hardware Toggle Track -->
+    <rect x="64" y="160" width="384" height="192" rx="96" fill="#08040C" stroke="#2A1B44" stroke-width="12" />
+    
+    <!-- "Ghost/Off" State Cat (Left side - leaves a trail of previous context) -->
+    <g opacity="0.08">
+        <!-- Ghost Ears -->
+        <polygon points="106,196 130,105 174,186" fill="#FFFFFF" />
+        <polygon points="214,196 190,105 146,186" fill="#FFFFFF" />
+        <!-- Ghost Body -->
+        <circle cx="160" cy="256" r="72" fill="#FFFFFF" />
+    </g>
+
+    <!-- "Active/On" State Cat (Right side - jumping to new context) -->
+    <g>
+        <!-- Active Ears (Breaking out of the track) -->
+        <polygon points="296,206 320,85 362,196" fill="url(#neon-fire)" />
+        <polygon points="408,206 384,85 342,196" fill="url(#neon-fire)" />
+        
+        <!-- Active Knob / Head -->
+        <circle cx="352" cy="256" r="80" fill="url(#neon-fire)" />
+        
+        <!-- Speed squinting eyes (Hyper recognizable at 16x16) -->
+        <path d="M 300 245 L 335 255 L 300 265 Z" fill="#130B1F" />
+        <path d="M 404 245 L 369 255 L 404 265 Z" fill="#130B1F" />
+    </g>
+</svg>

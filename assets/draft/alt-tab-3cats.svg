@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Gradients bound to user space for consistent mapping across pieces -->
+        <linearGradient id="grad-back" gradientUnits="userSpaceOnUse" x1="40" y1="40" x2="240" y2="240">
+            <stop offset="0%" stop-color="#590FB7" />
+            <stop offset="100%" stop-color="#FF0076" />
+        </linearGradient>
+        
+        <linearGradient id="grad-mid" gradientUnits="userSpaceOnUse" x1="140" y1="140" x2="360" y2="360">
+            <stop offset="0%" stop-color="#FF0076" />
+            <stop offset="100%" stop-color="#FF9900" />
+        </linearGradient>
+
+        <linearGradient id="grad-front" gradientUnits="userSpaceOnUse" x1="260" y1="260" x2="480" y2="480">
+            <stop offset="0%" stop-color="#00F5A0" />
+            <stop offset="100%" stop-color="#00D9F5" />
+        </linearGradient>
+
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-6" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.45"/>
+        </filter>
+    </defs>
+
+    <!-- Dark Mobile App Canvas -->
+    <rect width="512" height="512" rx="112" fill="#0F172A" />
+
+    <!-- Cat 1 (Back / Oldest Workspace) -->
+    <g>
+        <!-- Ears -->
+        <polygon points="100,80 60,30 140,70" fill="url(#grad-back)" />
+        <polygon points="220,80 260,30 180,70" fill="url(#grad-back)" />
+        <!-- Window -->
+        <rect x="60" y="60" width="200" height="200" rx="40" fill="url(#grad-back)" />
+        <!-- Eyes -->
+        <circle cx="120" cy="140" r="16" fill="#0F172A" />
+        <circle cx="200" cy="140" r="16" fill="#0F172A" />
+    </g>
+
+    <!-- Cat 2 (Middle / Previous Workspace) -->
+    <g filter="url(#shadow)">
+        <!-- Ears -->
+        <polygon points="200,180 150,110 250,170" fill="url(#grad-mid)" />
+        <polygon points="340,180 390,110 290,170" fill="url(#grad-mid)" />
+        <!-- Window -->
+        <rect x="150" y="150" width="240" height="240" rx="48" fill="url(#grad-mid)" />
+        <!-- Eyes (Looking sideways) -->
+        <circle cx="230" cy="240" r="20" fill="#0F172A" />
+        <circle cx="310" cy="240" r="20" fill="#0F172A" />
+    </g>
+
+    <!-- Cat 3 (Front / Active Workspace) -->
+    <g filter="url(#shadow)">
+        <!-- Ears -->
+        <polygon points="310,290 260,200 370,280" fill="url(#grad-front)" />
+        <polygon points="450,290 500,200 390,280" fill="url(#grad-front)" />
+        <!-- Window -->
+        <rect x="260" y="260" width="240" height="240" rx="56" fill="url(#grad-front)" />
+        <!-- Eyes (Focused front) -->
+        <circle cx="340" cy="360" r="24" fill="#0F172A" />
+        <circle cx="420" cy="360" r="24" fill="#0F172A" />
+        <!-- Mouth -->
+        <path d="M 364 400 L 380 416 L 396 400" stroke="#0F172A" stroke-width="16" stroke-linecap="round" fill="none" stroke-linejoin="round"/>
+    </g>
+</svg>
