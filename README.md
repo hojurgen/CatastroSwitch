@@ -77,12 +77,13 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 ### Practical flow
 
 1. Plan the phase and maintain the durable product docs in this repo.
-2. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
-3. Create or update the active phase branch in the fork.
-4. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
-5. If product branding sources changed under `assets\logo.svg`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets. That task exports all packaged icons and recompiles the fork so the in-app workbench icon also refreshes from the same control-repo source.
-6. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
-7. Run `Control repo: validate` when this repo changes.
+2. If you want chat to inspect the current workflow state and continue from the right agent, use one of the shared workspace prompts under `.github\prompts\`: `workflow-router.prompt.md` for general routing, `resume-phase.prompt.md` for strict phase resumption, or `review-ready-task.prompt.md` for the Reviewer entrypoint.
+3. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
+4. Create or update the active phase branch in the fork.
+5. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
+6. If product branding sources changed under `assets\logo.svg`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets. That task exports all packaged icons and recompiles the fork so the in-app workbench icon also refreshes from the same control-repo source.
+7. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
+8. Run `Control repo: validate` when this repo changes.
 
 ## Repository contents
 
@@ -93,6 +94,7 @@ C:\CatastroSwitch
 ├─ .github
 │  ├─ agents
 │  ├─ instructions
+│  ├─ prompts
 │  └─ skills
 ├─ assets
 ├─ docs

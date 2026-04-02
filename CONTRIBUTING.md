@@ -78,6 +78,12 @@ Workflow agents live under:
 - `.github\agents\orchestrator.agent.md`
 - `.github\agents\fork-architect.agent.md`
 
+Shared workflow prompt entrypoint:
+
+- `.github\prompts\workflow-router.prompt.md` to inspect the current phase or task context, suggest the next step, and hand off to the right workflow agent.
+- `.github\prompts\resume-phase.prompt.md` to resume one active phase from the current branch or phase-state artifact and continue the workflow loop.
+- `.github\prompts\review-ready-task.prompt.md` to run the strict Reviewer step for one completed task that is ready for Pass or Error.
+
 Reusable skills live under:
 
 - `.github\skills\fork-phase-execution\SKILL.md`
