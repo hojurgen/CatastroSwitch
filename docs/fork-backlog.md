@@ -74,7 +74,13 @@ Primary patch zones:
 - `src/vs/platform/userDataProfile/common/userDataProfile.ts`
 - `src/vs/workbench/services/userDataProfile/browser/userDataProfileManagement.ts`
 - `src/vs/workbench/services/userDataProfile/browser/userDataProfileInit.ts`
+- `src/vs/workbench/services/userDataProfile/browser/startupProfileSelection.ts`
+- `src/vs/workbench/services/userDataProfile/common/workspaceProfileSelectionPolicy.ts`
 - `src/vs/workbench/services/userDataProfile/browser/userDataProfileImportExportService.ts`
+
+Feedback and recovery surface:
+
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
 
 Resource surfaces to align:
 

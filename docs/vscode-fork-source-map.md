@@ -53,7 +53,7 @@ The F1 runtime seam is now concrete rather than hypothetical. These are the prim
 - `src/vs/workbench/common/contextkeys.ts`
   - bind and expose the rail visibility and focus contexts used by layout commands and menus
 - `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
-  - owns the fixed-width rail shell and the current placeholder workspace chrome used in F1
+  - owns the fixed-width rail shell and the orchestration-backed workspace/profile feedback shown through F2
 - `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`
   - registers the rail toggle, hide, and focus actions against the layout service seam
 - `src/vs/workbench/browser/parts/workspacerail/media/workspaceRailPart.css`
@@ -82,6 +82,10 @@ Start here:
   - browser/workbench-facing profile management flows
 - `src/vs/workbench/services/userDataProfile/browser/userDataProfileInit.ts`
   - profile initialization path
+- `src/vs/workbench/services/userDataProfile/browser/startupProfileSelection.ts`
+  - startup workspace-profile apply and rollback seam before profile-scoped storage binds
+- `src/vs/workbench/services/userDataProfile/common/workspaceProfileSelectionPolicy.ts`
+  - shared workspace-to-profile selection and fallback policy used by startup and management flows
 - `src/vs/workbench/services/userDataProfile/browser/userDataProfileImportExportService.ts`
   - useful if workspace bundles need import/export semantics
 
