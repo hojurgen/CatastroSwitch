@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Copilot CI: Deep Purple to Magenta -->
+        <linearGradient id="front-grad" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="490" y2="510">
+            <stop offset="0%" stop-color="#D134FF" />
+            <stop offset="100%" stop-color="#7E2DF1" />
+        </linearGradient>
+        <!-- Copilot CI: Blue to Deep Purple -->
+        <linearGradient id="mid-grad" gradientUnits="userSpaceOnUse" x1="70" y1="90" x2="410" y2="430">
+            <stop offset="0%" stop-color="#2870EA" />
+            <stop offset="100%" stop-color="#5C2D91" />
+        </linearGradient>
+        <!-- Copilot CI: Cyan to Blue -->
+        <linearGradient id="back-grad" gradientUnits="userSpaceOnUse" x1="10" y1="30" x2="330" y2="350">
+            <stop offset="0%" stop-color="#00DEFF" />
+            <stop offset="100%" stop-color="#0058D9" />
+        </linearGradient>
+        <filter id="hard-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-8" dy="8" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+    <rect x="10" y="30" width="320" height="320" rx="64" fill="url(#back-grad)" filter="url(#hard-shadow)"/>
+    <rect x="70" y="90" width="340" height="340" rx="72" fill="url(#mid-grad)" filter="url(#hard-shadow)"/>
+    <g filter="url(#hard-shadow)">
+        <polygon points="160,250 190,71 290,250" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="21" stroke-linejoin="round" />
+        <polygon points="460,250 430,71 330,250" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="21" stroke-linejoin="round" />
+        <polygon points="180,200 190,95 266,200" fill="#060410" />
+        <polygon points="440,200 430,95 354,200" fill="#060410" />
+        <rect x="130" y="150" width="360" height="360" rx="89" fill="url(#front-grad)" />
+        <g transform="translate(238, 294) rotate(-13)">
+            <ellipse cx="0" cy="0" rx="34" ry="55" fill="#00DEFF" stroke="#060410" stroke-width="8" />
+            <ellipse cx="0" cy="0" rx="13" ry="40" fill="#060410" />
+        </g>
+        <g transform="translate(382, 294) rotate(13)">
+            <ellipse cx="0" cy="0" rx="34" ry="55" fill="#00DEFF" stroke="#060410" stroke-width="8" />
+            <ellipse cx="0" cy="0" rx="13" ry="40" fill="#060410" />
+        </g>
+        <polygon points="293,349 327,349 310,370" fill="#060410" stroke="#060410" stroke-width="8" stroke-linejoin="round" />
+        <path d="M 265 391 Q 288 410 310 370 Q 332 410 355 391" fill="none" stroke="#060410" stroke-width="13" stroke-linecap="round" />
+        <path d="M 240 370 L 96 349" fill="none" stroke="#060410" stroke-width="13" stroke-linecap="round" />
+        <path d="M 245 400 L 96 412" fill="none" stroke="#060410" stroke-width="13" stroke-linecap="round" />
+        <path d="M 380 370 L 524 349" fill="none" stroke="#060410" stroke-width="13" stroke-linecap="round" />
+        <path d="M 375 400 L 524 412" fill="none" stroke="#060410" stroke-width="13" stroke-linecap="round" />
+    </g>
+</svg>

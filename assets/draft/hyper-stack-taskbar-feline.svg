@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <defs>
+        <!-- Front Cat (Orange/Hot Pink) -->
+        <linearGradient id="front-grad" gradientUnits="userSpaceOnUse" x1="130" y1="150" x2="490" y2="510">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#FF9933" />
+        </linearGradient>
+
+        <!-- Middle Window (Bright Magenta/Purple) -->
+        <linearGradient id="mid-grad" gradientUnits="userSpaceOnUse" x1="70" y1="90" x2="410" y2="430">
+            <stop offset="0%" stop-color="#B100FF" />
+            <stop offset="100%" stop-color="#FF00E4" />
+        </linearGradient>
+
+        <!-- Back Window (Electric Cyan/Mint) -->
+        <linearGradient id="back-grad" gradientUnits="userSpaceOnUse" x1="10" y1="30" x2="330" y2="350">
+            <stop offset="0%" stop-color="#00C9FF" />
+            <stop offset="100%" stop-color="#92FE9D" />
+        </linearGradient>
+
+        <!-- Hard drop shadow -->
+        <filter id="hard-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-8" dy="8" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+
+    <!-- Speed Stack -->
+    <rect x="10" y="30" width="320" height="320" rx="64" fill="url(#back-grad)" filter="url(#hard-shadow)"/>
+    <rect x="70" y="90" width="340" height="340" rx="72" fill="url(#mid-grad)" filter="url(#hard-shadow)"/>
+
+    <!-- Current Context / The Cat Window -->
+    <g filter="url(#hard-shadow)">
+        <!-- Ears -->
+        <polygon points="170,160 150,40 240,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        <polygon points="450,160 470,40 380,160" fill="url(#front-grad)" stroke="url(#front-grad)" stroke-width="20" stroke-linejoin="round" />
+        
+        <rect x="130" y="150" width="360" height="360" rx="80" fill="url(#front-grad)" />
+        
+        <!-- Feline Almond Eyes (Replacing the stark geometric triangles) -->
+        <!-- Left Eye -->
+        <path d="M 170 300 Q 220 260 260 310 Q 210 325 170 300" fill="#060410" stroke="#060410" stroke-width="12" stroke-linejoin="round" />
+        <!-- Right Eye -->
+        <path d="M 450 300 Q 400 260 360 310 Q 410 325 450 300" fill="#060410" stroke="#060410" stroke-width="12" stroke-linejoin="round" />
+        
+        <!-- Feline Nose (Wider and less pointy than before) -->
+        <polygon points="295,365 325,365 310,380" fill="#060410" stroke="#060410" stroke-width="12" stroke-linejoin="round" />
+
+        <!-- Classic Feline Muzzle/Mouth (The ":3" or "w" shape connected to the nose) -->
+        <path d="M 280 400 Q 310 425 310 380 Q 310 425 340 400" fill="none" stroke="#060410" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+
+        <!-- Whiskers (Originating biologically from the sides of the muzzle/cheeks) -->
+        <path d="M 250 390 L 140 375" stroke="#060410" stroke-width="16" stroke-linecap="round" />
+        <path d="M 250 415 L 140 430" stroke="#060410" stroke-width="16" stroke-linecap="round" />
+        
+        <path d="M 370 390 L 480 375" stroke="#060410" stroke-width="16" stroke-linecap="round" />
+        <path d="M 370 415 L 480 430" stroke="#060410" stroke-width="16" stroke-linecap="round" />
+    </g>
+</svg>

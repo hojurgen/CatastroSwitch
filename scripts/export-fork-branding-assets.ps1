@@ -200,6 +200,70 @@ function Invoke-Magick {
     }
 }
 
+function Test-ImagesPixelIdentical {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ExistingPath,
+        [Parameter(Mandatory = $true)]
+        [string]$CandidatePath
+    )
+
+    if (-not (Test-Path -LiteralPath $ExistingPath) -or -not (Test-Path -LiteralPath $CandidatePath)) {
+        return $false
+    }
+
+    $compareMetricPath = Join-Path $StagingRoot ([System.Guid]::NewGuid().ToString() + '.compare.txt')
+    try {
+        $compareProcess = Start-Process -FilePath $script:MagickPath -ArgumentList @('compare', '-metric', 'AE', $ExistingPath, $CandidatePath, 'null:') -RedirectStandardError $compareMetricPath -NoNewWindow -Wait -PassThru
+        $compareMetric = if (Test-Path -LiteralPath $compareMetricPath) {
+            (Get-Content -LiteralPath $compareMetricPath -Raw).Trim()
+        }
+        else {
+            ''
+        }
+
+        if ($compareMetric -match '^(?<pixels>\d+(\.\d+)?)(\s+\([^\)]+\))?$') {
+            return ([double]$Matches.pixels -eq 0)
+        }
+
+        return ($compareProcess.ExitCode -eq 0)
+    }
+    finally {
+        if (Test-Path -LiteralPath $compareMetricPath) {
+            Remove-Item -LiteralPath $compareMetricPath -Force
+        }
+    }
+}
+
+function Publish-GeneratedTarget {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CandidatePath,
+        [Parameter(Mandatory = $true)]
+        [string]$OutputPath,
+        [switch]$PreservePixelEquivalentPng
+    )
+
+    New-ParentDirectory -Path $OutputPath
+
+    if (Test-Path -LiteralPath $OutputPath) {
+        $existingHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutputPath).Hash
+        $candidateHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $CandidatePath).Hash
+        if ($existingHash -eq $candidateHash) {
+            Remove-Item -LiteralPath $CandidatePath -Force
+            return 'unchanged'
+        }
+
+        if ($PreservePixelEquivalentPng -and (Test-ImagesPixelIdentical -ExistingPath $OutputPath -CandidatePath $CandidatePath)) {
+            Remove-Item -LiteralPath $CandidatePath -Force
+            return 'unchanged'
+        }
+    }
+
+    Move-Item -LiteralPath $CandidatePath -Destination $OutputPath -Force
+    return 'updated'
+}
+
 function Get-TargetVariantForSize {
     param(
         [Parameter(Mandatory = $true)]
@@ -315,12 +379,14 @@ function New-PngTarget {
 
     $sourcePath = Resolve-CanonicalTargetSourcePath -Target $Target -Description 'Branding source asset'
     $outputPath = Resolve-ForkPath -RelativePath $Target.forkRelativeOutput
-    New-SquarePng -SourcePath $sourcePath -OutputPath $outputPath -Size ([int]$Target.size)
+    $candidatePath = Join-Path $StagingRoot ("$($Target.id)-candidate.png")
+    New-SquarePng -SourcePath $sourcePath -OutputPath $candidatePath -Size ([int]$Target.size)
+    $status = Publish-GeneratedTarget -CandidatePath $candidatePath -OutputPath $outputPath -PreservePixelEquivalentPng
 
     return [pscustomobject]@{
         Output = $Target.forkRelativeOutput
         Format = $Target.format
-        Status = 'updated'
+        Status = $status
     }
 }
 
@@ -540,6 +606,11 @@ Write-Host 'Branding export summary:'
 foreach ($result in $results) {
     if ($result.Status -eq 'updated') {
         Write-Host " - updated $($result.Output) [$($result.Format)]"
+        continue
+    }
+
+    if ($result.Status -eq 'unchanged') {
+        Write-Host " - unchanged $($result.Output) [$($result.Format)]"
         continue
     }
 

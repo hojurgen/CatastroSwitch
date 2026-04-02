@@ -16,22 +16,31 @@ Goal:
 
 Primary patch zones:
 
+- `src/vs/workbench/browser/workbench.ts`
 - `src/vs/workbench/browser/layout.ts`
-- `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`
-- `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`
-- `src/vs/workbench/browser/parts/compositeBar.ts`
-- `src/vs/workbench/browser/parts/paneCompositeBar.ts`
+- `src/vs/workbench/services/layout/browser/layoutService.ts`
+- `src/vs/workbench/browser/contextkeys.ts`
+- `src/vs/workbench/common/contextkeys.ts`
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`
+- `src/vs/workbench/browser/parts/workspacerail/media/workspaceRailPart.css`
 
-Key decisions:
+Current F1 status:
 
-- whether the rail is a new workbench part or a specialization of existing sidebar or activity bar behavior
-- how focus, sizing, pinning, drag/drop, and persistence should work
-- whether the rail is always visible or profile or workspace dependent
+- resolved: the rail is a dedicated workbench part (`Parts.WORKSPACERAIL_PART`), not a specialization of the existing sidebar or activity bar
+- resolved: shell-level focus, visibility toggles, zen-mode restore behavior, and persisted layout state belong to the layout service seam
+- resolved: F1 keeps the rail always available as product-owned shell chrome with placeholder content instead of pretending orchestration is already complete
+- remaining: replace placeholder shell content with orchestration-backed workspace switching and summaries in later epics
 
 Done when:
 
 - the rail feels native to the workbench
 - workspace switching no longer depends on existing extension view-container limits
+
+Current validation bar for the F1 shell closeout:
+
+- browser-unit coverage for the rail part and rail actions
+- compile and shell-regression validation in the runtime fork
 
 ## Epic 2 - Workspace orchestration service
 

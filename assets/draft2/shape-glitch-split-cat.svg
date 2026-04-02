@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- SHAPE: The Glitch Split Cat (Representing context switching instantly) -->
+    <!-- Taskbar Optimized: Vertically sliced layout works beautifully in 16x16 as a two-tone square -->
+    <defs>
+        <filter id="shadow">
+            <feDropShadow dx="0" dy="10" stdDeviation="5" flood-color="#000000" flood-opacity="0.6"/>
+        </filter>
+    </defs>
+
+    <!-- Context 1: Left Half (Cyan, shifted UP and LEFT = Glitching) -->
+    <g transform="translate(-24, -32)" filter="url(#shadow)">
+        <!-- Left Ear and Half Head -->
+        <path d="M 256 460 C 80 460 48 340 48 240 L 48 160 L 100 40 L 200 140 L 256 140 Z" fill="#00DEFF" stroke="#111" stroke-width="24" stroke-linejoin="round" />
+        
+        <!-- Deadpan focused Eye (Left) -->
+        <circle cx="160" cy="250" r="30" fill="#111" />
+        
+        <!-- Single thick whisker -->
+        <path d="M 48 320 L 130 340" fill="none" stroke="#111" stroke-width="24" stroke-linecap="round" />
+        
+        <!-- Half mouth -->
+        <path d="M 256 380 C 230 380 210 360 210 350" fill="none" stroke="#111" stroke-width="20" stroke-linecap="round" />
+    </g>
+
+    <!-- Context 2: Right Half (Magenta, shifted DOWN and RIGHT = Glitching) -->
+    <g transform="translate(24, 32)" filter="url(#shadow)">
+        <!-- Right Ear and Half Head -->
+        <path d="M 256 140 L 312 140 L 412 40 L 464 160 L 464 240 C 464 340 432 460 256 460 Z" fill="#F032A6" stroke="#111" stroke-width="24" stroke-linejoin="round" />
+        
+        <!-- Chaos/Errors Eye (Right X) -->
+        <path d="M 320 220 L 380 280 M 320 280 L 380 220" fill="none" stroke="#111" stroke-width="24" stroke-linecap="round" />
+        
+        <!-- Single thick whisker -->
+        <path d="M 464 320 L 382 340" fill="none" stroke="#111" stroke-width="24" stroke-linecap="round" />
+        
+        <!-- Half mouth -->
+        <path d="M 256 380 C 282 380 302 360 302 350" fill="none" stroke="#111" stroke-width="20" stroke-linecap="round" />
+    </g>
+
+    <!-- The Switch / Tear (White Glitch line splitting them) -->
+    <path d="M 256 20 L 256 492" fill="none" stroke="#FFF" stroke-width="16" stroke-dasharray="40 20 10 20 60 30" stroke-linecap="square" />
+</svg>

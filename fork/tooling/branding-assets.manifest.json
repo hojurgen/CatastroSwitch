@@ -3,53 +3,7 @@
   "sourcePolicy": {
     "rasterIconMaster": "assets/logo.svg",
     "workbenchIconSource": "assets/logo.svg",
-    "iconPreview": "assets/logo.svg",
-    "nonIconSources": [
-      {
-        "path": "assets/draft/logo.png",
-        "reason": "Wordmark-bearing marketing art on a non-square canvas."
-      },
-      {
-        "path": "assets/draft/logo.svg",
-        "reason": "Legacy wordmark logo retained as draft artwork for documentation and larger surfaces."
-      },
-      {
-        "path": "assets/draft/logo-hd.svg",
-        "reason": "High-resolution legacy wordmark logo retained as draft artwork."
-      },
-      {
-        "path": "assets/draft/logo-rounded-hd.svg",
-        "reason": "High-resolution rounded draft variant retained for larger-surface experiments."
-      },
-      {
-        "path": "assets/draft/logo-rounded-icon-hd.svg",
-        "reason": "Previous rounded icon candidate retained as draft artwork for comparison."
-      },
-      {
-        "path": "assets/draft/logo-circle.svg",
-        "reason": "Circular variant reserved for avatar-style or future favicon experiments."
-      },
-      {
-        "path": "assets/draft/logo-circle-hd.svg",
-        "reason": "High-resolution circular variant reserved for avatar-style or future favicon experiments."
-      },
-      {
-        "path": "assets/draft/logo-taskbar-padded-transparent.svg",
-        "reason": "Taskbar-focused transparent experiment retained for reference, not the shipped master."
-      },
-      {
-        "path": "assets/draft/logo-taskbar-crisp-transparent.svg",
-        "reason": "Crisp transparent taskbar experiment retained for reference, not the shipped master."
-      },
-      {
-        "path": "assets/draft/logo_old.svg",
-        "reason": "Archived logo iteration kept for comparison only."
-      },
-      {
-        "path": "assets/draft/logo_old2.svg",
-        "reason": "Archived logo iteration kept for comparison only."
-      }
-    ]
+    "iconPreview": "assets/logo.svg"
   },
   "targets": [
     {

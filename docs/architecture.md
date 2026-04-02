@@ -62,15 +62,21 @@ The fork should be structured additively around a few product-owned components.
 
 Primary responsibility:
 
-- render the product-owned workspace rail
-- host workspace switching actions and summaries
-- surface per-workspace state at the shell level
+- render the product-owned workspace rail shell to the left of the primary sidebar
+- own shell-level visibility, focus, and layout persistence behavior for that rail
+- host placeholder workspace chrome in F1 while orchestration-driven switching and summaries stay deferred to later phases
 
-Likely patch zones:
+Current F1 patch zones:
 
+- `src/vs/workbench/browser/workbench.ts`
 - `src/vs/workbench/browser/layout.ts`
-- `src/vs/workbench/browser/parts/sidebar/sidebarPart.ts`
-- `src/vs/workbench/browser/parts/activitybar/activitybarPart.ts`
+- `src/vs/workbench/services/layout/browser/layoutService.ts`
+- `src/vs/workbench/browser/contextkeys.ts`
+- `src/vs/workbench/common/contextkeys.ts`
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`
+
+Follow-on phases can add orchestration-backed content and richer workspace switching without changing the control-repo boundary: the rail shell itself stays in the runtime fork, while the contract docs and sample metadata stay here.
 
 ### 2. Workspace orchestration service
 

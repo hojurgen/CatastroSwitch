@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- SHAPE: The OG Horizontal Literal Toggle Switch, properly scaled for Taskbar 1:1 -->
+    <!-- The trick is simple: we keep it horizontal, but make the Cat Knob disproportionately massive so its ears and head fill the vertical voids left by the track -->
+    <!-- Golden Ratio / Fibonacci proportions directly applied to the Cat Face: 13, 21, 34, 55, 89, 144 -->
+    <defs>
+        <linearGradient id="track-grad" gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="512" y2="384">
+            <stop offset="0%" stop-color="#280A4F" />
+            <stop offset="100%" stop-color="#5C2D91" />
+        </linearGradient>
+        <linearGradient id="knob-grad" gradientUnits="userSpaceOnUse" x1="200" y1="50" x2="512" y2="450">
+            <stop offset="0%" stop-color="#00DEFF" />
+            <stop offset="100%" stop-color="#F032A6" />
+        </linearGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="-10" dy="12" stdDeviation="6" flood-color="#000000" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+
+    <!-- Thick Horizontal Track (Pushed to background, centered) -->
+    <!-- Track Height: 256px -->
+    <rect x="24" y="128" width="464" height="256" rx="128" fill="url(#track-grad)" stroke="#111" stroke-width="24" filter="url(#shadow)" />
+    
+    <!-- Motion lines representing speed / context switch -->
+    <path d="M 70 200 L 150 200 M 54 256 L 170 256 M 70 312 L 150 312" fill="none" stroke="#B100FF" stroke-width="21" stroke-linecap="round" />
+
+    <!-- Center of the Cat Face = (360, 256), Base Radius = 144 -->
+    <g filter="url(#shadow)">
+        
+        <!-- Ears: Proportionally mapped (Base Width 55, Height 89) -->
+        <polygon points="271,150 298,61 326,150" fill="url(#knob-grad)" stroke="#111" stroke-width="21" stroke-linejoin="round" />
+        <polygon points="449,150 422,61 394,150" fill="url(#knob-grad)" stroke="#111" stroke-width="21" stroke-linejoin="round" />
+
+        <!-- Cat Head Knob Base (rx=144) -->
+        <circle cx="360" cy="256" r="144" fill="url(#knob-grad)" stroke="#111" stroke-width="24" />
+
+        <!-- Eyes (144px total separation off center, Dimensions: 34 x 55, Golden Y placement at 235) -->
+        <!-- Center 360 minus 55 = 305 -->
+        <g transform="translate(305, 235) rotate(-13)">
+            <ellipse cx="0" cy="0" rx="34" ry="55" fill="#00DEFF" stroke="#111" stroke-width="13" />
+            <ellipse cx="0" cy="0" rx="13" ry="40" fill="#111" />
+        </g>
+        
+        <!-- Center 360 plus 55 = 415 -->
+        <g transform="translate(415, 235) rotate(13)">
+            <ellipse cx="0" cy="0" rx="34" ry="55" fill="#00DEFF" stroke="#111" stroke-width="13" />
+            <ellipse cx="0" cy="0" rx="13" ry="40" fill="#111" />
+        </g>
+
+        <!-- Nose (Width 34, Drops perfectly 55 px from eye centers to 290) -->
+        <polygon points="343,290 377,290 360,311" fill="#111" stroke="#111" stroke-width="8" stroke-linejoin="round" />
+
+        <!-- Mouth (Width 89: 315.5 to 404.5, Drops 21px from Nose) -->
+        <path d="M 315 332 Q 338 353 360 311 Q 382 353 405 332" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round" />
+
+        <!-- Whiskers (Separated and proportionally constrained using phi lengths: 55px offsets) -->
+        <!-- Left Side (Starting safely away from the mouth) -->
+        <path d="M 290 320 L 235 299" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round" />
+        <path d="M 295 350 L 240 362" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round" />
+        
+        <!-- Right Side -->
+        <path d="M 430 320 L 485 299" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round" />
+        <path d="M 425 350 L 480 362" fill="none" stroke="#111" stroke-width="16" stroke-linecap="round" />
+    </g>
+</svg>
