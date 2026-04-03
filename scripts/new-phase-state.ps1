@@ -46,6 +46,6 @@ else {
 }
 
 $phaseState = New-PhaseStateObject -Phase $Phase -PhaseMode $PhaseMode -AllowedWorktree $allowedWorktree
-$phaseState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $OutputPath -Encoding utf8
+Write-PhaseStateFile -Path $OutputPath -PhaseState $phaseState
 
 Write-Host "Wrote phase state file: $OutputPath"

@@ -16,7 +16,7 @@
   "properties": {
     "version": {
       "type": "integer",
-      "minimum": 2
+      "minimum": 3
     },
     "phaseId": {
       "type": "string",
@@ -312,7 +312,8 @@
         "errors",
         "broaderRisks",
         "reasoning",
-        "requiredNextAction"
+        "requiredNextAction",
+        "recommendedNextPhase"
       ],
       "properties": {
         "outcome": {
@@ -346,6 +347,20 @@
         },
         "requiredNextAction": {
           "type": "string"
+        },
+        "recommendedNextPhase": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "F0",
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            null
+          ]
         }
       }
     }

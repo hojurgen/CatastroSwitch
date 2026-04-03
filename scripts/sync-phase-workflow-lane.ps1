@@ -29,6 +29,40 @@ function Get-OptionalPhaseRecord {
     return Get-PhaseStateRecord -ForkRoot $resolvedForkRoot -PhaseStatePath $phaseStatePath -IncludeTerminalStates
 }
 
+function Resolve-RecommendedPhaseSelection {
+    $recommendedSelection = $null
+
+    foreach ($phaseId in Get-OrderedPhaseIds) {
+        $phaseRecord = Get-OptionalPhaseRecord -PhaseId $phaseId
+        if ($null -eq $phaseRecord) {
+            continue
+        }
+
+        $phaseState = $phaseRecord.PhaseState
+        if ([string]$phaseState.phaseStatus -ne 'pass') {
+            continue
+        }
+
+        $candidatePhase = [string](($phaseState.gatekeeper | Select-Object -ExpandProperty recommendedNextPhase -ErrorAction SilentlyContinue))
+        if ([string]::IsNullOrWhiteSpace($candidatePhase)) {
+            continue
+        }
+
+        $candidateRecord = Get-OptionalPhaseRecord -PhaseId $candidatePhase
+        if ($null -ne $candidateRecord -and [string]$candidateRecord.PhaseState.phaseStatus -eq 'pass') {
+            continue
+        }
+
+        $recommendedSelection = [pscustomobject]@{
+            Phase = $candidatePhase
+            Record = $candidateRecord
+            Reason = "gatekeeper recommended next phase from $phaseId ($candidatePhase)"
+        }
+    }
+
+    return $recommendedSelection
+}
+
 function Resolve-PhaseSelection {
     param(
         [string]$ExplicitPhase
@@ -49,6 +83,11 @@ function Resolve-PhaseSelection {
             Record = $activePhaseRecord
             Reason = 'active non-terminal phase-state artifact'
         }
+    }
+
+    $recommendedSelection = Resolve-RecommendedPhaseSelection
+    if ($null -ne $recommendedSelection) {
+        return $recommendedSelection
     }
 
     foreach ($phaseId in Get-OrderedPhaseIds) {
@@ -183,7 +222,7 @@ function Update-PhaseLockFallbacks {
     return $updated
 }
 
-function Ensure-PhaseLane {
+function Set-PhaseLane {
     param(
         [Parameter(Mandatory = $true)]
         [pscustomobject]$Lane
@@ -272,7 +311,7 @@ $actionTaken = 'Dry run only.'
 $phaseStateUpdated = $false
 
 if ($Apply) {
-    $syncResult = Ensure-PhaseLane -Lane $lane
+    $syncResult = Set-PhaseLane -Lane $lane
     $actionTaken = [string]$syncResult.ActionTaken
     $phaseStateUpdated = [bool]$syncResult.PhaseStateUpdated
     $selection = Resolve-PhaseSelection -ExplicitPhase $Phase

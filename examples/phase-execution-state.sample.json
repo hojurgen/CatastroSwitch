@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/phase-execution-state.schema.json",
-  "version": 2,
+  "version": 3,
   "phaseId": "F1",
   "phaseBranch": "multiagent/f1-workspace-rail",
   "phaseMode": "fresh_implementation",
@@ -173,6 +173,7 @@
       "Gatekeeper should not run until F1-T4 is complete."
     ],
     "reasoning": "The phase still has open coding and review work.",
-    "requiredNextAction": "Finish F1-T2, F1-T3, and F1-T4, then run Gatekeeper."
+    "requiredNextAction": "Finish F1-T2, F1-T3, and F1-T4, then run Gatekeeper.",
+    "recommendedNextPhase": null
   }
 }

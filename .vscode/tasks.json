@@ -44,6 +44,25 @@
       "problemMatcher": []
     },
     {
+      "label": "Control repo: install runtime fork hooks",
+      "type": "process",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\install-runtime-fork-hooks.ps1",
+        "-ForkRoot",
+        "${input:forkRoot}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Control repo: create phase branch",
       "type": "process",
       "command": "powershell",

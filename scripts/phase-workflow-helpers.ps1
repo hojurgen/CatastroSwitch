@@ -112,6 +112,26 @@ function Get-OrderedPhaseIds {
     return @((Get-PhaseWorkflowCatalog).Keys)
 }
 
+function Get-NextPhaseId {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Phase
+    )
+
+    $orderedPhaseIds = Get-OrderedPhaseIds
+    $phaseIndex = [Array]::IndexOf($orderedPhaseIds, $Phase)
+    if ($phaseIndex -lt 0) {
+        throw "Unknown phase ID: $Phase"
+    }
+
+    $nextIndex = $phaseIndex + 1
+    if ($nextIndex -ge $orderedPhaseIds.Count) {
+        return $null
+    }
+
+    return [string]$orderedPhaseIds[$nextIndex]
+}
+
 function Get-TaskDefinitionByBranchName {
     param(
         [Parameter(Mandatory = $true)]
@@ -397,7 +417,7 @@ function New-PhaseStateObject {
     }
 
     return [ordered]@{
-        version = 2
+        version = 3
         phaseId = $Phase
         phaseBranch = $phaseDefinition.Branch
         phaseMode = $PhaseMode
@@ -426,6 +446,7 @@ function New-PhaseStateObject {
             broaderRisks = @()
             reasoning = ''
             requiredNextAction = 'Run Planner for this phase.'
+            recommendedNextPhase = $null
         }
     }
 }

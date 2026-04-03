@@ -311,6 +311,13 @@ function Validate-PhaseExecutionStateSample {
     Assert-StringArray -Value (Get-PropertyValue -InputObject $gatekeeper -PropertyName 'broaderRisks') -Description 'phase gatekeeper broaderRisks'
     Assert-StringValue -Value (Get-PropertyValue -InputObject $gatekeeper -PropertyName 'reasoning') -Description 'phase gatekeeper reasoning'
     Assert-StringValue -Value (Get-PropertyValue -InputObject $gatekeeper -PropertyName 'requiredNextAction') -Description 'phase gatekeeper requiredNextAction'
+    $recommendedNextPhase = Get-PropertyValue -InputObject $gatekeeper -PropertyName 'recommendedNextPhase'
+    if ($null -ne $recommendedNextPhase -and $recommendedNextPhase -isnot [string]) {
+        throw 'phase gatekeeper recommendedNextPhase must be a string or null.'
+    }
+    if ($null -ne $recommendedNextPhase -and $recommendedNextPhase -notin @($gatekeeperSchema.properties.recommendedNextPhase.enum)) {
+        throw 'phase gatekeeper recommendedNextPhase must be a valid phase ID or null.'
+    }
 }
 
 $jsonFiles = @(
@@ -416,6 +423,15 @@ if ('.\scripts\new-local-workspace.ps1' -notin @($workspaceTask.args)) {
 }
 Write-Host ' - OK: VS Code local workspace task points at the shared script'
 
+$runtimeHooksTask = @($tasksConfig.tasks | Where-Object { $_.label -eq 'Control repo: install runtime fork hooks' }) | Select-Object -First 1
+if (-not $runtimeHooksTask) {
+    throw ".vscode\tasks.json is missing the 'Control repo: install runtime fork hooks' task."
+}
+if ('.\scripts\install-runtime-fork-hooks.ps1' -notin @($runtimeHooksTask.args)) {
+    throw ".vscode\tasks.json does not route the runtime hook install task through .\scripts\install-runtime-fork-hooks.ps1."
+}
+Write-Host ' - OK: VS Code runtime hook install task points at the shared script'
+
 $phaseBranchTask = @($tasksConfig.tasks | Where-Object { $_.label -eq 'Control repo: create phase branch' }) | Select-Object -First 1
 if (-not $phaseBranchTask) {
     throw ".vscode\tasks.json is missing the 'Control repo: create phase branch' task."
@@ -473,6 +489,7 @@ foreach ($expectedLine in @(
     '*.yml text eol=lf',
     '*.yaml text eol=lf',
     '.githooks/* text eol=lf',
+    '.githooks-runtime/* text eol=lf',
     '*.ps1 text eol=lf',
     '*.bat text eol=crlf',
     '*.cmd text eol=crlf'
@@ -499,7 +516,21 @@ if ($preCommitHookContents -notmatch [regex]::Escape('Commits on main are blocke
 if ($preCommitHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_MAIN_COMMIT')) {
     throw '.githooks\pre-commit is missing the explicit override guard.'
 }
-Write-Host ' - OK: control-repo pre-commit and pre-push hooks are present'
+
+$runtimePreCommitHookPath = Assert-FileExists -RelativePath '.githooks-runtime\pre-commit'
+$runtimePreCommitHookContents = Get-Content -Raw -LiteralPath $runtimePreCommitHookPath
+$runtimePrePushHookPath = Assert-FileExists -RelativePath '.githooks-runtime\pre-push'
+$runtimePrePushHookContents = Get-Content -Raw -LiteralPath $runtimePrePushHookPath
+if ($runtimePreCommitHookContents -notmatch [regex]::Escape('runtime-fork-git-hook.ps1')) {
+    throw '.githooks-runtime\pre-commit is missing the runtime fork guard script call.'
+}
+if ($runtimePrePushHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_UPSTREAM_PUSH')) {
+    throw '.githooks-runtime\pre-push is missing the upstream push override guard.'
+}
+if ($runtimePrePushHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_CLEAN_SYNC_PUSH')) {
+    throw '.githooks-runtime\pre-push is missing the clean sync push override guard.'
+}
+Write-Host ' - OK: control-repo and runtime-fork git hooks are present'
 
 $gitignorePath = Assert-FileExists -RelativePath '.gitignore'
 $gitignoreContents = Get-Content -Raw -LiteralPath $gitignorePath
@@ -546,6 +577,10 @@ $phaseStateScriptPath = Assert-FileExists -RelativePath 'scripts\new-phase-state
 $phaseStateScriptContents = Get-Content -Raw -LiteralPath $phaseStateScriptPath
 $phaseSyncScriptPath = Assert-FileExists -RelativePath 'scripts\sync-phase-workflow-lane.ps1'
 $phaseSyncScriptContents = Get-Content -Raw -LiteralPath $phaseSyncScriptPath
+$runtimeHookInstallScriptPath = Assert-FileExists -RelativePath 'scripts\install-runtime-fork-hooks.ps1'
+$runtimeHookInstallScriptContents = Get-Content -Raw -LiteralPath $runtimeHookInstallScriptPath
+$runtimeForkHookScriptPath = Assert-FileExists -RelativePath 'scripts\runtime-fork-git-hook.ps1'
+$runtimeForkHookScriptContents = Get-Content -Raw -LiteralPath $runtimeForkHookScriptPath
 $brandingExportScriptPath = Assert-FileExists -RelativePath 'scripts\export-fork-branding-assets.ps1'
 $brandingExportScriptContents = Get-Content -Raw -LiteralPath $brandingExportScriptPath
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('.catastroswitch\phase-state')) {
@@ -566,8 +601,23 @@ if ($phaseStateScriptContents -notmatch [regex]::Escape('Get-DefaultPhaseStatePa
 if ($phaseSyncScriptContents -notmatch [regex]::Escape('first incomplete phase')) {
     throw 'scripts\sync-phase-workflow-lane.ps1 is missing the incomplete-phase routing logic.'
 }
+if ($phaseSyncScriptContents -notmatch [regex]::Escape('gatekeeper recommended next phase')) {
+    throw 'scripts\sync-phase-workflow-lane.ps1 is missing the explicit next-phase recommendation logic.'
+}
 if ($phaseSyncScriptContents -notmatch [regex]::Escape('new-phase-branch.ps1')) {
     throw 'scripts\sync-phase-workflow-lane.ps1 is missing the shared phase-branch helper usage.'
+}
+if ($runtimeHookInstallScriptContents -notmatch [regex]::Escape('.githooks-runtime')) {
+    throw 'scripts\install-runtime-fork-hooks.ps1 is missing the runtime hooks path configuration.'
+}
+if ($runtimeHookInstallScriptContents -notmatch [regex]::Escape('/.catastroswitch/')) {
+    throw 'scripts\install-runtime-fork-hooks.ps1 is missing the runtime phase-state ignore update.'
+}
+if ($runtimeForkHookScriptContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_CLEAN_SYNC_COMMIT')) {
+    throw 'scripts\runtime-fork-git-hook.ps1 is missing the clean sync commit override guard.'
+}
+if ($runtimeForkHookScriptContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_PHASE_BRANCH_COMMIT')) {
+    throw 'scripts\runtime-fork-git-hook.ps1 is missing the phase-branch commit override guard.'
 }
 if ($brandingExportScriptContents -notmatch [regex]::Escape('branding-assets.manifest.json')) {
     throw 'scripts\export-fork-branding-assets.ps1 is missing the shared branding manifest reference.'
@@ -724,6 +774,9 @@ if ($gatekeeperAgentContents -notmatch [regex]::Escape('Outcome: Pass') -or $gat
 if ($gatekeeperAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
     throw '.github\agents\gatekeeper.agent.md must stay hidden from the normal agent picker.'
 }
+if ($gatekeeperAgentContents -notmatch [regex]::Escape('recommendedNextPhase')) {
+    throw '.github\agents\gatekeeper.agent.md is missing the next-phase recommendation contract.'
+}
 if ($orchestratorAgentContents -notmatch [regex]::Escape('agent: Planner') -or $orchestratorAgentContents -notmatch [regex]::Escape('agent: Gatekeeper')) {
     throw '.github\agents\orchestrator.agent.md is missing the required phase orchestration handoffs.'
 }
@@ -832,6 +885,9 @@ if ($forkRunbookContents -notmatch [regex]::Escape('merge --ff-only upstream/mai
 if ($forkRunbookContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $forkRunbookContents -notmatch [regex]::Escape('.githooks\pre-commit')) {
     throw 'docs\vscode-fork-build-runbook.md is missing the workflow lane sync or main-commit guard guidance.'
 }
+if ($forkRunbookContents -notmatch [regex]::Escape('install-runtime-fork-hooks.ps1') -or $forkRunbookContents -notmatch [regex]::Escape('.githooks-runtime')) {
+    throw 'docs\vscode-fork-build-runbook.md is missing the runtime hook install guidance.'
+}
 
 $readmePath = Assert-FileExists -RelativePath 'README.md'
 $readmeContents = Get-Content -Raw -LiteralPath $readmePath
@@ -846,6 +902,9 @@ if ($readmeContents -notmatch [regex]::Escape('upstream-main-sync') -or $readmeC
 }
 if ($readmeContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $readmeContents -notmatch [regex]::Escape('pre-commit')) {
     throw 'README.md is missing the workflow lane sync or pre-commit guard guidance.'
+}
+if ($readmeContents -notmatch [regex]::Escape('install-runtime-fork-hooks.ps1') -or $readmeContents -notmatch [regex]::Escape('recommendedNextPhase')) {
+    throw 'README.md is missing the runtime hook install or explicit next-phase guidance.'
 }
 
 $contributingPath = Assert-FileExists -RelativePath 'CONTRIBUTING.md'
@@ -862,6 +921,9 @@ if ($contributingContents -notmatch [regex]::Escape('upstream-main-sync') -or $c
 if ($contributingContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $contributingContents -notmatch [regex]::Escape('.githooks\pre-commit')) {
     throw 'CONTRIBUTING.md is missing the workflow lane sync or control-repo pre-commit guidance.'
 }
+if ($contributingContents -notmatch [regex]::Escape('install-runtime-fork-hooks.ps1') -or $contributingContents -notmatch [regex]::Escape('.githooks-runtime')) {
+    throw 'CONTRIBUTING.md is missing the runtime hook install or runtime hook path guidance.'
+}
 
 $implementationPlanPath = Assert-FileExists -RelativePath 'docs\implementation-plan.md'
 $implementationPlanContents = Get-Content -Raw -LiteralPath $implementationPlanPath
@@ -873,6 +935,9 @@ if ($implementationPlanContents -notmatch [regex]::Escape('Upstream maintenance 
 }
 if ($implementationPlanContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $implementationPlanContents -notmatch [regex]::Escape('pre-commit')) {
     throw 'docs\implementation-plan.md is missing the workflow lane sync or commit guard guidance.'
+}
+if ($implementationPlanContents -notmatch [regex]::Escape('recommendedNextPhase') -or $implementationPlanContents -notmatch [regex]::Escape('runtime-fork installed git hooks')) {
+    throw 'docs\implementation-plan.md is missing the explicit next-phase or runtime hook guidance.'
 }
 Write-Host ' - OK: fork execution docs reflect the phase branch workflow'
 

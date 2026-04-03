@@ -279,17 +279,19 @@ The control repo now ships helper scripts for the phase workflow:
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
 - `scripts\sync-phase-workflow-lane.ps1`
+- `scripts\install-runtime-fork-hooks.ps1`
 - `scripts\repair-phase-worktree-state.ps1`
 
 Recommended usage:
 
-1. Run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-phase-workflow-lane.ps1 -Apply` from `C:\CatastroSwitch` before routing or resuming work. The helper prefers the active non-terminal phase lane and otherwise selects the first incomplete phase.
+1. Run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-phase-workflow-lane.ps1 -Apply` from `C:\CatastroSwitch` before routing or resuming work. The helper prefers the active non-terminal phase lane, then the latest Gatekeeper `recommendedNextPhase`, and only then falls back to the first incomplete phase.
 2. Create or switch to the phase branch.
 3. Create the initial phase state file under the real fork clone.
 4. Create sibling task branches only when a Planner-approved task is safe to run in parallel.
 
 The control repo also ships `.github\hooks\phase-enforcement.json`, which VS Code auto-loads in workspace chat sessions. That hook reads the phase-state `executionLock` and resolves the fork root from `CATASTROSWITCH_FORK_ROOT`, `CatastroSwitch.local.code-workspace`, or the default `C:\src\vscode-multiagent` path.
 In the control repo, the committed `.githooks\pre-commit` and `.githooks\pre-push` hooks block commits or pushes on `main` unless you override them intentionally.
+Install the runtime-fork git hooks from the control repo with `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-runtime-fork-hooks.ps1 -ForkRoot <fork-root>`. That installer points the runtime repo `core.hooksPath` at the control repo `.githooks-runtime` directory, keeps `/.catastroswitch/` ignored in `info/exclude`, and makes `upstream` fetch-only by setting its push URL to `no_push` when the remote exists.
 
 If the clean-sync runtime checkout mirrors files from the active phase worktree, repair it from `C:\CatastroSwitch` before more agent work:
 

@@ -68,6 +68,7 @@ Recommended local hardening for the runtime fork:
 - keep `upstream` fetch-only by setting its push URL to `no_push`
 - set the fork clone to push to `origin` by default
 - add `/.catastroswitch/` to the fork repo `.git/info/exclude` so local phase-state artifacts do not dirty `git status`
+- install the managed runtime git hooks with `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-runtime-fork-hooks.ps1 -ForkRoot C:\src\vscode-multiagent` so commits on clean sync branches and accidental pushes to `upstream` are blocked locally
 
 Recommended local hardening for this control repo:
 
@@ -87,6 +88,7 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 4. Create or update the active phase branch in the fork.
 5. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
   If the clean-sync fork worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before continuing.
+  If the latest passed phase recorded a `recommendedNextPhase`, the workflow lane helper now prefers that explicit handoff before it falls back to the first incomplete phase.
   After an upstream refresh or phase-branch rebase, rerun `npm run compile`, the focused browser suites for the owned seams you touched, and a self-host smoke run for shell or chat changes before trusting the branch again.
 6. If product branding sources changed under `assets\logo.svg`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets. That task exports all packaged icons and recompiles the fork so the in-app workbench icon also refreshes from the same control-repo source.
 7. Update this repo only when the docs, contracts, schemas, or workflow expectations change.

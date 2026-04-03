@@ -39,12 +39,13 @@ Always respond with `Outcome: Pass` or `Outcome: Error` and a fenced `json` bloc
   "errors": [],
   "broaderRisks": [],
   "reasoning": "Why the phase passed or failed.",
-  "requiredNextAction": "Merge or continue to the next phase."
+  "requiredNextAction": "Merge or continue to the next phase.",
+  "recommendedNextPhase": "F2"
 }
 ```
 
 Update the phase state artifact with that result.
-- Keep `executionLock.activeAgent` as `Gatekeeper` while you review, set `executionLock.nextHandoffTarget` to `Planner` on `Error`, and clear the active lane on `Pass`.
+- Keep `executionLock.activeAgent` as `Gatekeeper` while you review, set `executionLock.nextHandoffTarget` to `Planner` on `Error`, clear the active lane on `Pass`, and set `gatekeeper.recommendedNextPhase` to the next sequential phase on `Pass` or `null` when the current phase is the final phase or the phase failed.
 
 ## Gatekeeper focus
 

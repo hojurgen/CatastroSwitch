@@ -1,0 +1,36 @@
+#!/bin/sh
+
+remote_name="$1"
+allow_upstream_push="${CATASTROSWITCH_ALLOW_UPSTREAM_PUSH:-}"
+allow_clean_sync_push="${CATASTROSWITCH_ALLOW_CLEAN_SYNC_PUSH:-}"
+upstream_main_sha="$(git rev-parse refs/remotes/upstream/main 2>/dev/null || true)"
+
+while read local_ref local_sha remote_ref remote_sha
+do
+  if [ "$remote_name" = "upstream" ] && [ "$allow_upstream_push" != "1" ]; then
+    echo "Pushes to the upstream remote are blocked for the runtime fork."
+    echo "Keep upstream fetch-only, or override intentionally with CATASTROSWITCH_ALLOW_UPSTREAM_PUSH=1 git push upstream ..."
+    exit 1
+  fi
+
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/upstream-main-sync)
+      if [ "$allow_clean_sync_push" = "1" ]; then
+        continue
+      fi
+
+      if [ -z "$upstream_main_sha" ]; then
+        echo "Pushes to runtime clean sync branches require refs/remotes/upstream/main. Fetch upstream first or override intentionally with CATASTROSWITCH_ALLOW_CLEAN_SYNC_PUSH=1 git push ..."
+        exit 1
+      fi
+
+      if [ "$local_sha" != "$upstream_main_sha" ]; then
+        echo "Pushes to runtime clean sync branches are blocked unless they mirror upstream/main exactly."
+        echo "Fast-forward from upstream/main first, or override intentionally with CATASTROSWITCH_ALLOW_CLEAN_SYNC_PUSH=1 git push ..."
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+exit 0

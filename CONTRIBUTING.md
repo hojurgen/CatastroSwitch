@@ -41,6 +41,7 @@ Pick the right repository before you start:
 
 In the runtime fork clone, keep `upstream` fetch-only and keep default pushes pointed at `origin`.
 In the runtime fork clone, add `/.catastroswitch/` to `.git/info/exclude` so local phase-state artifacts stay out of `git status`.
+In the runtime fork clone, install the managed runtime git hooks with `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-runtime-fork-hooks.ps1 -ForkRoot <fork-root>` from this control repo so commits on clean sync branches and pushes to `upstream` are blocked by default.
 In this control repo, enable the committed hooks path with `git config core.hooksPath .githooks` so direct commits and pushes to `origin/main` are blocked unless you intentionally override them.
 VS Code also auto-loads workspace hooks from `.github\hooks\`, so keep those files and the referenced scripts reviewed like any other workflow code.
 
@@ -63,6 +64,7 @@ Typical maintainer loop:
 8. In the fork checkout, keep `main` or `upstream-main-sync` as the clean fork-sync branch, fast-forward it from `upstream/main`, and rebase the active phase branch onto it before more feature work after upstream moves.
 9. In this control repo, keep the local `pre-commit` and `pre-push` hooks enabled before making or pushing changes.
 10. If the runtime clean-sync worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before resuming autonomous work.
+11. Install or refresh the runtime fork git hooks with `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\install-runtime-fork-hooks.ps1 -ForkRoot <fork-root>` whenever you bootstrap a new fork clone or re-home the control repo.
 11. After an upstream refresh or phase-branch rebase, rerun `npm run compile`, the focused browser suites for the fork-owned seams you changed, and `scripts\code.bat` smoke for shell, profile, or chat surfaces before declaring the branch healthy.
 12. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
 13. Cross-link paired PRs when one feature spans both repos.
@@ -75,6 +77,7 @@ Phase workflow helpers live under:
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
 - `scripts\sync-phase-workflow-lane.ps1`
+- `scripts\install-runtime-fork-hooks.ps1`
 - `scripts\repair-phase-worktree-state.ps1`
 
 Workflow agents live under:
@@ -108,3 +111,8 @@ Control-repo git hooks live under:
 
 - `.githooks\pre-commit`
 - `.githooks\pre-push`
+
+Runtime-fork git hooks live under:
+
+- `.githooks-runtime\pre-commit`
+- `.githooks-runtime\pre-push`

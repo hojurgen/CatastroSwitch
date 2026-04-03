@@ -73,9 +73,11 @@ The phase-state artifact is also the deterministic lock source for the shared wo
 
 - `.github\hooks\phase-enforcement.json` reads the phase-state `executionLock` and blocks runtime writes that target the wrong branch or worktree.
 - `scripts\sync-phase-workflow-lane.ps1 -Apply` realigns the runtime fork to the locked phase lane, or to the first incomplete phase when no non-terminal lane exists, before the router or resume prompts continue orchestration.
+- When the latest passed phase records `gatekeeper.recommendedNextPhase`, the sync helper prefers that explicit handoff over generic first-incomplete inference.
 - The clean-sync runtime checkout should stay clean unless the lock explicitly points at that checkout.
 - If the clean-sync checkout mirrors files from the locked worktree, repair it from the control repo with `scripts\repair-phase-worktree-state.ps1` instead of ad hoc `git clean` or branch switching.
 - The control-repo local `pre-commit` hook blocks commits on `main`, and the phase hook denies runtime mutations while the locked worktree is on the wrong branch.
+- The runtime-fork installed git hooks block commits on clean sync branches, block commits on the wrong active phase branch, and block pushes to `upstream` or dirty clean-sync pushes unless you override them intentionally.
 - A phase that reaches `Pass` or `Error` must clear the active lane and move `executionLock.dirtyWorktreePolicy` to `phase_pass_clean`.
 
 ### Upstream maintenance rule
@@ -224,6 +226,7 @@ Gatekeeper output must include:
 - broader risks
 - reasoning
 - required next action
+- recommended next phase or `null`
 - a fenced `json` block shaped like:
 
 ```json
@@ -235,7 +238,8 @@ Gatekeeper output must include:
   "errors": [],
   "broaderRisks": [],
   "reasoning": "Why the phase passed or failed.",
-  "requiredNextAction": "Merge or continue to the next phase."
+  "requiredNextAction": "Merge or continue to the next phase.",
+  "recommendedNextPhase": "F2"
 }
 ```
 
