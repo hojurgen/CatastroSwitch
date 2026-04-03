@@ -22,6 +22,7 @@ Routing rules:
 
 - Route to `Fork Architect` when the current ask needs concrete `src/vs/...` patch zones, explicit fork-versus-control-repo boundaries, or phase-fit clarification before planning.
 - Route to `Planner` when phase scope, task graph, phase branch setup, or phase-state initialization is missing or stale.
+- Route to `Planner` when the active phase branch has not yet been replayed onto the current clean sync branch after upstream moved.
 - Route to `Coding Agent` when a Planner-approved task is ready for implementation.
 - Route to `Reviewer` when a completed task needs a pass or error decision.
 - Route to `Gatekeeper` only when every task in the selected phase has a Reviewer `Pass`.

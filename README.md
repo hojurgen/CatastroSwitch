@@ -82,9 +82,11 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 2. If you want chat to inspect the current workflow state and continue from the right agent, use one of the shared workspace prompts under `.github\prompts\`: `workflow-router.prompt.md` for general routing, `resume-phase.prompt.md` for strict phase resumption, or `review-ready-task.prompt.md` for the Reviewer entrypoint.
   The shared workspace hook at `.github\hooks\phase-enforcement.json` also reads the phase-state `executionLock` when one exists and blocks writes to the wrong runtime worktree.
 3. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
+  Keep the runtime fork `main` or `upstream-main-sync` branch as a clean sync branch that fast-forwards from `upstream/main`, then rebase the active phase branch onto that clean branch before resuming product work.
 4. Create or update the active phase branch in the fork.
 5. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
   If the clean-sync fork worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before continuing.
+  After an upstream refresh or phase-branch rebase, rerun `npm run compile`, the focused browser suites for the owned seams you touched, and a self-host smoke run for shell or chat changes before trusting the branch again.
 6. If product branding sources changed under `assets\logo.svg`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets. That task exports all packaged icons and recompiles the fork so the in-app workbench icon also refreshes from the same control-repo source.
 7. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
 8. Run `Control repo: validate` when this repo changes.

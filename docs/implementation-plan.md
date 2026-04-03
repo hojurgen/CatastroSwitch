@@ -76,6 +76,13 @@ The phase-state artifact is also the deterministic lock source for the shared wo
 - If the clean-sync checkout mirrors files from the locked worktree, repair it from the control repo with `scripts\repair-phase-worktree-state.ps1` instead of ad hoc `git clean` or branch switching.
 - A phase that reaches `Pass` or `Error` must clear the active lane and move `executionLock.dirtyWorktreePolicy` to `phase_pass_clean`.
 
+### Upstream maintenance rule
+
+- Keep one clean sync branch in the runtime fork, normally `main` or `upstream-main-sync`, and fast-forward it from `upstream/main`.
+- Before planning or resuming a long-lived phase, confirm the active phase branch has been rebased onto that clean sync branch after any material upstream movement.
+- After an upstream replay, rerun `npm run compile`, the focused browser suites for the owned seams in that phase, and a self-host smoke run when shell, profile, extension-apply, or chat/session surfaces changed.
+- If an upstream refresh moves a documented seam or creates a new conflict hotspot, update the task graph and the relevant source-map or contract docs before more coding.
+
 Update the phase state artifact after:
 
 - Planner output
@@ -119,6 +126,7 @@ If two tasks share the same file, the same registration point, or the same data 
 The Planner must:
 
 - reconcile current state against the selected phase goal and exit criteria
+- compare the selected phase branch against the current clean sync branch and call out when upstream replay is required before more feature work
 - identify missing, partial, or incorrect work and plan re-implementation when needed
 - emit a concrete task graph with:
   - task IDs
@@ -126,6 +134,7 @@ The Planner must:
   - dependencies
   - parallel groups
   - branch expectations
+  - upstream rebase hotspots
   - validation per task
   - docs and tests that must be updated
 - call out the exact reason why any task must stay sequential
@@ -158,6 +167,7 @@ The Gatekeeper must:
 
 - review the whole phase after every task has a Reviewer `Pass`
 - check the broader phase goal, exit criteria, task coverage, docs coverage, and cross-task coherence
+- record whether the phase is ready to survive the next upstream replay or whether it is carrying explicit maintenance debt
 - return `Pass` or `Error`
 - explain reasoning in broader product terms, not just file-level feedback
 - call out any phase task that still looks incomplete, incorrectly scoped, or unsupported by the documented boundaries

@@ -25,6 +25,7 @@ Resume rules:
 
 - If the phase branch or phase-state artifact is missing, create or confirm them before planning.
 - If the plan is missing, stale, or contradicted by the current implementation, hand off to `Planner`.
+- If the active phase branch is stale relative to the runtime fork clean sync branch, hand off to `Planner` for a maintenance checkpoint before more coding.
 - If a Planner-approved task is ready, hand off to `Coding Agent`.
 - If a completed task is waiting for review, hand off to `Reviewer`.
 - If every task in the phase has a Reviewer `Pass`, hand off to `Gatekeeper`.

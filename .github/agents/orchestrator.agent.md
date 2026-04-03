@@ -45,6 +45,7 @@ You are the orchestration agent for `CatastroSwitch`.
 
 - Use the recommended phase state path inside the real fork clone: `.catastroswitch\phase-state\<phase>.phase-state.json`.
 - Keep `executionLock.activeAgent`, `executionLock.activeTaskId`, `executionLock.allowedBranch`, `executionLock.allowedWorktree`, `executionLock.nextHandoffTarget`, and `executionLock.pendingReviewForTask` aligned with the real workflow lane.
+- Before planning or resuming coding, confirm the selected phase branch has been replayed onto the current clean sync branch in the runtime fork, normally `main` or `upstream-main-sync`, after any material upstream movement.
 - Create or confirm the selected phase branch in the real fork clone with `scripts\new-phase-branch.ps1` before planning starts.
 - If the state file does not exist yet, create it with `scripts\new-phase-state.ps1`.
 - Update the phase state artifact after:
@@ -58,6 +59,7 @@ You are the orchestration agent for `CatastroSwitch`.
 - Start with a short triage that states the current phase or task context, current workflow stage, recommended next step, and next agent.
 - If the user did not name the phase or task explicitly, inspect the current branch, open phase-state artifact, and nearby repo context to infer it before asking for clarification.
 - If the next step depends on unresolved patch-zone or control-repo versus fork-boundary questions, hand off to `Fork Architect` before `Planner`.
+- If upstream moved and the current phase branch has not been rebased onto the clean sync branch yet, stop feature execution and route to `Planner` for a maintenance checkpoint before more coding or review work.
 - Never skip the Reviewer loop for a task.
 - Never run the Gatekeeper until every task has Reviewer `Pass`.
 - If Reviewer or Gatekeeper returns `Error`, route the work back to the correct agent and keep the artifact current.

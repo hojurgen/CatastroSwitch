@@ -6,6 +6,7 @@ Grounding:
 
 - VS Code contribution guide: <https://github.com/microsoft/vscode/wiki/How-to-Contribute>
 - VS Code source organization: <https://github.com/microsoft/vscode/wiki/Source-Code-Organization>
+- GitHub fork sync guide: <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork>
 - VS Code coding guidelines: <https://github.com/microsoft/vscode/wiki/Coding-Guidelines>
 - VS Code root `package.json`: <https://github.com/microsoft/vscode/blob/main/package.json>
 - VS Code Windows self-host launcher: <https://github.com/microsoft/vscode/blob/main/scripts/code.bat>
@@ -181,6 +182,36 @@ git rebase upstream-main-sync
 ```
 
 If the phase branch does not exist yet, create it from `C:\CatastoSwitch` with `scripts\new-phase-branch.ps1`.
+
+## Steady-state upstream maintenance
+
+When upstream `microsoft/vscode` moves, keep the fork maintenance loop explicit instead of mixing it into feature history ad hoc.
+
+Recommended runtime-fork sequence:
+
+```powershell
+git fetch upstream
+git checkout main
+git merge --ff-only upstream/main
+git push origin main
+git checkout multiagent/f3-extension-session
+git rebase main
+```
+
+If you use `upstream-main-sync` instead of `main`, apply the same rule there: the clean sync branch should only replay upstream, and phase branches should rebase onto that clean sync branch.
+
+Validation after upstream replay:
+
+1. Run `npm install` if `package.json`, lockfiles, or native dependency inputs changed upstream.
+2. Run `npm run compile` in the runtime fork.
+3. Run the focused browser suites for the fork-owned seams affected by the rebase, such as workspace rail, profile orchestration, extension-set behavior, or product session summaries.
+4. Run `scripts\code.bat` for a self-host smoke pass when shell, profile, extension-apply, or chat/session surfaces moved.
+5. If upstream changed the patch zones or forced a different seam, update `C:\CatastroSwitch` docs before declaring the replay complete.
+
+Conflict rule:
+
+- Resolve conflicts inside fork-owned files and narrow registration seams first.
+- If the rebase pressure moves outside the documented seams, route the work back through Planner plus Fork Architect before continuing feature work.
 
 ## Cross-repo build and pull-request flow
 
