@@ -31,6 +31,7 @@ Rules:
 - Prefer grounded, additive changes over clever churn. If the diff looks like a personality disorder, rewrite it.
 - Keep docs, schema, and fork tooling overlays aligned when their contracts change.
 - Keep the per-phase state artifact current if you use the Planner, Reviewer, or Gatekeeper loop. Magical thinking is not state management.
+- Keep the phase-state `executionLock` current as well. The active agent, task, branch, worktree, and next handoff should be explicit, not inferred from vibes.
 
 Pick the right repository before you start:
 
@@ -41,6 +42,7 @@ Pick the right repository before you start:
 In the runtime fork clone, keep `upstream` fetch-only and keep default pushes pointed at `origin`.
 In the runtime fork clone, add `/.catastroswitch/` to `.git/info/exclude` so local phase-state artifacts stay out of `git status`.
 In this control repo, enable the committed hooks path with `git config core.hooksPath .githooks` so direct pushes to `origin/main` are blocked unless you intentionally override them.
+VS Code also auto-loads workspace hooks from `.github\hooks\`, so keep those files and the referenced scripts reviewed like any other workflow code.
 
 Before sending changes out, run:
 
@@ -58,8 +60,9 @@ Typical maintainer loop:
 5. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
 6. In the fork checkout, keep `/.catastroswitch/` ignored via `.git/info/exclude` so local phase-state files do not dirty the runtime branch.
 7. In this control repo, keep the local `pre-push` hook enabled before pushing changes.
-8. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
-9. Cross-link paired PRs when one feature spans both repos.
+8. If the runtime clean-sync worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before resuming autonomous work.
+9. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
+10. Cross-link paired PRs when one feature spans both repos.
 
 TypeScript and ESLint policy overlays for the real fork live under `fork\tooling\`.
 
@@ -68,6 +71,7 @@ Phase workflow helpers live under:
 - `scripts\new-phase-branch.ps1`
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
+- `scripts\repair-phase-worktree-state.ps1`
 
 Workflow agents live under:
 
@@ -91,3 +95,7 @@ Reusable skills live under:
 - `.github\skills\vscode-fork-scout\SKILL.md`
 - `.github\skills\workspace-registry-design\SKILL.md`
 - `.github\skills\source-grounding\SKILL.md`
+
+Workspace hooks live under:
+
+- `.github\hooks\phase-enforcement.json`

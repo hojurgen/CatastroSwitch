@@ -238,6 +238,17 @@ function Validate-PhaseExecutionStateSample {
     Assert-EnumValue -Value (Get-PropertyValue -InputObject $Sample -PropertyName 'phaseMode') -AllowedValues @($Schema.properties.phaseMode.enum) -Description 'phase execution state phaseMode'
     Assert-EnumValue -Value (Get-PropertyValue -InputObject $Sample -PropertyName 'phaseStatus') -AllowedValues @($Schema.properties.phaseStatus.enum) -Description 'phase execution state phaseStatus'
 
+    $executionLock = Get-PropertyValue -InputObject $Sample -PropertyName 'executionLock'
+    $executionLockSchema = $Schema.definitions.executionLock
+    Assert-RequiredProperties -InputObject $executionLock -RequiredProperties @($executionLockSchema.required) -Description 'phase execution state executionLock'
+    Assert-EnumValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'activeAgent') -AllowedValues @($executionLockSchema.properties.activeAgent.enum) -Description 'phase execution state executionLock.activeAgent'
+    Assert-StringValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'activeTaskId') -Description 'phase execution state executionLock.activeTaskId'
+    Assert-StringValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'allowedBranch') -Description 'phase execution state executionLock.allowedBranch'
+    Assert-StringValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'allowedWorktree') -Description 'phase execution state executionLock.allowedWorktree'
+    Assert-EnumValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'nextHandoffTarget') -AllowedValues @($executionLockSchema.properties.nextHandoffTarget.enum) -Description 'phase execution state executionLock.nextHandoffTarget'
+    Assert-StringValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'pendingReviewForTask') -Description 'phase execution state executionLock.pendingReviewForTask'
+    Assert-EnumValue -Value (Get-PropertyValue -InputObject $executionLock -PropertyName 'dirtyWorktreePolicy') -AllowedValues @($executionLockSchema.properties.dirtyWorktreePolicy.enum) -Description 'phase execution state executionLock.dirtyWorktreePolicy'
+
     $planner = Get-PropertyValue -InputObject $Sample -PropertyName 'planner'
     $plannerSchema = $Schema.definitions.planner
     Assert-RequiredProperties -InputObject $planner -RequiredProperties @($plannerSchema.required) -Description 'phase planner'
@@ -307,6 +318,7 @@ $jsonFiles = @(
     'examples\workspace-registry.sample.json',
     'schemas\phase-execution-state.schema.json',
     'examples\phase-execution-state.sample.json',
+    '.github\hooks\phase-enforcement.json',
     'fork\tooling\branding-assets.manifest.json',
     'fork\tooling\tsconfig.catastroswitch.strict.json',
     '.vscode\extensions.json',
@@ -495,6 +507,23 @@ if ($workspaceScriptContents -notmatch [regex]::Escape("CatastroSwitch.local.cod
 }
 Write-Host ' - OK: local workspace generator is present'
 
+$phaseHookPath = Assert-FileExists -RelativePath '.github\hooks\phase-enforcement.json'
+$phaseHookContents = Get-Content -Raw -LiteralPath $phaseHookPath
+$phaseHookScriptPath = Assert-FileExists -RelativePath 'scripts\phase-enforcement-hook.ps1'
+$phaseRepairScriptPath = Assert-FileExists -RelativePath 'scripts\repair-phase-worktree-state.ps1'
+$phaseHookScriptContents = Get-Content -Raw -LiteralPath $phaseHookScriptPath
+$phaseRepairScriptContents = Get-Content -Raw -LiteralPath $phaseRepairScriptPath
+if ($phaseHookContents -notmatch [regex]::Escape('phase-enforcement-hook.ps1')) {
+    throw '.github\hooks\phase-enforcement.json is missing the shared phase-enforcement hook script reference.'
+}
+if ($phaseHookScriptContents -notmatch [regex]::Escape('hookSpecificOutput')) {
+    throw 'scripts\phase-enforcement-hook.ps1 is missing hook output handling.'
+}
+if ($phaseRepairScriptContents -notmatch [regex]::Escape('Get-PhaseStateRecord')) {
+    throw 'scripts\repair-phase-worktree-state.ps1 is missing the shared phase-state resolution helper usage.'
+}
+Write-Host ' - OK: phase hook and repair scripts are present'
+
 $phaseWorkflowHelperPath = Assert-FileExists -RelativePath 'scripts\phase-workflow-helpers.ps1'
 $phaseWorkflowHelperContents = Get-Content -Raw -LiteralPath $phaseWorkflowHelperPath
 $null = Assert-FileExists -RelativePath 'scripts\new-phase-branch.ps1'
@@ -505,6 +534,9 @@ $brandingExportScriptPath = Assert-FileExists -RelativePath 'scripts\export-fork
 $brandingExportScriptContents = Get-Content -Raw -LiteralPath $brandingExportScriptPath
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('.catastroswitch\phase-state')) {
     throw 'scripts\phase-workflow-helpers.ps1 is missing the default phase state path.'
+}
+if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('executionLock')) {
+    throw 'scripts\phase-workflow-helpers.ps1 is missing the executionLock contract defaults.'
 }
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape("Id = 'F1-T0'")) {
     throw 'scripts\phase-workflow-helpers.ps1 is missing the F1-T0 branding task.'
@@ -621,6 +653,9 @@ $phaseSkillContents = Get-Content -Raw -LiteralPath $phaseSkillPath
 if ($plannerAgentContents -notmatch [regex]::Escape('agent: Coding Agent')) {
     throw '.github\agents\planner.agent.md is missing the Coding Agent handoff.'
 }
+if ($plannerAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
+    throw '.github\agents\planner.agent.md must stay hidden from the normal agent picker.'
+}
 if ($plannerAgentContents -notmatch [regex]::Escape('agent: Gatekeeper')) {
     throw '.github\agents\planner.agent.md is missing the Gatekeeper handoff.'
 }
@@ -639,20 +674,32 @@ if ($plannerAgentContents -notmatch [regex]::Escape('Reviewer `Pass`')) {
 if ($codingAgentContents -notmatch [regex]::Escape('name: Coding Agent')) {
     throw '.github\agents\coding-agent.agent.md is missing the Coding Agent name.'
 }
+if ($codingAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
+    throw '.github\agents\coding-agent.agent.md must stay hidden from the normal agent picker.'
+}
 if ($codingAgentContents -notmatch [regex]::Escape('agent: Reviewer')) {
     throw '.github\agents\coding-agent.agent.md is missing the Reviewer handoff.'
 }
 if ($reviewerAgentContents -notmatch [regex]::Escape('Outcome: Pass') -or $reviewerAgentContents -notmatch [regex]::Escape('Outcome: Error')) {
     throw '.github\agents\reviewer.agent.md is missing the required Pass/Error output contract.'
 }
+if ($reviewerAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
+    throw '.github\agents\reviewer.agent.md must stay hidden from the normal agent picker.'
+}
 if ($gatekeeperAgentContents -notmatch [regex]::Escape('Outcome: Pass') -or $gatekeeperAgentContents -notmatch [regex]::Escape('Outcome: Error')) {
     throw '.github\agents\gatekeeper.agent.md is missing the required Pass/Error output contract.'
+}
+if ($gatekeeperAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
+    throw '.github\agents\gatekeeper.agent.md must stay hidden from the normal agent picker.'
 }
 if ($orchestratorAgentContents -notmatch [regex]::Escape('agent: Planner') -or $orchestratorAgentContents -notmatch [regex]::Escape('agent: Gatekeeper')) {
     throw '.github\agents\orchestrator.agent.md is missing the required phase orchestration handoffs.'
 }
 if ($orchestratorAgentContents -notmatch [regex]::Escape('phase state artifact')) {
     throw '.github\agents\orchestrator.agent.md is missing the phase state artifact guidance.'
+}
+if ($orchestratorAgentContents -notmatch [regex]::Escape('executionLock')) {
+    throw '.github\agents\orchestrator.agent.md is missing the executionLock guidance.'
 }
 if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\new-phase-branch.ps1')) {
     throw '.github\agents\orchestrator.agent.md is missing the phase branch creation guidance.'
@@ -665,6 +712,9 @@ if ($phaseSkillContents -notmatch [regex]::Escape('Gatekeeper') -or $phaseSkillC
 }
 if ($phaseSkillContents -notmatch [regex]::Escape('phase state artifact')) {
     throw '.github\skills\fork-phase-execution\SKILL.md is missing the phase state artifact guidance.'
+}
+if ($phaseSkillContents -notmatch [regex]::Escape('executionLock')) {
+    throw '.github\skills\fork-phase-execution\SKILL.md is missing the executionLock guidance.'
 }
 Write-Host ' - OK: phase execution agent graph is present'
 
@@ -720,17 +770,32 @@ if ($forkRunbookContents -notmatch [regex]::Escape('short-lived sibling task bra
 if ($forkRunbookContents -notmatch [regex]::Escape('export-fork-branding-assets.ps1')) {
     throw 'docs\vscode-fork-build-runbook.md is missing the branding export workflow command.'
 }
+if ($forkRunbookContents -notmatch [regex]::Escape('phase-enforcement.json') -or $forkRunbookContents -notmatch [regex]::Escape('repair-phase-worktree-state.ps1')) {
+    throw 'docs\vscode-fork-build-runbook.md is missing the hook-backed phase repair guidance.'
+}
 
 $readmePath = Assert-FileExists -RelativePath 'README.md'
 $readmeContents = Get-Content -Raw -LiteralPath $readmePath
 if ($readmeContents -notmatch [regex]::Escape('docs\vscode-fork-branding-assets.md')) {
     throw 'README.md is missing the branding asset workflow doc reference.'
 }
+if ($readmeContents -notmatch [regex]::Escape('phase-enforcement.json') -or $readmeContents -notmatch [regex]::Escape('repair-phase-worktree-state.ps1')) {
+    throw 'README.md is missing the workflow hook or mirrored-worktree repair guidance.'
+}
 
 $contributingPath = Assert-FileExists -RelativePath 'CONTRIBUTING.md'
 $contributingContents = Get-Content -Raw -LiteralPath $contributingPath
 if ($contributingContents -notmatch [regex]::Escape('export-fork-branding-assets.ps1')) {
     throw 'CONTRIBUTING.md is missing the branding export workflow command.'
+}
+if ($contributingContents -notmatch [regex]::Escape('phase-enforcement.json') -or $contributingContents -notmatch [regex]::Escape('repair-phase-worktree-state.ps1')) {
+    throw 'CONTRIBUTING.md is missing the workflow hook or mirrored-worktree repair guidance.'
+}
+
+$implementationPlanPath = Assert-FileExists -RelativePath 'docs\implementation-plan.md'
+$implementationPlanContents = Get-Content -Raw -LiteralPath $implementationPlanPath
+if ($implementationPlanContents -notmatch [regex]::Escape('executionLock') -or $implementationPlanContents -notmatch [regex]::Escape('repair-phase-worktree-state.ps1')) {
+    throw 'docs\implementation-plan.md is missing the deterministic lock or repair workflow guidance.'
 }
 Write-Host ' - OK: fork execution docs reflect the phase branch workflow'
 

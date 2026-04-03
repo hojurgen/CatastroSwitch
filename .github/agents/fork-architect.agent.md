@@ -2,10 +2,12 @@
 name: Fork Architect
 description: Map CatastroSwitch requirements to concrete Code - OSS patch zones and keep the control-repo or fork boundary explicit.
 target: vscode
+user-invocable: false
 tools:
   - web/fetch
   - search/codebase
   - search/usages
+  - search/changes
 handoffs:
   - label: Refine phase plan
     agent: Planner

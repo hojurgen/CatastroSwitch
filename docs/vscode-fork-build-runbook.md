@@ -247,12 +247,21 @@ The control repo now ships helper scripts for the phase workflow:
 - `scripts\new-phase-branch.ps1`
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
+- `scripts\repair-phase-worktree-state.ps1`
 
 Recommended usage:
 
 1. Create or switch to the phase branch.
 2. Create the initial phase state file under the real fork clone.
 3. Create sibling task branches only when a Planner-approved task is safe to run in parallel.
+
+The control repo also ships `.github\hooks\phase-enforcement.json`, which VS Code auto-loads in workspace chat sessions. That hook reads the phase-state `executionLock` and resolves the fork root from `CATASTROSWITCH_FORK_ROOT`, `CatastroSwitch.local.code-workspace`, or the default `C:\src\vscode-multiagent` path.
+
+If the clean-sync runtime checkout mirrors files from the active phase worktree, repair it from `C:\CatastroSwitch` before more agent work:
+
+```powershell
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase F3
+```
 
 To keep the runtime fork clean while those local workflow artifacts exist, add `/.catastroswitch/` to the fork repo `.git/info/exclude`.
 

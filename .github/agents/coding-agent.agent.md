@@ -2,6 +2,7 @@
 name: Coding Agent
 description: Implement exactly one Planner-approved CatastroSwitch task on the current phase branch, then hand off to Reviewer.
 target: vscode
+user-invocable: false
 handoffs:
   - label: Review task
     agent: Reviewer
@@ -40,6 +41,8 @@ Before handing off to Reviewer, include:
 - remaining risks
 
 - Update the task entry in the phase state artifact before handing off to Reviewer.
+- While the task is active, keep `executionLock.activeAgent` as `Coding Agent`, `executionLock.activeTaskId` on the selected task, `executionLock.allowedBranch` on the real task branch or phase branch, `executionLock.allowedWorktree` on the current fork worktree, and `executionLock.nextHandoffTarget` on `Reviewer`.
+- When you finish the task and hand off, set `executionLock.pendingReviewForTask` to that task ID and move `executionLock.dirtyWorktreePolicy` to `clean_before_review`.
 
 ## Required checks
 

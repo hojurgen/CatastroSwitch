@@ -8,6 +8,7 @@ agent: Orchestrator
 Resume exactly one active CatastroSwitch phase from the available repo context.
 
 Ground the resume decision in [docs/implementation-plan.md](../../docs/implementation-plan.md), [CONTRIBUTING.md](../../CONTRIBUTING.md), and the phase-state artifact in the real fork clone when one exists.
+If the artifact contains an `executionLock`, use it to identify the active branch, worktree, and next handoff before you infer from looser repo signals.
 
 Start by inspecting the current branch, current phase-state artifact, and recent workflow context to infer the active phase before asking for clarification.
 
@@ -27,6 +28,7 @@ Resume rules:
 - If a Planner-approved task is ready, hand off to `Coding Agent`.
 - If a completed task is waiting for review, hand off to `Reviewer`.
 - If every task in the phase has a Reviewer `Pass`, hand off to `Gatekeeper`.
+- Update or clear the `executionLock` when the inferred lane differs from the artifact and you have enough evidence to correct it.
 - Stay in `Orchestrator` only long enough to perform the resume triage and continue the correct handoff.
 
 Execution rules:

@@ -135,13 +135,148 @@ function Get-DefaultPhaseStatePath {
     return Join-Path $ForkRoot ".catastroswitch\phase-state\$Phase.phase-state.json"
 }
 
+function Resolve-CatastroSwitchForkRoot {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepoRoot,
+        [string]$PreferredForkRoot
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($PreferredForkRoot)) {
+        if (-not (Test-Path -LiteralPath $PreferredForkRoot -PathType Container)) {
+            throw "Fork path not found: $PreferredForkRoot"
+        }
+
+        return $PreferredForkRoot
+    }
+
+    $environmentForkRoot = $env:CATASTROSWITCH_FORK_ROOT
+    if (-not [string]::IsNullOrWhiteSpace($environmentForkRoot) -and (Test-Path -LiteralPath $environmentForkRoot -PathType Container)) {
+        return $environmentForkRoot
+    }
+
+    $workspaceFile = Join-Path $RepoRoot 'CatastroSwitch.local.code-workspace'
+    if (Test-Path -LiteralPath $workspaceFile -PathType Leaf) {
+        try {
+            $workspace = Get-Content -Raw -LiteralPath $workspaceFile | ConvertFrom-Json
+            foreach ($folder in @($workspace.folders)) {
+                $candidatePath = [string]$folder.path
+                if ([string]::IsNullOrWhiteSpace($candidatePath)) {
+                    continue
+                }
+
+                if (-not [System.IO.Path]::IsPathRooted($candidatePath)) {
+                    $candidatePath = Join-Path $RepoRoot $candidatePath
+                }
+
+                $candidatePath = [System.IO.Path]::GetFullPath($candidatePath)
+                if ($candidatePath -eq [System.IO.Path]::GetFullPath($RepoRoot)) {
+                    continue
+                }
+
+                if (Test-Path -LiteralPath $candidatePath -PathType Container) {
+                    return $candidatePath
+                }
+            }
+        }
+        catch {
+            # Fall back to the default path when the local workspace file is absent or invalid.
+        }
+    }
+
+    $defaultForkRoot = 'C:\src\vscode-multiagent'
+    if (Test-Path -LiteralPath $defaultForkRoot -PathType Container) {
+        return $defaultForkRoot
+    }
+
+    throw 'Unable to resolve the runtime fork root. Set CATASTROSWITCH_FORK_ROOT or create CatastroSwitch.local.code-workspace.'
+}
+
+function Get-PhaseStateRecord {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ForkRoot,
+        [string]$Phase,
+        [string]$PhaseStatePath,
+        [switch]$IncludeTerminalStates
+    )
+
+    $candidatePaths = @()
+
+    if (-not [string]::IsNullOrWhiteSpace($PhaseStatePath)) {
+        $candidatePaths = @($PhaseStatePath)
+    }
+    elseif (-not [string]::IsNullOrWhiteSpace($Phase)) {
+        $candidatePaths = @(Get-DefaultPhaseStatePath -ForkRoot $ForkRoot -Phase $Phase)
+    }
+    else {
+        $phaseStateDirectory = Join-Path $ForkRoot '.catastroswitch\phase-state'
+        if (-not (Test-Path -LiteralPath $phaseStateDirectory -PathType Container)) {
+            return $null
+        }
+
+        $candidatePaths = @(Get-ChildItem -LiteralPath $phaseStateDirectory -Filter '*.phase-state.json' -File |
+            Sort-Object LastWriteTimeUtc -Descending |
+            ForEach-Object { $_.FullName })
+    }
+
+    if ($candidatePaths.Count -eq 0) {
+        return $null
+    }
+
+    $records = foreach ($candidatePath in $candidatePaths) {
+        if (-not (Test-Path -LiteralPath $candidatePath -PathType Leaf)) {
+            if (-not [string]::IsNullOrWhiteSpace($PhaseStatePath) -or -not [string]::IsNullOrWhiteSpace($Phase)) {
+                throw "Phase state file not found: $candidatePath"
+            }
+
+            continue
+        }
+
+        $phaseState = Get-Content -Raw -LiteralPath $candidatePath | ConvertFrom-Json
+        $phaseStatus = [string]$phaseState.phaseStatus
+        if (-not $IncludeTerminalStates -and $phaseStatus -in @('pass', 'error')) {
+            continue
+        }
+
+        [pscustomobject]@{
+            Path = $candidatePath
+            PhaseState = $phaseState
+            LastWriteTimeUtc = (Get-Item -LiteralPath $candidatePath).LastWriteTimeUtc
+        }
+    }
+
+    if ($records.Count -gt 0) {
+        return @($records | Sort-Object LastWriteTimeUtc -Descending)[0]
+    }
+
+    if (-not $IncludeTerminalStates) {
+        return $null
+    }
+
+    foreach ($candidatePath in $candidatePaths) {
+        if (-not (Test-Path -LiteralPath $candidatePath -PathType Leaf)) {
+            continue
+        }
+
+        return [pscustomobject]@{
+            Path = $candidatePath
+            PhaseState = (Get-Content -Raw -LiteralPath $candidatePath | ConvertFrom-Json)
+            LastWriteTimeUtc = (Get-Item -LiteralPath $candidatePath).LastWriteTimeUtc
+        }
+    }
+
+    return $null
+}
+
 function New-PhaseStateObject {
     param(
         [Parameter(Mandatory = $true)]
         [string]$Phase,
         [Parameter(Mandatory = $true)]
         [ValidateSet('fresh_implementation', 'partial_implementation', 'reimplementation')]
-        [string]$PhaseMode
+        [string]$PhaseMode,
+        [string]$AllowedWorktree = ''
     )
 
     $phaseDefinition = Get-PhaseDefinition -Phase $Phase
@@ -193,11 +328,20 @@ function New-PhaseStateObject {
     }
 
     return [ordered]@{
-        version = 1
+        version = 2
         phaseId = $Phase
         phaseBranch = $phaseDefinition.Branch
         phaseMode = $PhaseMode
         phaseStatus = 'planning'
+        executionLock = [ordered]@{
+            activeAgent = 'Planner'
+            activeTaskId = $null
+            allowedBranch = $phaseDefinition.Branch
+            allowedWorktree = $AllowedWorktree
+            nextHandoffTarget = 'Planner'
+            pendingReviewForTask = $null
+            dirtyWorktreePolicy = 'only_locked_worktree_may_be_dirty'
+        }
         planner = [ordered]@{
             summary = 'Planner has not populated this phase yet.'
             currentGaps = @()

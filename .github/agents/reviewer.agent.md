@@ -2,6 +2,12 @@
 name: Reviewer
 description: Review one completed CatastroSwitch task and return Pass or Error with reasoning.
 target: vscode
+user-invocable: false
+tools:
+  - search/codebase
+  - search/usages
+  - search/changes
+  - read/problems
 handoffs:
   - label: Request rework
     agent: Coding Agent
@@ -41,6 +47,7 @@ Always respond with `Outcome: Pass` or `Outcome: Error` and a fenced `json` bloc
 ```
 
 Update the phase state artifact with that result.
+- Also update `executionLock` so the next agent, pending review task, and dirty-worktree policy match the review outcome. A passed task should clear `executionLock.pendingReviewForTask`; an errored task should route the lock back to `Coding Agent` or `Planner` explicitly.
 
 ## Review focus
 

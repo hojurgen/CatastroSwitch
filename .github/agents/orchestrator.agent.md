@@ -2,6 +2,12 @@
 name: Orchestrator
 description: Run one CatastroSwitch phase end-to-end by keeping the phase state artifact current and driving the Planner, Coding Agent, Reviewer, and Gatekeeper loop.
 target: vscode
+tools:
+  - web/fetch
+  - search/codebase
+  - search/usages
+  - search/changes
+  - read/problems
 handoffs:
   - label: Scout fork patch zone
     agent: Fork Architect
@@ -38,6 +44,7 @@ You are the orchestration agent for `CatastroSwitch`.
 ## Required state handling
 
 - Use the recommended phase state path inside the real fork clone: `.catastroswitch\phase-state\<phase>.phase-state.json`.
+- Keep `executionLock.activeAgent`, `executionLock.activeTaskId`, `executionLock.allowedBranch`, `executionLock.allowedWorktree`, `executionLock.nextHandoffTarget`, and `executionLock.pendingReviewForTask` aligned with the real workflow lane.
 - Create or confirm the selected phase branch in the real fork clone with `scripts\new-phase-branch.ps1` before planning starts.
 - If the state file does not exist yet, create it with `scripts\new-phase-state.ps1`.
 - Update the phase state artifact after:
@@ -54,6 +61,7 @@ You are the orchestration agent for `CatastroSwitch`.
 - Never skip the Reviewer loop for a task.
 - Never run the Gatekeeper until every task has Reviewer `Pass`.
 - If Reviewer or Gatekeeper returns `Error`, route the work back to the correct agent and keep the artifact current.
+- If the phase reaches `Pass` or `Error`, clear the active lane by setting `executionLock.activeAgent` and `executionLock.nextHandoffTarget` to `None`, `executionLock.activeTaskId` and `executionLock.pendingReviewForTask` to `null`, and `executionLock.dirtyWorktreePolicy` to `phase_pass_clean`.
 - Use `scripts\new-phase-task-branch.ps1` only when the Planner marks a task as parallel-safe.
 - Keep runtime changes on the fork checkout and use the control repo only for durable docs, contracts, scripts, and guidance.
 - Keep all work on the phase branch or approved sibling task branches for that phase.

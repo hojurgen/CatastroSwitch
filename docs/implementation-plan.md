@@ -67,12 +67,22 @@ Helper scripts:
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
 
+The phase-state artifact is also the deterministic lock source for the shared workspace hooks and cleanup tooling. Keep `executionLock.activeAgent`, `executionLock.activeTaskId`, `executionLock.allowedBranch`, `executionLock.allowedWorktree`, `executionLock.nextHandoffTarget`, `executionLock.pendingReviewForTask`, and `executionLock.dirtyWorktreePolicy` current alongside the task and review fields.
+
+### Deterministic guardrails
+
+- `.github\hooks\phase-enforcement.json` reads the phase-state `executionLock` and blocks runtime writes that target the wrong branch or worktree.
+- The clean-sync runtime checkout should stay clean unless the lock explicitly points at that checkout.
+- If the clean-sync checkout mirrors files from the locked worktree, repair it from the control repo with `scripts\repair-phase-worktree-state.ps1` instead of ad hoc `git clean` or branch switching.
+- A phase that reaches `Pass` or `Error` must clear the active lane and move `executionLock.dirtyWorktreePolicy` to `phase_pass_clean`.
+
 Update the phase state artifact after:
 
 - Planner output
 - each Coding Agent task handoff
 - each Reviewer result
 - each Gatekeeper result
+- each `executionLock` handoff or cleanup event that changes the allowed runtime branch or worktree
 
 ### Planner -> Coding Agent -> Reviewer -> Gatekeeper loop
 

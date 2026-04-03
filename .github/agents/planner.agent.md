@@ -2,10 +2,13 @@
 name: Planner
 description: Plan or re-plan one CatastroSwitch phase, compute the task graph, and orchestrate Coding Agent work plus the final Gatekeeper pass.
 target: vscode
+user-invocable: false
 tools:
   - web/fetch
   - search/codebase
   - search/usages
+  - search/changes
+  - read/problems
 handoffs:
   - label: Start coding task
     agent: Coding Agent
@@ -57,6 +60,7 @@ Always include:
 - a fenced `json` block for the phase state artifact planner section
 
 - Update the phase state artifact whenever you produce a new plan or re-plan.
+- When you update the artifact, set `executionLock.activeAgent` to `Planner`, clear `executionLock.activeTaskId` and `executionLock.pendingReviewForTask`, keep `executionLock.allowedBranch` on the phase branch, point `executionLock.nextHandoffTarget` at the next real agent, and tighten `executionLock.dirtyWorktreePolicy` to the current stage.
 
 ## Never do this
 

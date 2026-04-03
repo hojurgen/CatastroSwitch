@@ -2,6 +2,12 @@
 name: Gatekeeper
 description: Review a completed CatastroSwitch phase and return Pass or Error with broader-scope reasoning.
 target: vscode
+user-invocable: false
+tools:
+  - search/codebase
+  - search/usages
+  - search/changes
+  - read/problems
 handoffs:
   - label: Re-plan phase
     agent: Planner
@@ -37,6 +43,7 @@ Always respond with `Outcome: Pass` or `Outcome: Error` and a fenced `json` bloc
 ```
 
 Update the phase state artifact with that result.
+- Keep `executionLock.activeAgent` as `Gatekeeper` while you review, set `executionLock.nextHandoffTarget` to `Planner` on `Error`, and clear the active lane on `Pass`.
 
 ## Gatekeeper focus
 

@@ -49,6 +49,8 @@ powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\new-local-
 
 This writes `CatastroSwitch.local.code-workspace` in the repo root so contributors can work across the control repo and the fork without committing machine-specific workspace paths.
 
+If your fork checkout does not live at `C:\src\vscode-multiagent`, set `CATASTROSWITCH_FORK_ROOT` in your shell or profile so the shared workflow hooks and repair scripts resolve the correct runtime checkout.
+
 ### Scope boundary
 
 - This repo keeps planning, schema, contract, and agent-guidance artifacts.
@@ -78,9 +80,11 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 
 1. Plan the phase and maintain the durable product docs in this repo.
 2. If you want chat to inspect the current workflow state and continue from the right agent, use one of the shared workspace prompts under `.github\prompts\`: `workflow-router.prompt.md` for general routing, `resume-phase.prompt.md` for strict phase resumption, or `review-ready-task.prompt.md` for the Reviewer entrypoint.
+  The shared workspace hook at `.github\hooks\phase-enforcement.json` also reads the phase-state `executionLock` when one exists and blocks writes to the wrong runtime worktree.
 3. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
 4. Create or update the active phase branch in the fork.
 5. Build and run from the fork checkout with `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat`.
+  If the clean-sync fork worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before continuing.
 6. If product branding sources changed under `assets\logo.svg`, run `Fork: export branding assets` from this control repo against the fork checkout before committing the generated runtime assets. That task exports all packaged icons and recompiles the fork so the in-app workbench icon also refreshes from the same control-repo source.
 7. Update this repo only when the docs, contracts, schemas, or workflow expectations change.
 8. Run `Control repo: validate` when this repo changes.
@@ -93,6 +97,7 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 C:\CatastroSwitch
 ├─ .github
 │  ├─ agents
+│  ├─ hooks
 │  ├─ instructions
 │  ├─ prompts
 │  └─ skills
@@ -143,6 +148,8 @@ Recommended real fork path:
 ```
 
 Use the helper scripts under `scripts\` to create the phase branch, task branch, and initial phase state file.
+The phase-state contract also carries an `executionLock` that records the active agent, active task, allowed runtime branch and worktree, next handoff, pending review lane, and the dirty-worktree policy for the current stage.
+Workspace hooks under `.github\hooks\phase-enforcement.json` read that lock so the chat workflow can block writes to the wrong runtime checkout instead of relying on memory.
 
 ## Why the name
 

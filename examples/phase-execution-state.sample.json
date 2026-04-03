@@ -1,10 +1,19 @@
 {
   "$schema": "../schemas/phase-execution-state.schema.json",
-  "version": 1,
+  "version": 2,
   "phaseId": "F1",
   "phaseBranch": "multiagent/f1-workspace-rail",
   "phaseMode": "fresh_implementation",
-  "phaseStatus": "reviewing",
+  "phaseStatus": "coding",
+  "executionLock": {
+    "activeAgent": "Coding Agent",
+    "activeTaskId": "F1-T2",
+    "allowedBranch": "multiagent/f1-workspace-rail",
+    "allowedWorktree": "C:\\src\\vscode-multiagent-f1-phase",
+    "nextHandoffTarget": "Reviewer",
+    "pendingReviewForTask": null,
+    "dirtyWorktreePolicy": "only_locked_worktree_may_be_dirty"
+  },
   "planner": {
     "summary": "Planner split the phase into branding, shell integration, shell behavior, placeholder UI, and closeout work.",
     "currentGaps": [
