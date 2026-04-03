@@ -38,7 +38,14 @@ if ((Test-Path -LiteralPath $OutputPath -PathType Leaf) -and -not $Force) {
     throw "Phase state file already exists: $OutputPath. Use -Force to overwrite it."
 }
 
-$phaseState = New-PhaseStateObject -Phase $Phase -PhaseMode $PhaseMode
+$allowedWorktree = if (Test-Path -LiteralPath $ForkRoot -PathType Container) {
+    $ForkRoot
+}
+else {
+    ''
+}
+
+$phaseState = New-PhaseStateObject -Phase $Phase -PhaseMode $PhaseMode -AllowedWorktree $allowedWorktree
 $phaseState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $OutputPath -Encoding utf8
 
 Write-Host "Wrote phase state file: $OutputPath"

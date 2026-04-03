@@ -8,6 +8,7 @@
     "phaseBranch",
     "phaseMode",
     "phaseStatus",
+    "executionLock",
     "planner",
     "tasks",
     "gatekeeper"
@@ -15,7 +16,7 @@
   "properties": {
     "version": {
       "type": "integer",
-      "minimum": 1
+      "minimum": 2
     },
     "phaseId": {
       "type": "string",
@@ -48,6 +49,9 @@
         "pass",
         "error"
       ]
+    },
+    "executionLock": {
+      "$ref": "#/definitions/executionLock"
     },
     "planner": {
       "$ref": "#/definitions/planner"
@@ -164,6 +168,70 @@
             "Planner",
             "Gatekeeper",
             "None"
+          ]
+        }
+      }
+    },
+    "executionLock": {
+      "type": "object",
+      "required": [
+        "activeAgent",
+        "activeTaskId",
+        "allowedBranch",
+        "allowedWorktree",
+        "nextHandoffTarget",
+        "pendingReviewForTask",
+        "dirtyWorktreePolicy"
+      ],
+      "properties": {
+        "activeAgent": {
+          "type": "string",
+          "enum": [
+            "Orchestrator",
+            "Planner",
+            "Coding Agent",
+            "Reviewer",
+            "Gatekeeper",
+            "Fork Architect",
+            "None"
+          ]
+        },
+        "activeTaskId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "allowedBranch": {
+          "type": "string"
+        },
+        "allowedWorktree": {
+          "type": "string"
+        },
+        "nextHandoffTarget": {
+          "type": "string",
+          "enum": [
+            "Planner",
+            "Coding Agent",
+            "Reviewer",
+            "Gatekeeper",
+            "Fork Architect",
+            "None"
+          ]
+        },
+        "pendingReviewForTask": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dirtyWorktreePolicy": {
+          "type": "string",
+          "enum": [
+            "only_locked_worktree_may_be_dirty",
+            "clean_before_review",
+            "clean_before_gatekeeper",
+            "phase_pass_clean"
           ]
         }
       }

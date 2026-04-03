@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "pwsh -NoLogo -NoProfile -File ./scripts/phase-enforcement-hook.ps1",
+        "windows": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\phase-enforcement-hook.ps1",
+        "cwd": ".",
+        "timeout": 15
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "pwsh -NoLogo -NoProfile -File ./scripts/phase-enforcement-hook.ps1",
+        "windows": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\phase-enforcement-hook.ps1",
+        "cwd": ".",
+        "timeout": 15
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "pwsh -NoLogo -NoProfile -File ./scripts/phase-enforcement-hook.ps1",
+        "windows": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\phase-enforcement-hook.ps1",
+        "cwd": ".",
+        "timeout": 20
+      }
+    ]
+  }
+}

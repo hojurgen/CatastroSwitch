@@ -183,5 +183,11 @@ Every fork epic should be implemented so that an upstream rebase mostly sees:
 - narrow registration changes,
 - and small, obvious seams in existing upstream files.
 
+Fork maintenance rule:
+
+- keep a clean sync branch in the runtime fork that fast-forwards from `upstream/main`
+- rebase each active phase branch onto that clean sync branch instead of merging upstream directly into feature history
+- rerun compile, focused owned-seam tests, and self-host smoke after upstream replay before trusting the branch again
+
 If a solution starts by copying an upstream workbench part or rewriting a large existing class, revisit the design first.
 
