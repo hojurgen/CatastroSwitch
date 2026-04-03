@@ -101,6 +101,26 @@ Resource-specific profile surfaces already exist:
 
 That resource split is a good sign: the fork should extend profile orchestration, not bolt on a second competing workspace-state system.
 
+## Workspace extension-set planning and apply
+
+The F3 extension lane is now concrete rather than hypothetical. These are the primary files for the current preview/apply/recovery flow:
+
+- `src/vs/workbench/services/workspaces/browser/workspaceExtensionSetPlannerService.ts`
+  - computes deterministic install, enable, disable, removal, and unsupported deltas from the current workspace selection and desired behaviors
+- `src/vs/workbench/services/workspaces/browser/workspaceExtensionSetApplyService.ts`
+  - owns confirmation, application, recovery, and user feedback for the explicit extension-set apply step
+- `src/vs/workbench/services/userDataProfile/browser/extensionsResource.ts`
+  - remains the profile-scoped extension content seam used by the apply flow, including pinned-version reinstall behavior
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailActions.ts`
+  - exposes `workbench.action.applyWorkspaceExtensionSet` so users trigger workspace extension changes explicitly instead of through silent background mutation
+
+Regression coverage for this lane currently lives under:
+
+- `src/vs/workbench/services/workspaces/test/browser/workspaceExtensionSetPlannerService.test.ts`
+- `src/vs/workbench/services/workspaces/test/browser/workspaceExtensionSetApplyService.test.ts`
+- `src/vs/workbench/services/userDataProfile/test/browser/extensionsResource.test.ts`
+- `src/vs/workbench/test/browser/parts/workspacerail/workspaceRailActions.test.ts`
+
 ## Chat and agent visibility
 
 The upstream chat contrib now documents its own internal organization.
@@ -121,6 +141,19 @@ For `CatastroSwitch`, this suggests a clean separation:
 
 - product-owned agent/session visibility should come from chat/session services inside the fork
 - third-party or external agents should still use the explicit adapter model from `docs/agent-adapter-contract.md`
+
+The F3 session lane is also concrete rather than hypothetical:
+
+- `src/vs/workbench/contrib/chat/browser/productSessionSummaryService.ts`
+  - summarizes only product-owned sessions and classifies excluded providers into adapter-required versus blocked buckets
+- `src/vs/workbench/services/workspaces/common/productSessionSummaryService.ts`
+  - carries the shared summary contract consumed by the workspace rail
+- `src/vs/workbench/browser/parts/workspacerail/workspaceRailPart.ts`
+  - renders the owned-session summary plus the explicit `adapter-required` and `blocked` boundary slots
+- `src/vs/workbench/services/workspaces/test/browser/productSessionSummaryService.test.ts`
+- `src/vs/workbench/test/browser/parts/workspacerail/workspaceRailPart.test.ts`
+
+Those tests harden the trusted product-owned path without implying universal session visibility.
 
 ## Suggested cut line
 
