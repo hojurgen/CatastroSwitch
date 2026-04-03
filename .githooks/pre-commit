@@ -1,0 +1,18 @@
+#!/bin/sh
+
+current_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+allow_main_commit="${CATASTROSWITCH_ALLOW_MAIN_COMMIT:-}"
+
+if [ "$current_branch" = "HEAD" ]; then
+  echo "Commits from detached HEAD are blocked in this repo."
+  echo "Switch to a branch before committing."
+  exit 1
+fi
+
+if [ "$current_branch" = "main" ] && [ "$allow_main_commit" != "1" ]; then
+  echo "Commits on main are blocked in this repo."
+  echo "Create a branch and PR, or override intentionally with CATASTROSWITCH_ALLOW_MAIN_COMMIT=1 git commit ..."
+  exit 1
+fi
+
+exit 0

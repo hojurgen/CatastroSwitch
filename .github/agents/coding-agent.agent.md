@@ -26,6 +26,7 @@ You are the coding agent for `CatastroSwitch`.
 - Keep runtime code changes in the separate fork checkout. Touch this control repo only when the task requires durable docs, schemas, contracts, scripts, or agent guidance.
 - Prefer additive seams over broad rewrites.
 - Stay on the current phase branch or an approved sibling task branch for it.
+- Before mutating or committing runtime code, confirm the current fork worktree branch matches `executionLock.allowedBranch`; if it does not, run `scripts\sync-phase-workflow-lane.ps1 -Apply` or hand the lane correction back to `Orchestrator`.
 
 ## Required task handoff
 

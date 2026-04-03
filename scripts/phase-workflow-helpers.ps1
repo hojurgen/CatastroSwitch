@@ -108,6 +108,34 @@ function Get-TaskBranchName {
     return "$($taskDefinition.Branch)-$($taskDefinition.Task.BranchSuffix)"
 }
 
+function Get-OrderedPhaseIds {
+    return @((Get-PhaseWorkflowCatalog).Keys)
+}
+
+function Get-TaskDefinitionByBranchName {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Branch
+    )
+
+    $catalog = Get-PhaseWorkflowCatalog
+    foreach ($phaseId in $catalog.Keys) {
+        $phaseBranch = [string]$catalog[$phaseId].Branch
+        foreach ($task in @($catalog[$phaseId].Tasks)) {
+            $taskBranch = "$phaseBranch-$($task.BranchSuffix)"
+            if ($taskBranch -eq $Branch) {
+                return [ordered]@{
+                    Phase = $phaseId
+                    Branch = $phaseBranch
+                    Task = $task
+                }
+            }
+        }
+    }
+
+    return $null
+}
+
 function Assert-ForkGitRepository {
     param(
         [Parameter(Mandatory = $true)]
@@ -133,6 +161,46 @@ function Get-DefaultPhaseStatePath {
     )
 
     return Join-Path $ForkRoot ".catastroswitch\phase-state\$Phase.phase-state.json"
+}
+
+function Get-GitCurrentBranch {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepoPath
+    )
+
+    if (-not (Test-Path -LiteralPath $RepoPath -PathType Container)) {
+        throw "Git repository path not found: $RepoPath"
+    }
+
+    $branch = @(git -C $RepoPath rev-parse --abbrev-ref HEAD 2>$null)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to resolve current git branch in $RepoPath"
+    }
+
+    return [string](@($branch | Select-Object -First 1)[0]).Trim()
+}
+
+function Get-CleanSyncBranchName {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$ForkRoot
+    )
+
+    Assert-ForkGitRepository -ForkRoot $ForkRoot
+
+    foreach ($candidate in @('main', 'upstream-main-sync')) {
+        $existingBranch = @(git -C $ForkRoot branch --list --format='%(refname:short)' -- $candidate 2>$null)
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to inspect git branches in $ForkRoot"
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string](@($existingBranch | Select-Object -First 1)[0]))) {
+            return $candidate
+        }
+    }
+
+    return 'main'
 }
 
 function Resolve-CatastroSwitchForkRoot {
@@ -246,6 +314,7 @@ function Get-PhaseStateRecord {
         }
     }
 
+    $records = @($records)
     if ($records.Count -gt 0) {
         return @($records | Sort-Object LastWriteTimeUtc -Descending)[0]
     }
@@ -359,4 +428,15 @@ function New-PhaseStateObject {
             requiredNextAction = 'Run Planner for this phase.'
         }
     }
+}
+
+function Write-PhaseStateFile {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        [Parameter(Mandatory = $true)]
+        [object]$PhaseState
+    )
+
+    $PhaseState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $Path -Encoding utf8
 }

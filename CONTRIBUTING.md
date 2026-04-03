@@ -41,7 +41,7 @@ Pick the right repository before you start:
 
 In the runtime fork clone, keep `upstream` fetch-only and keep default pushes pointed at `origin`.
 In the runtime fork clone, add `/.catastroswitch/` to `.git/info/exclude` so local phase-state artifacts stay out of `git status`.
-In this control repo, enable the committed hooks path with `git config core.hooksPath .githooks` so direct pushes to `origin/main` are blocked unless you intentionally override them.
+In this control repo, enable the committed hooks path with `git config core.hooksPath .githooks` so direct commits and pushes to `origin/main` are blocked unless you intentionally override them.
 VS Code also auto-loads workspace hooks from `.github\hooks\`, so keep those files and the referenced scripts reviewed like any other workflow code.
 
 Before sending changes out, run:
@@ -54,17 +54,18 @@ If you need the actual fork workflow, read `docs\vscode-fork-build-runbook.md`. 
 Typical maintainer loop:
 
 1. Plan in this repo.
-2. Implement and build in the fork repo.
-3. Use `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat` from the fork checkout.
+2. Start routing or resuming with `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-phase-workflow-lane.ps1 -Apply` from this control repo, or let `workflow-router.prompt.md` and `resume-phase.prompt.md` run it before they choose the next agent.
+3. Implement and build in the fork repo.
+4. Use `npm install`, `npm run compile`, `npm run watch`, and `scripts\code.bat` from the fork checkout.
 4. If branding sources changed in this control repo, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\export-fork-branding-assets.ps1 -ForkRoot C:\src\vscode-multiagent -CompileFork` before committing the generated fork resources. The script enforces `assets\logo.svg` as the single icon source, updates the packaged runtime assets, and recompiles the fork so in-app workbench icon surfaces refresh from the same source. ImageMagick is required for raster export, and the script uses either macOS `iconutil` or `npx icon-gen` to package `resources\darwin\code.icns`.
 5. In the fork checkout, keep `microsoft/vscode` as a fetch-only `upstream` remote.
 6. In the fork checkout, keep `/.catastroswitch/` ignored via `.git/info/exclude` so local phase-state files do not dirty the runtime branch.
-7. In the fork checkout, keep `main` or `upstream-main-sync` as the clean fork-sync branch, fast-forward it from `upstream/main`, and rebase the active phase branch onto it before more feature work after upstream moves.
-7. In this control repo, keep the local `pre-push` hook enabled before pushing changes.
-8. If the runtime clean-sync worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before resuming autonomous work.
-9. After an upstream refresh or phase-branch rebase, rerun `npm run compile`, the focused browser suites for the fork-owned seams you changed, and `scripts\code.bat` smoke for shell, profile, or chat surfaces before declaring the branch healthy.
-9. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
-10. Cross-link paired PRs when one feature spans both repos.
+8. In the fork checkout, keep `main` or `upstream-main-sync` as the clean fork-sync branch, fast-forward it from `upstream/main`, and rebase the active phase branch onto it before more feature work after upstream moves.
+9. In this control repo, keep the local `pre-commit` and `pre-push` hooks enabled before making or pushing changes.
+10. If the runtime clean-sync worktree mirrors files from the active phase worktree, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\repair-phase-worktree-state.ps1 -Phase <phase-id>` from this control repo before resuming autonomous work.
+11. After an upstream refresh or phase-branch rebase, rerun `npm run compile`, the focused browser suites for the fork-owned seams you changed, and `scripts\code.bat` smoke for shell, profile, or chat surfaces before declaring the branch healthy.
+12. Update this repo only if the implementation changed docs, source maps, schemas, contracts, or workflow guidance.
+13. Cross-link paired PRs when one feature spans both repos.
 
 TypeScript and ESLint policy overlays for the real fork live under `fork\tooling\`.
 
@@ -73,6 +74,7 @@ Phase workflow helpers live under:
 - `scripts\new-phase-branch.ps1`
 - `scripts\new-phase-task-branch.ps1`
 - `scripts\new-phase-state.ps1`
+- `scripts\sync-phase-workflow-lane.ps1`
 - `scripts\repair-phase-worktree-state.ps1`
 
 Workflow agents live under:
@@ -101,3 +103,8 @@ Reusable skills live under:
 Workspace hooks live under:
 
 - `.github\hooks\phase-enforcement.json`
+
+Control-repo git hooks live under:
+
+- `.githooks\pre-commit`
+- `.githooks\pre-push`

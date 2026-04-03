@@ -72,8 +72,10 @@ The phase-state artifact is also the deterministic lock source for the shared wo
 ### Deterministic guardrails
 
 - `.github\hooks\phase-enforcement.json` reads the phase-state `executionLock` and blocks runtime writes that target the wrong branch or worktree.
+- `scripts\sync-phase-workflow-lane.ps1 -Apply` realigns the runtime fork to the locked phase lane, or to the first incomplete phase when no non-terminal lane exists, before the router or resume prompts continue orchestration.
 - The clean-sync runtime checkout should stay clean unless the lock explicitly points at that checkout.
 - If the clean-sync checkout mirrors files from the locked worktree, repair it from the control repo with `scripts\repair-phase-worktree-state.ps1` instead of ad hoc `git clean` or branch switching.
+- The control-repo local `pre-commit` hook blocks commits on `main`, and the phase hook denies runtime mutations while the locked worktree is on the wrong branch.
 - A phase that reaches `Pass` or `Error` must clear the active lane and move `executionLock.dirtyWorktreePolicy` to `phase_pass_clean`.
 
 ### Upstream maintenance rule

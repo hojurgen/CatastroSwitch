@@ -164,6 +164,91 @@ function Test-IsCleanupCommand {
     return -not [string]::IsNullOrWhiteSpace($CommandLine) -and $CommandLine -match 'repair-phase-worktree-state\.ps1'
 }
 
+function Test-IsWorkflowSyncCommand {
+    param(
+        [string]$CommandLine
+    )
+
+    return -not [string]::IsNullOrWhiteSpace($CommandLine) -and $CommandLine -match 'sync-phase-workflow-lane\.ps1'
+}
+
+function Test-IsGitCommitCommand {
+    param(
+        [string]$CommandLine
+    )
+
+    return -not [string]::IsNullOrWhiteSpace($CommandLine) -and $CommandLine -match '\bgit(\.exe)?\b.*\bcommit\b'
+}
+
+function Get-CommandLocationHints {
+    param(
+        [string]$CommandLine
+    )
+
+    if ([string]::IsNullOrWhiteSpace($CommandLine)) {
+        return @()
+    }
+
+    $hints = [System.Collections.Generic.List[string]]::new()
+    foreach ($pattern in @(
+            '\bgit(\.exe)?\b\s+-C\s+(?<path>"[^"]+"|''[^'']+''|\S+)',
+            '\bSet-Location\b\s+(?<path>"[^"]+"|''[^'']+''|\S+)',
+            '\bPush-Location\b\s+(?<path>"[^"]+"|''[^'']+''|\S+)',
+            '(?<!\S)cd\s+(?<path>"[^"]+"|''[^'']+''|\S+)'
+        )) {
+        foreach ($match in [regex]::Matches($CommandLine, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)) {
+            $rawPath = [string]$match.Groups['path'].Value
+            if ([string]::IsNullOrWhiteSpace($rawPath)) {
+                continue
+            }
+
+            $hints.Add($rawPath.Trim().Trim("'\""))
+        }
+    }
+
+    return @($hints)
+}
+
+function Resolve-CommandRepositoryRoot {
+    param(
+        [string]$CommandLine,
+        [string]$CurrentDirectory,
+        [Parameter(Mandatory = $true)]
+        [pscustomobject]$PhaseContext
+    )
+
+    $candidates = [System.Collections.Generic.List[string]]::new()
+
+    if (-not [string]::IsNullOrWhiteSpace($CurrentDirectory) -and (Test-Path -LiteralPath $CurrentDirectory -PathType Container)) {
+        $candidates.Add([System.IO.Path]::GetFullPath($CurrentDirectory))
+    }
+
+    foreach ($hint in Get-CommandLocationHints -CommandLine $CommandLine) {
+        $resolvedHint = Resolve-AbsolutePath -Value $hint -CurrentDirectory $CurrentDirectory
+        if ($null -ne $resolvedHint) {
+            $candidates.Add($resolvedHint)
+        }
+    }
+
+    foreach ($root in @($PhaseContext.AllowedWorktree, $PhaseContext.ForkRoot, $repoRoot)) {
+        if ([string]::IsNullOrWhiteSpace([string]$root)) {
+            continue
+        }
+
+        foreach ($candidate in @($candidates)) {
+            if (Test-IsUnderPath -ChildPath $candidate -RootPath $root) {
+                return [System.IO.Path]::GetFullPath($root)
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($CommandLine) -and $CommandLine -match [regex]::Escape([System.IO.Path]::GetFullPath($root))) {
+            return [System.IO.Path]::GetFullPath($root)
+        }
+    }
+
+    return $null
+}
+
 function Test-ContainsBlockedGitPattern {
     param(
         [string]$CommandLine
@@ -205,6 +290,26 @@ function Get-PhaseContext {
 
     $phaseState = if ($null -ne $phaseRecord) { $phaseRecord.PhaseState } else { $null }
     $executionLock = if ($null -ne $phaseState) { $phaseState.executionLock } else { $null }
+    $allowedWorktree = if ($null -ne $executionLock) { [string]$executionLock.allowedWorktree } else { '' }
+    $allowedBranch = if ($null -ne $executionLock) { [string]$executionLock.allowedBranch } else { '' }
+    $currentAllowedWorktreeBranch = ''
+    $controlRepoBranch = ''
+
+    try {
+        $controlRepoBranch = Get-GitCurrentBranch -RepoPath $repoRoot
+    }
+    catch {
+        $controlRepoBranch = ''
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($allowedWorktree) -and (Test-Path -LiteralPath $allowedWorktree -PathType Container)) {
+        try {
+            $currentAllowedWorktreeBranch = Get-GitCurrentBranch -RepoPath $allowedWorktree
+        }
+        catch {
+            $currentAllowedWorktreeBranch = ''
+        }
+    }
 
     return [pscustomobject]@{
         ForkRoot = $forkRoot
@@ -212,8 +317,10 @@ function Get-PhaseContext {
         PhaseRecord = $phaseRecord
         PhaseState = $phaseState
         ExecutionLock = $executionLock
-        AllowedWorktree = if ($null -ne $executionLock) { [string]$executionLock.allowedWorktree } else { '' }
-        AllowedBranch = if ($null -ne $executionLock) { [string]$executionLock.allowedBranch } else { '' }
+        AllowedWorktree = $allowedWorktree
+        AllowedBranch = $allowedBranch
+        CurrentAllowedWorktreeBranch = $currentAllowedWorktreeBranch
+        ControlRepoBranch = $controlRepoBranch
         CleanSyncDirty = (Test-GitDirty -RepoPath $forkRoot)
     }
 }
@@ -283,6 +390,13 @@ try {
                 $result.systemMessage = "Runtime fork root is dirty while the phase lock points at $($phaseContext.AllowedWorktree). Run scripts\\repair-phase-worktree-state.ps1 from the control repo before continuing."
             }
 
+            if ($phaseContext.AllowedWorktree -and
+                $phaseContext.AllowedBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -ne $phaseContext.AllowedBranch) {
+                $result.systemMessage = "Runtime worktree $($phaseContext.AllowedWorktree) is on branch $($phaseContext.CurrentAllowedWorktreeBranch), but the phase lock expects $($phaseContext.AllowedBranch). Run scripts\\sync-phase-workflow-lane.ps1 -Apply from the control repo before continuing."
+            }
+
             break
         }
         'UserPromptSubmit' {
@@ -292,6 +406,13 @@ try {
 
             if ($phaseContext.CleanSyncDirty -and $phaseContext.AllowedWorktree -and $phaseContext.AllowedWorktree -ne $phaseContext.ForkRoot) {
                 $result.systemMessage = "CatastroSwitch phase lock is active for $($phaseContext.AllowedWorktree), but the runtime clean-sync worktree is dirty. Repair the mirrored files before more mutating tool calls."
+            }
+
+            if ($phaseContext.AllowedWorktree -and
+                $phaseContext.AllowedBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -ne $phaseContext.AllowedBranch) {
+                $result.systemMessage = "CatastroSwitch phase lock expects runtime branch $($phaseContext.AllowedBranch), but the locked worktree is currently on $($phaseContext.CurrentAllowedWorktreeBranch). Run scripts\\sync-phase-workflow-lane.ps1 -Apply before more workflow actions."
             }
 
             break
@@ -323,6 +444,45 @@ try {
             }
             else {
                 [string]$payload.cwd
+            }
+
+            $invokesWorkflowSync = $false
+            foreach ($commandText in $stringLeaves) {
+                if (Test-IsWorkflowSyncCommand -CommandLine $commandText) {
+                    $invokesWorkflowSync = $true
+                    break
+                }
+            }
+
+            $runtimeBranchMismatch = $phaseContext.AllowedWorktree -and
+                $phaseContext.AllowedBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -and
+                $phaseContext.CurrentAllowedWorktreeBranch -ne $phaseContext.AllowedBranch
+
+            foreach ($commandText in $stringLeaves) {
+                $targetRepositoryRoot = Resolve-CommandRepositoryRoot -CommandLine $commandText -CurrentDirectory $currentDirectory -PhaseContext $phaseContext
+
+                if ((Test-IsGitCommitCommand -CommandLine $commandText) -and
+                    $targetRepositoryRoot -and
+                    $targetRepositoryRoot -eq [System.IO.Path]::GetFullPath($repoRoot) -and
+                    $phaseContext.ControlRepoBranch -eq 'main') {
+                    $result = New-ToolDecisionResult -Decision 'deny' -Reason 'CatastroSwitch blocks commits on control-repo main. Create or switch to a branch first.'
+                    break
+                }
+
+                if ($runtimeBranchMismatch -and
+                    -not $invokesWorkflowSync -and
+                    $targetRepositoryRoot -and
+                    $targetRepositoryRoot -ne [System.IO.Path]::GetFullPath($repoRoot) -and
+                    -not (Test-IsReadOnlyGitCommand -CommandLine $commandText) -and
+                    -not (Test-IsCleanupCommand -CommandLine $commandText)) {
+                    $result = New-ToolDecisionResult -Decision 'deny' -Reason "Runtime worktree branch mismatch: $($phaseContext.CurrentAllowedWorktreeBranch) is checked out, but the phase lock expects $($phaseContext.AllowedBranch). Run scripts\\sync-phase-workflow-lane.ps1 -Apply first."
+                    break
+                }
+            }
+
+            if ($result.Contains('hookSpecificOutput')) {
+                break
             }
 
             foreach ($value in $stringLeaves) {

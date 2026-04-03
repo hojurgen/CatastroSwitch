@@ -72,7 +72,7 @@ Recommended local hardening for the runtime fork:
 Recommended local hardening for this control repo:
 
 - enable the committed hooks path with `git config core.hooksPath .githooks`
-- keep the local `pre-push` hook active so direct pushes to `origin/main` require an explicit override
+- keep the local `pre-commit` and `pre-push` hooks active so commits and pushes to `main` require an explicit override
 
 Do not duplicate runtime patches into the control repo. If one feature changes both runtime code and control artifacts, keep one change in the fork and a separate change in the control repo.
 
@@ -80,6 +80,7 @@ Do not duplicate runtime patches into the control repo. If one feature changes b
 
 1. Plan the phase and maintain the durable product docs in this repo.
 2. If you want chat to inspect the current workflow state and continue from the right agent, use one of the shared workspace prompts under `.github\prompts\`: `workflow-router.prompt.md` for general routing, `resume-phase.prompt.md` for strict phase resumption, or `review-ready-task.prompt.md` for the Reviewer entrypoint.
+  `workflow-router.prompt.md` and `resume-phase.prompt.md` should start by running `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-phase-workflow-lane.ps1 -Apply`, which aligns the runtime fork to the active non-terminal phase lane or the first incomplete phase before more routing happens.
   The shared workspace hook at `.github\hooks\phase-enforcement.json` also reads the phase-state `executionLock` when one exists and blocks writes to the wrong runtime worktree.
 3. Sync and rebase the fork from `microsoft/vscode` in the separate fork checkout.
   Keep the runtime fork `main` or `upstream-main-sync` branch as a clean sync branch that fast-forwards from `upstream/main`, then rebase the active phase branch onto that clean branch before resuming product work.
