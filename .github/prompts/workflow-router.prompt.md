@@ -1,6 +1,6 @@
 ---
 name: Workflow Router
-description: "Use when: identify the next CatastroSwitch workflow step, inspect current phase or task context, pick the right agent, and continue the Planner -> Coding Agent -> Reviewer -> Gatekeeper loop."
+description: "Use when: sync the runtime fork to the correct CatastroSwitch phase lane, identify the next workflow step, inspect current phase or task context, pick the right agent, and continue the Planner -> Coding Agent -> Reviewer -> Gatekeeper loop."
 argument-hint: "Optional: phase ID, task ID, blocker, branch, or current goal"
 agent: Orchestrator
 ---
@@ -9,6 +9,7 @@ Use the current repo state plus any user-supplied context to decide which Catast
 
 Ground the routing decision in [docs/implementation-plan.md](../../docs/implementation-plan.md), [CONTRIBUTING.md](../../CONTRIBUTING.md), and the current phase-state artifact in the real fork clone when one is available.
 When the phase-state artifact has an `executionLock`, treat it as the current authoritative lane unless concrete repo evidence proves it is stale and the next step is to re-plan.
+Before the triage summary, run `powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\scripts\sync-phase-workflow-lane.ps1 -Apply` from the control repo. If the user named a phase, pass `-Phase <phase-id>` so the runtime fork aligns to that branch and worktree before routing.
 
 Your first response must be a short triage that includes:
 
@@ -33,6 +34,7 @@ Execution rules:
 - Run exactly one phase at a time.
 - Keep runtime code changes in the separate VS Code fork checkout and durable docs, schemas, contracts, scripts, prompts, and agent guidance in this control repo.
 - Use the active phase-state artifact in the real fork clone when it exists, and create or confirm the phase branch plus state file before planning if they are missing.
+- Treat the sync helper output as the authoritative runtime branch and worktree context before you choose the next agent.
 - Keep the phase-state `executionLock` aligned with the next real handoff instead of leaving the active branch or worktree implicit.
 - Suggest the next concrete action before handing off.
 - Ask a clarifying question only if the phase, task, or handoff target is still genuinely ambiguous after inspecting the available repo context.

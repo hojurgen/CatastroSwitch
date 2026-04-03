@@ -491,7 +491,15 @@ if ($prePushHookContents -notmatch [regex]::Escape('refs/heads/main')) {
 if ($prePushHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_MAIN_PUSH')) {
     throw '.githooks\pre-push is missing the explicit override guard.'
 }
-Write-Host ' - OK: control-repo pre-push hook is present'
+$preCommitHookPath = Assert-FileExists -RelativePath '.githooks\pre-commit'
+$preCommitHookContents = Get-Content -Raw -LiteralPath $preCommitHookPath
+if ($preCommitHookContents -notmatch [regex]::Escape('Commits on main are blocked in this repo.')) {
+    throw '.githooks\pre-commit is missing the control-repo main commit protection.'
+}
+if ($preCommitHookContents -notmatch [regex]::Escape('CATASTROSWITCH_ALLOW_MAIN_COMMIT')) {
+    throw '.githooks\pre-commit is missing the explicit override guard.'
+}
+Write-Host ' - OK: control-repo pre-commit and pre-push hooks are present'
 
 $gitignorePath = Assert-FileExists -RelativePath '.gitignore'
 $gitignoreContents = Get-Content -Raw -LiteralPath $gitignorePath
@@ -519,6 +527,12 @@ if ($phaseHookContents -notmatch [regex]::Escape('phase-enforcement-hook.ps1')) 
 if ($phaseHookScriptContents -notmatch [regex]::Escape('hookSpecificOutput')) {
     throw 'scripts\phase-enforcement-hook.ps1 is missing hook output handling.'
 }
+if ($phaseHookScriptContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1')) {
+    throw 'scripts\phase-enforcement-hook.ps1 is missing the workflow lane sync allowance.'
+}
+if ($phaseHookScriptContents -notmatch [regex]::Escape('blocks commits on control-repo main')) {
+    throw 'scripts\phase-enforcement-hook.ps1 is missing the control-repo main commit guard.'
+}
 if ($phaseRepairScriptContents -notmatch [regex]::Escape('Get-PhaseStateRecord')) {
     throw 'scripts\repair-phase-worktree-state.ps1 is missing the shared phase-state resolution helper usage.'
 }
@@ -530,6 +544,8 @@ $null = Assert-FileExists -RelativePath 'scripts\new-phase-branch.ps1'
 $null = Assert-FileExists -RelativePath 'scripts\new-phase-task-branch.ps1'
 $phaseStateScriptPath = Assert-FileExists -RelativePath 'scripts\new-phase-state.ps1'
 $phaseStateScriptContents = Get-Content -Raw -LiteralPath $phaseStateScriptPath
+$phaseSyncScriptPath = Assert-FileExists -RelativePath 'scripts\sync-phase-workflow-lane.ps1'
+$phaseSyncScriptContents = Get-Content -Raw -LiteralPath $phaseSyncScriptPath
 $brandingExportScriptPath = Assert-FileExists -RelativePath 'scripts\export-fork-branding-assets.ps1'
 $brandingExportScriptContents = Get-Content -Raw -LiteralPath $brandingExportScriptPath
 if ($phaseWorkflowHelperContents -notmatch [regex]::Escape('.catastroswitch\phase-state')) {
@@ -547,13 +563,19 @@ if ($phaseWorkflowHelperContents -notmatch [regex]::Escape("DependsOn = @('F1-T0
 if ($phaseStateScriptContents -notmatch [regex]::Escape('Get-DefaultPhaseStatePath')) {
     throw 'scripts\new-phase-state.ps1 is missing the shared phase state path helper call.'
 }
+if ($phaseSyncScriptContents -notmatch [regex]::Escape('first incomplete phase')) {
+    throw 'scripts\sync-phase-workflow-lane.ps1 is missing the incomplete-phase routing logic.'
+}
+if ($phaseSyncScriptContents -notmatch [regex]::Escape('new-phase-branch.ps1')) {
+    throw 'scripts\sync-phase-workflow-lane.ps1 is missing the shared phase-branch helper usage.'
+}
 if ($brandingExportScriptContents -notmatch [regex]::Escape('branding-assets.manifest.json')) {
     throw 'scripts\export-fork-branding-assets.ps1 is missing the shared branding manifest reference.'
 }
 if ($brandingExportScriptContents -notmatch [regex]::Escape('CompileFork')) {
     throw 'scripts\export-fork-branding-assets.ps1 is missing the fork compile step for the reproducible branding flow.'
 }
-Write-Host ' - OK: phase workflow helper scripts and branding export script are present'
+Write-Host ' - OK: phase workflow helper scripts, sync helper, and branding export script are present'
 
 $forkReadmePath = Assert-FileExists -RelativePath 'fork\README.md'
 $forkReadmeContents = Get-Content -Raw -LiteralPath $forkReadmePath
@@ -641,6 +663,8 @@ $codingAgentPath = Assert-FileExists -RelativePath '.github\agents\coding-agent.
 $reviewerAgentPath = Assert-FileExists -RelativePath '.github\agents\reviewer.agent.md'
 $gatekeeperAgentPath = Assert-FileExists -RelativePath '.github\agents\gatekeeper.agent.md'
 $orchestratorAgentPath = Assert-FileExists -RelativePath '.github\agents\orchestrator.agent.md'
+$workflowRouterPath = Assert-FileExists -RelativePath '.github\prompts\workflow-router.prompt.md'
+$resumePhasePromptPath = Assert-FileExists -RelativePath '.github\prompts\resume-phase.prompt.md'
 $phaseSkillPath = Assert-FileExists -RelativePath '.github\skills\fork-phase-execution\SKILL.md'
 
 $plannerAgentContents = Get-Content -Raw -LiteralPath $plannerAgentPath
@@ -648,6 +672,8 @@ $codingAgentContents = Get-Content -Raw -LiteralPath $codingAgentPath
 $reviewerAgentContents = Get-Content -Raw -LiteralPath $reviewerAgentPath
 $gatekeeperAgentContents = Get-Content -Raw -LiteralPath $gatekeeperAgentPath
 $orchestratorAgentContents = Get-Content -Raw -LiteralPath $orchestratorAgentPath
+$workflowRouterContents = Get-Content -Raw -LiteralPath $workflowRouterPath
+$resumePhasePromptContents = Get-Content -Raw -LiteralPath $resumePhasePromptPath
 $phaseSkillContents = Get-Content -Raw -LiteralPath $phaseSkillPath
 
 if ($plannerAgentContents -notmatch [regex]::Escape('agent: Coding Agent')) {
@@ -683,6 +709,9 @@ if ($codingAgentContents -notmatch [regex]::Escape('user-invocable: false')) {
 if ($codingAgentContents -notmatch [regex]::Escape('agent: Reviewer')) {
     throw '.github\agents\coding-agent.agent.md is missing the Reviewer handoff.'
 }
+if ($codingAgentContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1')) {
+    throw '.github\agents\coding-agent.agent.md is missing the workflow lane sync guardrail.'
+}
 if ($reviewerAgentContents -notmatch [regex]::Escape('Outcome: Pass') -or $reviewerAgentContents -notmatch [regex]::Escape('Outcome: Error')) {
     throw '.github\agents\reviewer.agent.md is missing the required Pass/Error output contract.'
 }
@@ -713,6 +742,15 @@ if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\new-phase-bran
 if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\new-phase-task-branch.ps1')) {
     throw '.github\agents\orchestrator.agent.md is missing the sibling task branch guidance.'
 }
+if ($orchestratorAgentContents -notmatch [regex]::Escape('scripts\sync-phase-workflow-lane.ps1')) {
+    throw '.github\agents\orchestrator.agent.md is missing the workflow lane sync guidance.'
+}
+if ($workflowRouterContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1')) {
+    throw '.github\prompts\workflow-router.prompt.md is missing the workflow lane sync command.'
+}
+if ($resumePhasePromptContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1')) {
+    throw '.github\prompts\resume-phase.prompt.md is missing the workflow lane sync command.'
+}
 if ($phaseSkillContents -notmatch [regex]::Escape('Gatekeeper') -or $phaseSkillContents -notmatch [regex]::Escape('Reviewer')) {
     throw '.github\skills\fork-phase-execution\SKILL.md is missing the phase execution loop.'
 }
@@ -724,6 +762,9 @@ if ($phaseSkillContents -notmatch [regex]::Escape('executionLock')) {
 }
 if ($phaseSkillContents -notmatch [regex]::Escape('clean sync branch') -or $phaseSkillContents -notmatch [regex]::Escape('upstream rebase hotspots')) {
     throw '.github\skills\fork-phase-execution\SKILL.md is missing the upstream maintenance guidance.'
+}
+if ($phaseSkillContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1')) {
+    throw '.github\skills\fork-phase-execution\SKILL.md is missing the workflow lane sync step.'
 }
 Write-Host ' - OK: phase execution agent graph is present'
 
@@ -788,6 +829,9 @@ if ($forkRunbookContents -notmatch [regex]::Escape('phase-enforcement.json') -or
 if ($forkRunbookContents -notmatch [regex]::Escape('merge --ff-only upstream/main') -or $forkRunbookContents -notmatch [regex]::Escape('Validation after upstream replay')) {
     throw 'docs\vscode-fork-build-runbook.md is missing the upstream replay maintenance loop.'
 }
+if ($forkRunbookContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $forkRunbookContents -notmatch [regex]::Escape('.githooks\pre-commit')) {
+    throw 'docs\vscode-fork-build-runbook.md is missing the workflow lane sync or main-commit guard guidance.'
+}
 
 $readmePath = Assert-FileExists -RelativePath 'README.md'
 $readmeContents = Get-Content -Raw -LiteralPath $readmePath
@@ -799,6 +843,9 @@ if ($readmeContents -notmatch [regex]::Escape('phase-enforcement.json') -or $rea
 }
 if ($readmeContents -notmatch [regex]::Escape('upstream-main-sync') -or $readmeContents -notmatch [regex]::Escape('self-host smoke')) {
     throw 'README.md is missing the upstream maintenance guidance.'
+}
+if ($readmeContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $readmeContents -notmatch [regex]::Escape('pre-commit')) {
+    throw 'README.md is missing the workflow lane sync or pre-commit guard guidance.'
 }
 
 $contributingPath = Assert-FileExists -RelativePath 'CONTRIBUTING.md'
@@ -812,6 +859,9 @@ if ($contributingContents -notmatch [regex]::Escape('phase-enforcement.json') -o
 if ($contributingContents -notmatch [regex]::Escape('upstream-main-sync') -or $contributingContents -notmatch [regex]::Escape('scripts\code.bat')) {
     throw 'CONTRIBUTING.md is missing the upstream maintenance or replay validation guidance.'
 }
+if ($contributingContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $contributingContents -notmatch [regex]::Escape('.githooks\pre-commit')) {
+    throw 'CONTRIBUTING.md is missing the workflow lane sync or control-repo pre-commit guidance.'
+}
 
 $implementationPlanPath = Assert-FileExists -RelativePath 'docs\implementation-plan.md'
 $implementationPlanContents = Get-Content -Raw -LiteralPath $implementationPlanPath
@@ -820,6 +870,9 @@ if ($implementationPlanContents -notmatch [regex]::Escape('executionLock') -or $
 }
 if ($implementationPlanContents -notmatch [regex]::Escape('Upstream maintenance rule') -or $implementationPlanContents -notmatch [regex]::Escape('clean sync branch')) {
     throw 'docs\implementation-plan.md is missing the upstream maintenance rule.'
+}
+if ($implementationPlanContents -notmatch [regex]::Escape('sync-phase-workflow-lane.ps1') -or $implementationPlanContents -notmatch [regex]::Escape('pre-commit')) {
+    throw 'docs\implementation-plan.md is missing the workflow lane sync or commit guard guidance.'
 }
 Write-Host ' - OK: fork execution docs reflect the phase branch workflow'
 
