@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Bootstrap local VS Code fork",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\bootstrap-vscode-fork.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate local maintenance workspace",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\generate-local-workspace.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Export CatastroSwitch product icons",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\export-product-icons.ps1"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Preview fork sync + rebase",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        ".\\scripts\\sync-upstream-and-rebase.ps1"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

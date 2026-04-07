@@ -1,0 +1,52 @@
+{
+  "$schema": "../schemas/agent-session-snapshot.schema.json",
+  "schemaVersion": 1,
+  "machineId": "dev-box-01",
+  "generatedAt": "2026-04-07T00:00:00Z",
+  "product": {
+    "name": "CatastroSwitch",
+    "version": "0.1.4-dev",
+    "branch": "catastroswitch"
+  },
+  "sessions": [
+    {
+      "sessionId": "sess-control-001",
+      "workspaceId": "control-repo",
+      "workspacePath": "C:\\CatastroSwitch",
+      "profile": "CatastroSwitch Control",
+      "windowId": "window-1",
+      "status": "running",
+      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "lastHeartbeatAt": "2026-04-07T00:00:00Z",
+      "staleAfterSeconds": 60,
+      "recentTools": [
+        {
+          "name": "read_file",
+          "count": 6
+        },
+        {
+          "name": "apply_patch",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "sessionId": "sess-runtime-001",
+      "workspaceId": "vscode-fork",
+      "workspacePath": "C:\\src\\vscode-multiagent",
+      "profile": "CatastroSwitch Runtime",
+      "windowId": "window-2",
+      "status": "waiting",
+      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "lastHeartbeatAt": "2026-04-07T00:00:10Z",
+      "staleAfterSeconds": 30,
+      "waitingOn": "npm run watch",
+      "recentTools": [
+        {
+          "name": "run_in_terminal",
+          "count": 2
+        }
+      ]
+    }
+  ]
+}

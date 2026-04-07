@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://catastroswitch.local/schemas/agent-session-snapshot.schema.json",
+  "title": "CatastroSwitch Agent Session Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "machineId",
+    "generatedAt",
+    "sessions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "machineId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        }
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/session"
+      }
+    }
+  },
+  "$defs": {
+    "toolSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "count"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sessionId",
+        "workspaceId",
+        "workspacePath",
+        "profile",
+        "windowId",
+        "status",
+        "lastHeartbeatAt",
+        "staleAfterSeconds"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workspaceId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "workspacePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "windowId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "idle",
+            "running",
+            "waiting",
+            "error",
+            "stale"
+          ]
+        },
+        "phaseStatePath": {
+          "type": "string"
+        },
+        "lastHeartbeatAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "staleAfterSeconds": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "waitingOn": {
+          "type": "string"
+        },
+        "recentTools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/toolSummary"
+          }
+        },
+        "errorMessage": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

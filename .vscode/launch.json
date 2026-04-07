@@ -8,7 +8,7 @@
       "command": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"$forkRoot = '${input:forkRoot}'; if (-not (Test-Path $forkRoot)) { throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; npm run watch\""
     },
     {
-      "name": "Fork: self-host (scripts\\code.bat)",
+      "name": "Fork: self-host (isolated CatastroSwitch runtime)",
       "type": "node-terminal",
       "request": "launch",
       "command": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-runtime-fork-latest-build.ps1 -ForkRoot '${input:forkRoot}'"

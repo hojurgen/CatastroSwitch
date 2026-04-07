@@ -6,7 +6,7 @@
 
 `CatastroSwitch` is a fork-first control repository for a custom VS Code product.
 
-All runtime implementation belongs in a separate VS Code fork checkout, for example `C:\src\vscode-multiagent`.
+All runtime implementation belongs in a separate VS Code fork checkout, cloned from `https://github.com/hojurgen/vscode` into `C:\src\vscode-multiagent` with `https://github.com/microsoft/vscode` configured as `upstream`.
 
 ## Start here
 
@@ -16,9 +16,40 @@ All runtime implementation belongs in a separate VS Code fork checkout, for exam
 - executable phase plan
 - workspace registry schema and example data
 - phase execution state schema and sample data
+- local agent session snapshot schema and sample data
 - agent adapter contract
+- fork bootstrap and maintenance scripts
+- branding source asset for replacing stock VS Code icons during builds
 - fork-consumable TypeScript and ESLint policy overlays
 - GitHub Copilot instructions, agents, and skills
+
+### Current implementation status
+
+- `schemas/` contains the repo-owned contracts for workspace registry, phase state, and agent session snapshots.
+- `examples/` contains concrete sample payloads for those contracts.
+- `scripts/bootstrap-vscode-fork.ps1` clones or repairs the local `hojurgen/vscode` checkout and wires `upstream`.
+- `scripts/generate-local-workspace.ps1` generates the machine-local maintenance workspace from the registry.
+- `scripts/export-product-icons.ps1` treats `assets/logo.svg` as the authoritative product-branding source for build outputs.
+- `.vscode/tasks.json` exposes the common bootstrap and maintenance actions inside VS Code.
+
+### Repository layout
+
+- `assets/logo.svg` is the canonical CatastroSwitch branding asset.
+- `docs/` contains the control-repo architecture and the fork bootstrap runbook.
+- `schemas/` contains JSON Schemas for repo-owned contracts.
+- `examples/` contains sample JSON artifacts validated by those schemas.
+- `scripts/` contains PowerShell helpers for fork bootstrap, workspace generation, branding export, and branch maintenance.
+
+### Branding rule
+
+Every CatastroSwitch runtime build replaces the stock VS Code product icons with artifacts derived from `assets/logo.svg`. The control repo owns the source asset and the export helper; the runtime fork consumes those generated assets during build and packaging.
+
+### Quickstart
+
+1. Run `Bootstrap local VS Code fork` from the VS Code tasks list, or execute `scripts/bootstrap-vscode-fork.ps1` directly.
+2. Run `Generate local maintenance workspace` to rebuild `CatastroSwitch.local.code-workspace` from the registry sample.
+3. Open the generated workspace and use the launch configurations to watch or self-host the fork.
+4. Run `Export CatastroSwitch product icons` before wiring the branding hook into the fork build.
 
 ## Why the name
 

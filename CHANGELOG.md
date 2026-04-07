@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Added the first control-repo implementation slice: docs, schemas, examples, and VS Code tasks.
+- Added fork bootstrap, workspace generation, branding export, launch, and branch-maintenance helper scripts.
+- Locked the branding rule to `assets/logo.svg` so CatastroSwitch builds replace the stock VS Code icons.
+
 ## 0.1.3
 
 - Removed the legacy prototype runtime track and its support files.

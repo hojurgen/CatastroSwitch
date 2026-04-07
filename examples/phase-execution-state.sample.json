@@ -1,0 +1,43 @@
+{
+  "$schema": "../schemas/phase-execution-state.schema.json",
+  "schemaVersion": 1,
+  "updatedAt": "2026-04-07T00:00:00Z",
+  "activePhaseId": "phase-1-control-repo-foundation",
+  "phases": [
+    {
+      "id": "phase-1-control-repo-foundation",
+      "title": "Control repo foundation",
+      "status": "in-progress",
+      "summary": "Establish the repo-owned schemas, docs, and helper scripts that drive the runtime fork bootstrap.",
+      "tasks": [
+        {
+          "id": "CTRL-001",
+          "title": "Define workspace registry schema",
+          "status": "completed",
+          "owner": "coding-agent",
+          "completion": {
+            "completedAt": "2026-04-07T00:00:00Z",
+            "summary": "Added the workspace registry contract and a concrete sample payload for the control repo and runtime fork.",
+            "artifacts": [
+              {
+                "label": "Workspace registry schema",
+                "path": "C:\\CatastroSwitch\\schemas\\workspace-registry.schema.json"
+              },
+              {
+                "label": "Workspace registry sample",
+                "path": "C:\\CatastroSwitch\\examples\\workspace-registry.sample.json"
+              }
+            ]
+          }
+        },
+        {
+          "id": "CTRL-002",
+          "title": "Bootstrap runtime fork locally",
+          "status": "in-progress",
+          "owner": "coding-agent",
+          "notes": "Clone hojurgen/vscode, wire upstream, and prepare the branding/export path."
+        }
+      ]
+    }
+  ]
+}

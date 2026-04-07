@@ -1,0 +1,61 @@
+{
+  "$schema": "../schemas/workspace-registry.schema.json",
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-07T00:00:00Z",
+  "defaultWorkspaceId": "control-repo",
+  "workspaces": [
+    {
+      "id": "control-repo",
+      "label": "CatastroSwitch control repo",
+      "localPath": "C:\\CatastroSwitch",
+      "profile": "CatastroSwitch Control",
+      "capabilities": [
+        "control-plane"
+      ],
+      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "forkTarget": {
+        "owner": "hojurgen",
+        "repo": "CatastroSwitch",
+        "branch": "main",
+        "kind": "control-repo"
+      },
+      "monitoring": {
+        "enabled": false,
+        "heartbeatSeconds": 60,
+        "collectToolSummaries": false
+      },
+      "notes": "Durable contracts, docs, prompts, and helper scripts live here."
+    },
+    {
+      "id": "vscode-fork",
+      "label": "VS Code fork",
+      "localPath": "C:\\src\\vscode-multiagent",
+      "profile": "CatastroSwitch Runtime",
+      "capabilities": [
+        "switching",
+        "build",
+        "branding",
+        "monitoring"
+      ],
+      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "forkTarget": {
+        "owner": "hojurgen",
+        "repo": "vscode",
+        "branch": "catastroswitch",
+        "kind": "runtime-fork",
+        "upstream": "microsoft/vscode"
+      },
+      "branding": {
+        "logoSvgPath": "C:\\CatastroSwitch\\assets\\logo.svg",
+        "replaceProductIcons": true
+      },
+      "monitoring": {
+        "enabled": true,
+        "snapshotDirectory": "%APPDATA%\\CatastroSwitch\\agent-monitor",
+        "heartbeatSeconds": 30,
+        "collectToolSummaries": true
+      },
+      "notes": "Runtime fork checkout used for product builds and self-host runs."
+    }
+  ]
+}

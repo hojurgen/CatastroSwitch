@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://catastroswitch.local/schemas/workspace-registry.schema.json",
+  "title": "CatastroSwitch Workspace Registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "workspaces"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "defaultWorkspaceId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "workspaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/workspace"
+      }
+    }
+  },
+  "$defs": {
+    "forkTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "repo",
+        "branch",
+        "kind"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "branch": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "control-repo",
+            "runtime-fork"
+          ]
+        },
+        "upstream": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "heartbeatSeconds"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "snapshotDirectory": {
+          "type": "string",
+          "minLength": 1
+        },
+        "heartbeatSeconds": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "collectToolSummaries": {
+          "type": "boolean"
+        }
+      }
+    },
+    "branding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logoSvgPath",
+        "replaceProductIcons"
+      ],
+      "properties": {
+        "logoSvgPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replaceProductIcons": {
+          "type": "boolean"
+        }
+      }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "localPath",
+        "profile",
+        "forkTarget",
+        "monitoring"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "localPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "switching",
+              "control-plane",
+              "build",
+              "branding",
+              "monitoring"
+            ]
+          }
+        },
+        "phaseStatePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "forkTarget": {
+          "$ref": "#/$defs/forkTarget"
+        },
+        "branding": {
+          "$ref": "#/$defs/branding"
+        },
+        "monitoring": {
+          "$ref": "#/$defs/monitoring"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
