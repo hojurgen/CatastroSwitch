@@ -480,6 +480,39 @@ Avoid:
 - Mark a checkbox complete only after the repo state or runtime behavior has been verified.
 - The preferred execution order remains sequential unless a dependency is explicitly called out as independent.
 
+### Phase Execution Workflow
+
+Use this flow when implementing from this plan:
+
+1. Pick the next phase with incomplete checkboxes and confirm its dependencies are satisfied.
+2. Select one coherent unchecked checklist group or a narrow subset of that group as the next task.
+3. Have `Planner` decompose only that work into concrete file touch points, acceptance criteria, and validation.
+4. Have `Gatekeeper` approve the planning output before code or contract edits start.
+5. Have `CodingAgent` implement the approved task and run the narrowest relevant validation.
+6. Have `Reviewer` review the implemented task for correctness, regressions, missing tests, and plan compliance.
+7. Have `Gatekeeper` approve, request one rework pass, or block the stage.
+8. Update the relevant checkboxes only after the work and validation evidence are real.
+9. Commit at the phase milestone boundary. Prefer one commit per completed phase, plus one follow-up fix commit only if a completeness pass is needed.
+
+The workflow must stay phase-driven and conversation-driven. It must not recreate any mutable execution-state JSON.
+
+### Task Sizing Rules
+
+- One task should deliver one behavior change, one contract adjustment, or one view or service slice.
+- One task may clear a full checklist group only when the group is already narrow and internally cohesive.
+- Prefer tasks that introduce new CatastroSwitch files plus at most a small number of seam edits in existing VS Code files.
+- If a task would require simultaneous contract design, service logic, UI wiring, and reload behavior, split it.
+- If a task cannot name a narrow validation step, it is probably too large.
+
+### Completion Evidence
+
+Each completed task should leave behind all of the following:
+
+- changed files that map cleanly to one checklist group or narrow task slice
+- a validation result or explicit manual verification note
+- updated checkboxes in this plan when the work affects the roadmap state
+- a brief note of residual risks, deferred work, or reasons a checkbox remains open
+
 ### Current Phase Status
 
 - Phase 1: complete
@@ -521,7 +554,7 @@ Implementation checklist:
 - [x] Establish `docs/implementation-plan.md` as the authoritative roadmap.
 - [x] Update `docs/architecture.md` to match the machine-local, same-window product direction.
 - [x] Update `README.md` so the control repo purpose and roadmap entrypoint are clear.
-- [ ] Add a short operator-facing section that explains how to execute a phase against this plan without reintroducing workflow-state JSON.
+- [x] Add a short operator-facing section that explains how to execute a phase against this plan without reintroducing workflow-state JSON.
 
 ### Workflow surfaces
 
@@ -539,11 +572,17 @@ Implementation checklist:
 - [ ] Add any missing extension-policy metadata needed by Phase 5 without overdesigning the contract early.
 - [ ] Add any missing discovery or source metadata needed by Phase 3 deduplication and labeling.
 
+Minimum remaining contract outputs for this phase:
+
+- define the smallest extension-policy shape needed for Phase 5
+- define the smallest workspace source or discovery metadata needed for Phase 3 labeling and filtering
+- avoid adding speculative fields for cross-machine sync, deep policy engines, or non-v1 scenarios
+
 ### Repo ergonomics
 
 - [x] Keep `.vscode/settings.json` aligned with the current schema samples.
 - [ ] Perform one final consistency pass so plan, docs, schema samples, and workflow prompts describe the same current operating model.
-- [ ] Land the control-repo alignment changes once the plan wording and contracts are stable.
+- [x] Land the control-repo alignment changes once the plan wording and contracts are stable.
 
 Validation checklist:
 
@@ -551,11 +590,18 @@ Validation checklist:
 - [x] Remaining JSON files are product contracts or examples, not workflow-control state.
 - [x] Workspace customization files validate cleanly after the workflow updates.
 - [ ] `README.md`, `docs/architecture.md`, and this plan use the same terminology for machine-local workspaces, sessions, and same-window switching.
-- [ ] Sample JSON files still validate after any Phase 2 contract edits.
+- [x] Sample JSON files still validate after any Phase 2 contract edits.
 
 Ready to advance when:
 
 - All remaining Phase 2 checkboxes are complete.
+
+Recommended remaining task slices:
+
+1. Align terminology across `README.md`, `docs/architecture.md`, and this plan so `machine-local`, `same-window`, `workspace catalog`, and `session catalog` are used consistently.
+2. Finalize the minimum v1 contract additions for extension policy and workspace-source metadata.
+3. Revalidate the JSON samples and schema wiring after those contract additions.
+4. Do one last workflow-doc pass so prompts, agent roles, and the plan all describe the same phase-execution path.
 
 ## Phase 3 - Machine Discovery Services
 
@@ -841,6 +887,18 @@ Recommended execution order for a coding agent:
 
 This order gives useful visibility early and keeps switching complexity out of the initial service scaffolding.
 
+## Recommended First Runtime Slices
+
+The first runtime implementation slices should stay intentionally small:
+
+1. Shared CatastroSwitch types and read-only service interfaces.
+2. Managed-plus-recent workspace merge logic with deterministic labeling tests.
+3. Initial read-only session catalog with workspace correlation rules.
+4. Activity Bar container and empty-state shell wired to read-only data.
+5. Alt+Tab-style switcher overlay backed by the read-only workspace catalog.
+
+Do not start with same-window switching, extension policy mutation, or snapshot writing until the read-only discovery and shell layers are stable.
+
 ## Release Readiness Checklist
 
 - [ ] The control repo contains a durable plan doc and sample contracts that point back to it through `planPath`.
@@ -863,5 +921,12 @@ When a coding agent runs against this plan, it should follow these constraints:
 - ship read-only discovery before mutation
 - treat same-window reload as acceptable when extension policy demands it
 - keep the control repo as the durable source of contracts and planning artifacts
+
+When deciding whether to update this plan during implementation:
+
+- update checkboxes when work is verified complete
+- update wording when a validated implementation changes the intended seam or scope
+- do not rewrite the plan on every intermediate attempt or partial experiment
+- record blockers explicitly instead of hiding them behind vague unchecked items
 
 The next implementation task should be finishing the remaining Phase 2 items and then starting Phase 3 service scaffolding.
