@@ -30,13 +30,20 @@ $requestedOutputs = @(
     @{ Name = 'app-1024.png'; Size = 1024 }
 )
 
+$smallRequestedOutputs = @(
+    @{ Name = 'app-window-16.png'; Size = 16 },
+    @{ Name = 'app-window-20.png'; Size = 20 },
+    @{ Name = 'app-window-24.png'; Size = 24 },
+    @{ Name = 'app-window-32.png'; Size = 32 }
+)
+
 if (-not $magick) {
     $manifest = [ordered]@{
         generatedAt = (Get-Date).ToString('o')
         source = $LogoSvgPath
         copiedSvg = $copiedSvgPath
         status = 'magick-not-found'
-        requestedOutputs = $requestedOutputs.Name
+        requestedOutputs = $requestedOutputs.Name + $smallRequestedOutputs.Name
     }
 
     $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path -Path $OutputRoot -ChildPath 'branding-manifest.json') -Encoding utf8
@@ -61,6 +68,14 @@ foreach ($output in $requestedOutputs) {
     $pngPaths += $destination
 }
 
+foreach ($output in $smallRequestedOutputs) {
+    $destination = Join-Path -Path $OutputRoot -ChildPath $output.Name
+    & $magick.Source -background none -density 384 $LogoSvgPath -resize "$($output.Size)x$($output.Size)" $destination
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to generate $destination"
+    }
+}
+
 $icoPath = Join-Path -Path $OutputRoot -ChildPath 'app.ico'
 $icoInputs = @(
     (Join-Path -Path $OutputRoot -ChildPath 'app-16.png'),
@@ -71,6 +86,18 @@ $icoInputs = @(
 & $magick.Source @icoInputs $icoPath
 if ($LASTEXITCODE -ne 0) {
     throw "Failed to generate $icoPath"
+}
+
+$windowIcoPath = Join-Path -Path $OutputRoot -ChildPath 'app-window.ico'
+$windowIcoInputs = @(
+    (Join-Path -Path $OutputRoot -ChildPath 'app-window-16.png'),
+    (Join-Path -Path $OutputRoot -ChildPath 'app-window-20.png'),
+    (Join-Path -Path $OutputRoot -ChildPath 'app-window-24.png'),
+    (Join-Path -Path $OutputRoot -ChildPath 'app-window-32.png')
+)
+& $magick.Source @windowIcoInputs $windowIcoPath
+if ($LASTEXITCODE -ne 0) {
+    throw "Failed to generate $windowIcoPath"
 }
 
 $faviconPath = Join-Path -Path $OutputRoot -ChildPath 'favicon.ico'
@@ -127,7 +154,7 @@ $manifest = [ordered]@{
     generatedAt = (Get-Date).ToString('o')
     source = $LogoSvgPath
     copiedSvg = $copiedSvgPath
-    iconFiles = @($requestedOutputs.Name) + @('app.ico', 'favicon.ico')
+    iconFiles = @($requestedOutputs.Name) + @($smallRequestedOutputs.Name) + @('app.ico', 'app-window.ico', 'favicon.ico')
     darwinIcnsGenerated = $generatedIcns
 }
 
