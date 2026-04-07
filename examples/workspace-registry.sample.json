@@ -9,6 +9,11 @@
       "label": "CatastroSwitch control repo",
       "localPath": "C:\\CatastroSwitch",
       "profile": "CatastroSwitch Control",
+      "extensionPolicy": {
+        "davidanson.vscode-markdownlint": "enable",
+        "ms-vscode.powershell": "enable",
+        "github.vscode-pull-request-github": "disable"
+      },
       "capabilities": [
         "control-plane"
       ],

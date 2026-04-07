@@ -24,7 +24,7 @@ All runtime implementation belongs in a separate VS Code fork checkout, cloned f
 
 ### Current implementation status
 
-- `docs/implementation-plan.md` is the authoritative multi-phase roadmap for the machine-local control plane product.
+- `docs/implementation-plan.md` is the authoritative multi-phase roadmap for the machine-local control plane product, including the machine-local workspace catalog, machine-local session catalog, and same-window workspace switching model.
 - `.github/agents/` contains the orchestrator, planner, researcher, coding, reviewer, and gatekeeper workflow agents.
 - `.github/prompts/` contains entry prompts for phase execution, task implementation, and stage gating.
 - `schemas/` contains the repo-owned contracts for workspace registry and agent session snapshots.
@@ -50,7 +50,7 @@ Every CatastroSwitch runtime build replaces the stock VS Code product icons with
 ### Quickstart
 
 1. Run `Bootstrap local VS Code fork` from the VS Code tasks list, or execute `scripts/bootstrap-vscode-fork.ps1` directly.
-2. Run `Generate local maintenance workspace` to rebuild `CatastroSwitch.local.code-workspace` from the registry sample.
+2. Run `Generate local maintenance workspace` to rebuild the generated machine-local maintenance workspace, `CatastroSwitch.local.code-workspace`, from the registry sample.
 3. Open the generated workspace and use the launch configurations to watch or self-host the fork.
 4. Run `Export CatastroSwitch product icons` before wiring the branding hook into the fork build.
 

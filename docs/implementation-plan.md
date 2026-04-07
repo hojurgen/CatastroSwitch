@@ -13,8 +13,8 @@ Phase 1 is complete.
 
 Build a CatastroSwitch control plane inside the VS Code fork that:
 
-1. Lists the workspaces known on the local machine.
-2. Lists the local GitHub Copilot sessions known on the local machine.
+1. Lists the workspaces in the machine-local workspace catalog.
+2. Lists the GitHub Copilot sessions in the machine-local session catalog.
 3. Lets the user switch the current VS Code window to a selected workspace.
 4. Applies the chosen extension policy for that workspace.
 5. Lets the user switch back to the previous workspace.
@@ -26,8 +26,8 @@ This should stay mostly additive. The default strategy is to add new CatastroSwi
 
 ### Required
 
-- Machine-local workspace inventory.
-- Machine-local GitHub Copilot session inventory.
+- Machine-local workspace catalog.
+- Machine-local session catalog.
 - Same-window workspace switching.
 - Switch-back to the prior workspace.
 - Workspace-specific extension policy.
@@ -71,7 +71,7 @@ The primary user-facing entities are:
 
 Open windows are only one implementation detail used to transport or publish state.
 
-### Same Window
+### Same-Window Switching
 
 The control plane should reuse the current window. If the target workspace needs a materially different extension set, restart the extension host by reloading that same window. Do not fall back to opening a second window in normal flow.
 
@@ -107,7 +107,7 @@ This plan starts from that completed state.
 
 ### Workspace Sources
 
-CatastroSwitch should treat the local machine workspace catalog as a merge of:
+CatastroSwitch should treat the machine-local workspace catalog as a merge of:
 
 1. Durable managed workspace entries from the CatastroSwitch registry.
 2. Recently opened workspace history from VS Code application or profile storage.
@@ -118,9 +118,11 @@ The merged catalog should label each workspace with its source:
 - recent
 - managed-and-recent
 
+These source categories are runtime-derived from registry membership plus recent-workspace history after local-path normalization. v1 does not require an additional persisted workspace-source field in the registry contract.
+
 ### Session Sources
 
-CatastroSwitch should treat the local machine session catalog as a merge of:
+CatastroSwitch should treat the machine-local session catalog as a merge of:
 
 - active sessions from the sessions provider stack
 - local snapshot data written by CatastroSwitch monitoring services
@@ -139,7 +141,7 @@ The merged session model should surface:
 Each managed workspace should be able to resolve:
 
 - target local path
-- optional profile template
+- profile template handle
 - extension policy
 - monitoring settings
 - plan reference
@@ -158,6 +160,7 @@ The control repo should own:
 - the GitHub Copilot workflow instructions, custom agents, and prompt entrypoints
 - workspace registry schema and sample
 - agent session snapshot schema and sample
+- the generated machine-local maintenance workspace (`CatastroSwitch.local.code-workspace`)
 - operator and bootstrap docs
 
 ### Runtime Fork Responsibilities
@@ -177,7 +180,7 @@ The runtime fork should own:
 ### Control Repo
 
 - `docs/implementation-plan.md`
-- future schema and sample updates for extension policy and discovery hints
+- future schema and sample updates only if a later phase proves a real contract gap
 
 ### Runtime Fork
 
@@ -326,7 +329,7 @@ Empty state:
 
 #### 2. Workspaces View
 
-Purpose: browse and inspect the local machine workspace catalog, while the primary switch gesture uses the Alt+Tab-style overlay.
+Purpose: browse and inspect the machine-local workspace catalog, while the primary switch gesture uses the Alt+Tab-style overlay.
 
 Grouping:
 
@@ -516,7 +519,7 @@ Each completed task should leave behind all of the following:
 ### Current Phase Status
 
 - Phase 1: complete
-- Phase 2: in progress
+- Phase 2: complete
 - Phases 3 to 7: not started
 
 ## Phase 1 - Branding Foundation
@@ -537,7 +540,7 @@ No further implementation work is planned here beyond normal regression verifica
 
 ## Phase 2 - Repo Plan and Contract Alignment
 
-Status: in progress.
+Status: complete.
 
 Objective:
 
@@ -569,19 +572,19 @@ Implementation checklist:
 - [x] Update `schemas/workspace-registry.schema.json` to use `planPath` instead of workflow-state references.
 - [x] Update `schemas/agent-session-snapshot.schema.json` to use `planPath` instead of workflow-state references.
 - [x] Update the workspace and session sample JSON files so they point back to this plan.
-- [ ] Add any missing extension-policy metadata needed by Phase 5 without overdesigning the contract early.
-- [ ] Add any missing discovery or source metadata needed by Phase 3 deduplication and labeling.
+- [x] Add any missing extension-policy metadata needed by Phase 5 without overdesigning the contract early.
+- [x] Clarify that Phase 3 derives workspace source categories from registry membership plus recent-workspace history after local-path normalization, so v1 requires no additional persisted workspace-source field.
 
-Minimum remaining contract outputs for this phase:
+Discovery and source resolution for this phase:
 
-- define the smallest extension-policy shape needed for Phase 5
-- define the smallest workspace source or discovery metadata needed for Phase 3 labeling and filtering
-- avoid adding speculative fields for cross-machine sync, deep policy engines, or non-v1 scenarios
+- Phase 3 derives workspace source categories from registry membership plus recent-workspace history after local-path normalization.
+- No additional persisted workspace-source field is required for v1.
+- Avoid adding speculative fields for cross-machine sync, deep policy engines, or non-v1 scenarios.
 
 ### Repo ergonomics
 
 - [x] Keep `.vscode/settings.json` aligned with the current schema samples.
-- [ ] Perform one final consistency pass so plan, docs, schema samples, and workflow prompts describe the same current operating model.
+- [x] Perform one final consistency pass so plan, docs, schema samples, and workflow prompts describe the same current operating model.
 - [x] Land the control-repo alignment changes once the plan wording and contracts are stable.
 
 Validation checklist:
@@ -589,7 +592,7 @@ Validation checklist:
 - [x] No agent or prompt depends on mutable workflow-state JSON.
 - [x] Remaining JSON files are product contracts or examples, not workflow-control state.
 - [x] Workspace customization files validate cleanly after the workflow updates.
-- [ ] `README.md`, `docs/architecture.md`, and this plan use the same terminology for machine-local workspaces, sessions, and same-window switching.
+- [x] `README.md`, `docs/architecture.md`, and this plan use the same terminology for the machine-local workspace catalog, machine-local session catalog, same-window workspace switching, and the generated machine-local maintenance workspace.
 - [x] Sample JSON files still validate after any Phase 2 contract edits.
 
 Ready to advance when:
@@ -598,10 +601,7 @@ Ready to advance when:
 
 Recommended remaining task slices:
 
-1. Align terminology across `README.md`, `docs/architecture.md`, and this plan so `machine-local`, `same-window`, `workspace catalog`, and `session catalog` are used consistently.
-2. Finalize the minimum v1 contract additions for extension policy and workspace-source metadata.
-3. Revalidate the JSON samples and schema wiring after those contract additions.
-4. Do one last workflow-doc pass so prompts, agent roles, and the plan all describe the same phase-execution path.
+- None. Phase 2 is complete.
 
 ## Phase 3 - Machine Discovery Services
 
@@ -628,7 +628,7 @@ Implementation checklist:
 - [ ] Load managed workspaces from the CatastroSwitch registry contract.
 - [ ] Load recent workspaces from existing VS Code workspace history services.
 - [ ] Normalize workspace identifiers and local paths before merge.
-- [ ] Deduplicate managed and recent entries into `managed`, `recent`, and `managed-and-recent` categories.
+- [ ] Deduplicate managed and recent entries into `managed`, `recent`, and `managed-and-recent` categories derived from registry membership plus recent-workspace history after local-path normalization.
 - [ ] Preserve enough source metadata for the Workspaces view badges and filters.
 
 ### Session discovery
@@ -878,12 +878,11 @@ Ready to close when:
 
 Recommended execution order for a coding agent:
 
-1. Finish the remaining Phase 2 checkboxes.
-2. Build Phase 3 discovery services and tests.
-3. Build Phase 4 UI shell wired to the Phase 3 catalogs.
-4. Build Phase 5 same-window switching and extension policy.
-5. Build Phase 6 monitoring and aggregation.
-6. Run Phase 7 hardening, smoke tests, and rollout documentation.
+1. Build Phase 3 discovery services and tests.
+2. Build Phase 4 UI shell wired to the Phase 3 catalogs.
+3. Build Phase 5 same-window switching and extension policy.
+4. Build Phase 6 monitoring and aggregation.
+5. Run Phase 7 hardening, smoke tests, and rollout documentation.
 
 This order gives useful visibility early and keeps switching complexity out of the initial service scaffolding.
 
@@ -929,4 +928,4 @@ When deciding whether to update this plan during implementation:
 - do not rewrite the plan on every intermediate attempt or partial experiment
 - record blockers explicitly instead of hiding them behind vague unchecked items
 
-The next implementation task should be finishing the remaining Phase 2 items and then starting Phase 3 service scaffolding.
+The next implementation task should be starting Phase 3 service scaffolding.

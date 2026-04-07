@@ -10,6 +10,10 @@
     "workspaces"
   ],
   "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1
+    },
     "schemaVersion": {
       "type": "integer",
       "const": 1
@@ -31,6 +35,24 @@
     }
   },
   "$defs": {
+    "extensionPolicyAction": {
+      "type": "string",
+      "enum": [
+        "enable",
+        "disable"
+      ]
+    },
+    "extensionPolicy": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]*\\.[a-z0-9][a-z0-9-]*$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/extensionPolicyAction"
+      }
+    },
     "forkTarget": {
       "type": "object",
       "additionalProperties": false,
@@ -134,6 +156,9 @@
         "profile": {
           "type": "string",
           "minLength": 1
+        },
+        "extensionPolicy": {
+          "$ref": "#/$defs/extensionPolicy"
         },
         "capabilities": {
           "type": "array",
