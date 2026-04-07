@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- SHAPE: The Catastrophe Hazard Shield (Warning Sign) -->
+    <!-- Taskbar Optimized: A massive solid yellow triangle is the most recognizable icon shape ever at 16x16 -->
+    <defs>
+        <linearGradient id="alert" x1="0" y1="0" x2="512" y2="512">
+            <stop offset="0%" stop-color="#FFDD00" />
+            <stop offset="100%" stop-color="#FF8C00" />
+        </linearGradient>
+        <filter id="shadow">
+            <feDropShadow dx="0" dy="12" stdDeviation="6" flood-color="#000000" flood-opacity="0.7"/>
+        </filter>
+    </defs>
+
+    <!-- Thick Warning Triangle Outer Shell -->
+    <polygon points="256,40 480,440 32,440" fill="url(#alert)" stroke="#111" stroke-width="36" stroke-linejoin="round" filter="url(#shadow)" />
+    
+    <!-- Inner Hazard Symbol (Intense Cat Face) -->
+    <g transform="translate(0, 40)">
+        <!-- Massive triangular ears framing the top point of the hazard shield -->
+        <polygon points="170,250 170,120 230,210" fill="#111" />
+        <polygon points="342,250 342,120 282,210" fill="#111" />
+        
+        <!-- Forehead framing -->
+        <path d="M 170 250 Q 256 180 342 250" fill="none" stroke="#111" stroke-width="24" stroke-linecap="round" />
+
+        <!-- Piercing glowing white alert eyes -->
+        <circle cx="210" cy="270" r="30" fill="#111" />
+        <circle cx="210" cy="270" r="10" fill="#FFF" />
+        
+        <circle cx="302" cy="270" r="30" fill="#111" />
+        <circle cx="302" cy="270" r="10" fill="#FFF" />
+
+        <!-- Sharp Nose and Angry Whisker Cheeks -->
+        <polygon points="246,310 266,310 256,330" fill="#111" />
+        <path d="M 160 330 L 230 350 M 352 330 L 282 350" fill="none" stroke="#111" stroke-width="24" stroke-linecap="round" />
+    </g>
+</svg>

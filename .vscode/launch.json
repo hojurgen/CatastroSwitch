@@ -1,0 +1,34 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Fork: npm run watch",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"$forkRoot = '${input:forkRoot}'; if (-not (Test-Path $forkRoot)) { throw ('Fork path not found: ' + $forkRoot) }; Set-Location $forkRoot; npm run watch\""
+    },
+    {
+      "name": "Fork: self-host (scripts\\code.bat)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\start-runtime-fork-latest-build.ps1 -ForkRoot '${input:forkRoot}'"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Fork: watch + self-host",
+      "configurations": [
+        "Fork: npm run watch",
+        "Fork: self-host (scripts\\code.bat)"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "forkRoot",
+      "type": "promptString",
+      "description": "Absolute path to the local VS Code fork checkout.",
+      "default": "C:\\src\\vscode-multiagent"
+    }
+  ]
+}

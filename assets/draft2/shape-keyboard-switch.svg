@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="24 14 464 464">
+    <!-- SHAPE: Mechanical Keyboard Keycap (The "Catastro-Switch") -->
+    <defs>
+        <linearGradient id="key-base" x1="0" y1="0" x2="0" y2="512">
+            <stop offset="0%" stop-color="#282C34" />
+            <stop offset="100%" stop-color="#111317" />
+        </linearGradient>
+        <linearGradient id="key-top" x1="0" y1="0" x2="0" y2="512">
+            <stop offset="0%" stop-color="#3E4451" />
+            <stop offset="100%" stop-color="#21252B" />
+        </linearGradient>
+        <linearGradient id="neon-cat" x1="100" y1="100" x2="412" y2="412">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="50%" stop-color="#B100FF" />
+            <stop offset="100%" stop-color="#00C9FF" />
+        </linearGradient>
+        <filter id="glow">
+            <feDropShadow dx="0" dy="0" stdDeviation="15" flood-color="#B100FF" flood-opacity="0.8"/>
+        </filter>
+    </defs>
+
+    <g filter="url(#glow)">
+        <!-- Chaotic glowing cat symbol carved into the key -->
+        <polygon points="120,200 150,90 220,180" fill="none" stroke="url(#neon-cat)" stroke-width="24" stroke-linejoin="round" />
+        <polygon points="392,200 362,90 292,180" fill="none" stroke="url(#neon-cat)" stroke-width="24" stroke-linejoin="round" />
+        
+        <!-- Face/Head outline -->
+        <rect x="120" y="160" width="272" height="230" rx="60" fill="none" stroke="url(#neon-cat)" stroke-width="24" />
+
+        <!-- X_X Eyes representing catastrophe/chaos -->
+        <!-- Left Eye (X) -->
+        <path d="M 170 230 L 220 280 M 220 230 L 170 280" fill="none" stroke="url(#neon-cat)" stroke-width="20" stroke-linecap="round" />
+        <!-- Right Eye (X) -->
+        <path d="M 292 230 L 342 280 M 342 230 L 292 280" fill="none" stroke="url(#neon-cat)" stroke-width="20" stroke-linecap="round" />
+
+        <!-- Yelling mouth -->
+        <ellipse cx="256" cy="330" rx="30" ry="20" fill="none" stroke="url(#neon-cat)" stroke-width="16" />
+
+        <!-- Whiskers representing speed/motion -->
+        <path d="M 120 270 L 40 250 M 120 310 L 40 330" fill="none" stroke="url(#neon-cat)" stroke-width="16" stroke-linecap="round" />
+        <path d="M 392 270 L 472 250 M 392 310 L 472 330" fill="none" stroke="url(#neon-cat)" stroke-width="16" stroke-linecap="round" />
+    </g>
+</svg>

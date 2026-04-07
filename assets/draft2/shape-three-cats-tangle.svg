@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+    <!-- SHAPE: Dynamic Triple-Intersecting Circles (The 3 Cats / Overlapping Workspaces) -->
+    <defs>
+        <linearGradient id="cat-1" x1="0" y1="0" x2="256" y2="256">
+            <stop offset="0%" stop-color="#FF3366" />
+            <stop offset="100%" stop-color="#C50F7D" />
+        </linearGradient>
+        <linearGradient id="cat-2" x1="256" y1="0" x2="512" y2="256">
+            <stop offset="0%" stop-color="#00DEFF" />
+            <stop offset="100%" stop-color="#0A3F9F" />
+        </linearGradient>
+        <linearGradient id="cat-3" x1="128" y1="256" x2="384" y2="512">
+            <stop offset="0%" stop-color="#B100FF" />
+            <stop offset="100%" stop-color="#5C2D91" />
+        </linearGradient>
+        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#000000" flood-opacity="0.6"/>
+        </filter>
+    </defs>
+
+    <!-- The 3 Cats overlapping / popping out of each other -->
+    
+    <!-- Top Left Cat (Intrudes on keyboard) -->
+    <g filter="url(#shadow)">
+        <polygon points="60,180 30,30 140,110" fill="url(#cat-1)" />
+        <polygon points="260,180 290,30 180,110" fill="url(#cat-1)" />
+        <circle cx="160" cy="200" r="130" fill="url(#cat-1)" stroke="#111" stroke-width="8" />
+        <!-- Big derpy eye -->
+        <circle cx="120" cy="180" r="30" fill="#FFF" />
+        <circle cx="130" cy="180" r="10" fill="#111" />
+        <circle cx="200" cy="180" r="30" fill="#FFF" />
+        <circle cx="190" cy="180" r="10" fill="#111" />
+    </g>
+
+    <!-- Top Right Cat (Meowing into camera) -->
+    <g filter="url(#shadow)">
+        <polygon points="252,180 222,30 332,110" fill="url(#cat-2)" />
+        <polygon points="452,180 482,30 372,110" fill="url(#cat-2)" />
+        <circle cx="352" cy="200" r="130" fill="url(#cat-2)" stroke="#111" stroke-width="8" />
+        <!-- Screaming Mouth -->
+        <path d="M 322 220 Q 352 180 382 220 Q 352 280 322 220" fill="#111" />
+        <!-- Angry eyes -->
+        <path d="M 290 160 L 330 180 L 290 190 Z" fill="#FFF" />
+        <path d="M 414 160 L 374 180 L 414 190 Z" fill="#FFF" />
+    </g>
+
+    <!-- Bottom Center Cat (The Catastrophe / Nucleus) -->
+    <g filter="url(#shadow)">
+        <polygon points="156,380 90,260 216,330" fill="url(#cat-3)" />
+        <polygon points="356,380 422,260 296,330" fill="url(#cat-3)" />
+        <circle cx="256" cy="360" r="130" fill="url(#cat-3)" stroke="#111" stroke-width="8" />
+        <!-- Hyper-focused speedrun eyes -->
+        <ellipse cx="200" cy="340" rx="35" ry="15" fill="#FFF" transform="rotate(-15 200 340)" />
+        <circle cx="200" cy="340" r="8" fill="#111" />
+        
+        <ellipse cx="312" cy="340" rx="35" ry="15" fill="#FFF" transform="rotate(15 312 340)" />
+        <circle cx="312" cy="340" r="8" fill="#111" />
+        
+        <!-- Whiskers overlapping the other cats -->
+        <path d="M 156 360 L 20 330" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round" />
+        <path d="M 156 390 L 20 400" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round" />
+        <path d="M 356 360 L 492 330" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round" />
+        <path d="M 356 390 L 492 400" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round" />
+    </g>
+</svg>
