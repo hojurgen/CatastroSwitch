@@ -16,7 +16,7 @@
       "profile": "CatastroSwitch Control",
       "windowId": "window-1",
       "status": "running",
-      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "planPath": "C:\\CatastroSwitch\\docs\\implementation-plan.md",
       "lastHeartbeatAt": "2026-04-07T00:00:00Z",
       "staleAfterSeconds": 60,
       "recentTools": [
@@ -37,7 +37,7 @@
       "profile": "CatastroSwitch Runtime",
       "windowId": "window-2",
       "status": "waiting",
-      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "planPath": "C:\\CatastroSwitch\\docs\\implementation-plan.md",
       "lastHeartbeatAt": "2026-04-07T00:00:10Z",
       "staleAfterSeconds": 30,
       "waitingOn": "npm run watch",

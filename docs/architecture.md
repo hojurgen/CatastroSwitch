@@ -10,18 +10,19 @@ CatastroSwitch is a control repo, not the runtime product checkout.
 
 ## Control-repo assets
 
-- `schemas/` defines the machine-readable contracts for workspace routing, phase execution state, and agent session snapshots.
+- `schemas/` defines the machine-readable contracts for workspace routing and agent session snapshots.
 - `examples/` provides sample payloads that keep those contracts concrete and testable.
 - `scripts/` provides repeatable bootstrap and maintenance entrypoints for fork checkout, branding export, workspace generation, and upstream sync.
 - `assets/logo.svg` is the single source of truth for CatastroSwitch product branding.
 
-## Registry-driven switching
+## Machine-local inventory and switching
 
-The user-facing switching model is registry-driven.
+The user-facing model is machine-local, not window-local.
 
-- Each workspace entry resolves a local path, profile, fork target, and monitoring policy.
-- `CatastroSwitch.local.code-workspace` is only a machine-local maintenance workspace generated from the registry.
-- The runtime UI will eventually open registered workspaces with their assigned VS Code profile instead of mutating the current window.
+- CatastroSwitch should merge the durable workspace registry with VS Code recent-workspace history to build one local machine catalog of workspaces.
+- Each managed workspace entry resolves a local path, extension or profile policy, fork target, monitoring policy, and plan reference.
+- `CatastroSwitch.local.code-workspace` remains only a machine-local maintenance workspace generated from the registry.
+- The runtime UI should switch the current window to the selected workspace and maintain a switch-back path, instead of treating new windows as the primary experience.
 
 ## Branding flow
 
@@ -34,8 +35,8 @@ Branding is part of the build, not a manual post-build tweak.
 
 ## Monitoring flow
 
-Agent monitoring is local-machine first.
+Agent monitoring is local-machine first and GitHub Copilot session focused.
 
-- Each open runtime window writes a heartbeat and session summary to a shared local snapshot directory.
-- The control plane aggregates those snapshots into a machine-local view of active workspaces, waiting states, and errors.
-- Repo-owned phase-state artifacts remain durable references; ephemeral monitoring data stays outside version control.
+- Local VS Code processes publish heartbeat and session summary snapshots to a shared local snapshot directory.
+- The control plane aggregates those snapshots together with live session provider data into a machine-local view of workspaces, sessions, waiting states, stale states, and errors.
+- The implementation plan remains the durable roadmap reference; ephemeral monitoring data stays outside version control.

@@ -12,7 +12,7 @@
       "capabilities": [
         "control-plane"
       ],
-      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "planPath": "C:\\CatastroSwitch\\docs\\implementation-plan.md",
       "forkTarget": {
         "owner": "hojurgen",
         "repo": "CatastroSwitch",
@@ -37,7 +37,7 @@
         "branding",
         "monitoring"
       ],
-      "phaseStatePath": "C:\\CatastroSwitch\\examples\\phase-execution-state.sample.json",
+      "planPath": "C:\\CatastroSwitch\\docs\\implementation-plan.md",
       "forkTarget": {
         "owner": "hojurgen",
         "repo": "vscode",

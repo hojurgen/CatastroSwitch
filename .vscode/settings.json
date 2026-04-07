@@ -9,12 +9,6 @@
     },
     {
       "fileMatch": [
-        "/examples/phase-execution-state.sample.json"
-      ],
-      "url": "./schemas/phase-execution-state.schema.json"
-    },
-    {
-      "fileMatch": [
         "/examples/agent-session-snapshot.sample.json"
       ],
       "url": "./schemas/agent-session-snapshot.schema.json"

@@ -108,7 +108,7 @@
             "stale"
           ]
         },
-        "phaseStatePath": {
+        "planPath": {
           "type": "string"
         },
         "lastHeartbeatAt": {

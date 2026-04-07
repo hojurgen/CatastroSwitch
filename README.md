@@ -13,9 +13,8 @@ All runtime implementation belongs in a separate VS Code fork checkout, cloned f
 ### What this repo is for
 
 - grounded fork docs
-- executable phase plan
+- durable implementation plan
 - workspace registry schema and example data
-- phase execution state schema and sample data
 - local agent session snapshot schema and sample data
 - agent adapter contract
 - fork bootstrap and maintenance scripts
@@ -25,7 +24,10 @@ All runtime implementation belongs in a separate VS Code fork checkout, cloned f
 
 ### Current implementation status
 
-- `schemas/` contains the repo-owned contracts for workspace registry, phase state, and agent session snapshots.
+- `docs/implementation-plan.md` is the authoritative multi-phase roadmap for the machine-local control plane product.
+- `.github/agents/` contains the orchestrator, planner, researcher, coding, reviewer, and gatekeeper workflow agents.
+- `.github/prompts/` contains entry prompts for phase execution, task implementation, and stage gating.
+- `schemas/` contains the repo-owned contracts for workspace registry and agent session snapshots.
 - `examples/` contains concrete sample payloads for those contracts.
 - `scripts/bootstrap-vscode-fork.ps1` clones or repairs the local `hojurgen/vscode` checkout and wires `upstream`.
 - `scripts/generate-local-workspace.ps1` generates the machine-local maintenance workspace from the registry.
@@ -35,7 +37,8 @@ All runtime implementation belongs in a separate VS Code fork checkout, cloned f
 ### Repository layout
 
 - `assets/logo.svg` is the canonical CatastroSwitch branding asset.
-- `docs/` contains the control-repo architecture and the fork bootstrap runbook.
+- `.github/` contains workspace instructions, workflow agents, and entry prompts for GitHub Copilot.
+- `docs/` contains the control-repo architecture, the detailed implementation plan, and the fork bootstrap runbook.
 - `schemas/` contains JSON Schemas for repo-owned contracts.
 - `examples/` contains sample JSON artifacts validated by those schemas.
 - `scripts/` contains PowerShell helpers for fork bootstrap, workspace generation, branding export, and branch maintenance.

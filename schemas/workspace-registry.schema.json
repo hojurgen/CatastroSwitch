@@ -149,7 +149,7 @@
             ]
           }
         },
-        "phaseStatePath": {
+        "planPath": {
           "type": "string",
           "minLength": 1
         },
