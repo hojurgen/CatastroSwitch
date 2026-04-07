@@ -34,11 +34,15 @@ if ($AdditionalArguments) {
 
 Push-Location $ForkRoot
 try {
+    $env:CATASTROSWITCH_CONTROL_REPO = 'C:\CatastroSwitch'
+    $env:CATASTROSWITCH_BRANDING_ROOT = 'C:\CatastroSwitch\out\branding'
     & $launcher @arguments
     if ($LASTEXITCODE -ne 0) {
         throw "Runtime launcher failed with exit code $LASTEXITCODE"
     }
 }
 finally {
+    Remove-Item Env:CATASTROSWITCH_CONTROL_REPO -ErrorAction SilentlyContinue
+    Remove-Item Env:CATASTROSWITCH_BRANDING_ROOT -ErrorAction SilentlyContinue
     Pop-Location
 }
